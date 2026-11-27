@@ -48,6 +48,22 @@ Gõ `dir` (Windows) hoặc `ls` (macOS / Linux): thấy `run.py` và `README.md`
 
 Trong README này lệnh viết là `python …`; máy nhóm cần `python3` hay `py` thì gõ thay.
 
+## Chạy web bằng Docker
+
+Bật Docker Desktop hoặc Docker Engine với Docker Compose 2.24 trở lên. Từ thư mục gốc của repo, chạy:
+
+```sh
+docker compose up --build -d --wait
+```
+
+Mở [LEARNLOOP trên cổng 8080](http://127.0.0.1:8080). Có thể đặt `LEARNLOOP_PORT` trong `.env` để đổi cổng nếu cổng 8080 đang bận.
+
+Container phục vụ API và bản Flutter Web đã build trong `server/static/`. Khi sửa giao diện hoặc muốn đổi chế độ chat, làm theo [hướng dẫn build Flutter Web](app/README.md) rồi chạy lại lệnh trên.
+
+Giao diện mặc định dùng chat mẫu. Để dùng Gemini, build giao diện ở chế độ gọi FastAPI, chép `.env.example` thành `.env` nếu chưa có, điền cấu hình rồi chạy lại lệnh trên. Compose đọc `.env` khi tạo container, file này nằm ngoài image.
+
+Xem log bằng `docker compose logs -f`. Dừng bằng `docker compose down`.
+
 ## Lệnh
 
 | Lệnh | Làm gì |

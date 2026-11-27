@@ -1,0 +1,15 @@
+**
+!requirements.txt
+!codebase/
+!codebase/agent.py
+!codebase/ai.py
+!codebase/tools.py
+!codebase/tracing.py
+!data/
+!data/hanoi_poi.json
+!server/
+!server/main.py
+!server/static/
+!server/static/**
+**/.env
+**/.env.*

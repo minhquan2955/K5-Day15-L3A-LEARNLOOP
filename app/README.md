@@ -1,17 +1,28 @@
-# learnloop
+﻿# Hanoi Travel Planner
 
-A new Flutter project.
+Giao diện Flutter Web ưu tiên màn hình điện thoại. Bố cục và nội dung tham chiếu [UI-SPEC.md](../UI-SPEC.md).
 
-## Getting Started
+## Chạy và kiểm tra
 
-This project is a starting point for a Flutter application.
+Trong thư mục `app/`, dùng Flutter 3.50 với Dart 3.14:
 
-A few resources to get you started if this is your first Flutter project:
+```sh
+flutter pub get
+flutter run -d chrome --no-web-resources-cdn
+flutter analyze
+flutter test
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Chat mặc định dùng lịch trình mẫu. Ảnh đính kèm được xem trong chat, và dữ liệu đã lưu tồn tại trong phiên hiện tại.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Để dùng FastAPI đang chạy local, khởi động Flutter với `--dart-define=API=http://127.0.0.1:8000`. Nếu máy chủ yêu cầu `ACCESS_CODE`, nhập mã qua menu ba chấm trong chat.
+
+## Build cho FastAPI và Docker
+
+```sh
+flutter build web --no-web-resources-cdn
+```
+
+Thêm `--dart-define=API=` để chat gọi `/api/plan` cùng origin khi phục vụ từ FastAPI. Chép nội dung `build/web/` vào `../server/static/` rồi chạy lại `docker compose up --build -d --wait` từ thư mục gốc.
+
+Font Playfair Display và Nunito Sans được đóng gói cục bộ cùng giấy phép OFL trong `assets/fonts/`. Ảnh giao diện được lấy từ bộ nhận diện do nhóm cung cấp trong `../assets/`.

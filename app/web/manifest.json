@@ -1,11 +1,11 @@
 {
-    "name": "learnloop",
-    "short_name": "learnloop",
+    "name": "Hanoi Travel Planner",
+    "short_name": "Hanoi Trip",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FDF6EC",
+    "theme_color": "#FDF6EC",
+    "description": "Plan, explore, and travel in Hanoi with AI.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

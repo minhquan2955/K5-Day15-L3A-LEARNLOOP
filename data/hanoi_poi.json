@@ -1,0 +1,291 @@
+{
+  "_nhan": "synthetic",
+  "_ghi_chu": "Dữ liệu DỰNG cho bản chạy thử. Toạ độ gần đúng vị trí thật. Giờ mở cửa, giá vé, thời lượng tham quan là số dựng, KHÔNG phải giá / giờ chính thức. Xem data/DATA_CARD.md. Nhãn so_thich do nhóm tự gắn.",
+  "phien_ban": "hanoi-poi-v1 · 27/11/2026",
+  "khach_san": {
+    "id": "khach_san",
+    "ten": "Khách sạn (phố cổ, quận Hoàn Kiếm)",
+    "lat": 21.0335,
+    "lon": 105.85
+  },
+  "toc_do_kmh": 20,
+  "he_so_duong": 1.3,
+  "phut_cong_them": 5,
+  "gia_xe_moi_km": 15000,
+  "khach_moi_xe": 4,
+  "diem": [
+    {
+      "id": "lang_bac",
+      "ten": "Lăng Chủ tịch Hồ Chí Minh",
+      "ten_khac": [
+        "lăng bác",
+        "lang bac",
+        "lăng chủ tịch"
+      ],
+      "lat": 21.0368,
+      "lon": 105.8346,
+      "mo": "07:30",
+      "dong": "10:30",
+      "phut_tham_quan": 60,
+      "gia_ve": 0,
+      "so_thich": [
+        "di_tich",
+        "lich_su"
+      ]
+    },
+    {
+      "id": "chua_mot_cot",
+      "ten": "Chùa Một Cột",
+      "ten_khac": [
+        "một cột",
+        "mot cot"
+      ],
+      "lat": 21.0359,
+      "lon": 105.8336,
+      "mo": "07:00",
+      "dong": "18:00",
+      "phut_tham_quan": 20,
+      "gia_ve": 0,
+      "so_thich": [
+        "tam_linh",
+        "di_tich"
+      ]
+    },
+    {
+      "id": "hoang_thanh",
+      "ten": "Hoàng thành Thăng Long",
+      "ten_khac": [
+        "hoàng thành",
+        "hoang thanh",
+        "thăng long"
+      ],
+      "lat": 21.0353,
+      "lon": 105.84,
+      "mo": "08:00",
+      "dong": "17:00",
+      "phut_tham_quan": 90,
+      "gia_ve": 70000,
+      "tre_em_mien_phi_duoi": 6,
+      "so_thich": [
+        "di_tich",
+        "lich_su"
+      ]
+    },
+    {
+      "id": "van_mieu",
+      "ten": "Văn Miếu – Quốc Tử Giám",
+      "ten_khac": [
+        "văn miếu",
+        "van mieu",
+        "quốc tử giám"
+      ],
+      "lat": 21.0287,
+      "lon": 105.8355,
+      "mo": "08:00",
+      "dong": "17:00",
+      "phut_tham_quan": 75,
+      "gia_ve": 70000,
+      "tre_em_mien_phi_duoi": 6,
+      "so_thich": [
+        "di_tich",
+        "van_hoa"
+      ]
+    },
+    {
+      "id": "ho_guom",
+      "ten": "Hồ Gươm – Đền Ngọc Sơn",
+      "ten_khac": [
+        "hồ gươm",
+        "ho guom",
+        "hồ hoàn kiếm",
+        "ngọc sơn"
+      ],
+      "lat": 21.0307,
+      "lon": 105.8524,
+      "mo": "07:00",
+      "dong": "18:00",
+      "phut_tham_quan": 60,
+      "gia_ve": 50000,
+      "tre_em_mien_phi_duoi": 6,
+      "so_thich": [
+        "dao_pho",
+        "van_hoa"
+      ]
+    },
+    {
+      "id": "hoa_lo",
+      "ten": "Nhà tù Hỏa Lò",
+      "ten_khac": [
+        "hỏa lò",
+        "hoả lò",
+        "hoa lo"
+      ],
+      "lat": 21.0253,
+      "lon": 105.8466,
+      "mo": "08:00",
+      "dong": "17:00",
+      "phut_tham_quan": 60,
+      "gia_ve": 50000,
+      "tre_em_mien_phi_duoi": 6,
+      "so_thich": [
+        "lich_su",
+        "bao_tang"
+      ]
+    },
+    {
+      "id": "dong_xuan",
+      "ten": "Chợ Đồng Xuân – phố cổ",
+      "ten_khac": [
+        "đồng xuân",
+        "dong xuan",
+        "phố cổ",
+        "36 phố phường"
+      ],
+      "lat": 21.0383,
+      "lon": 105.8496,
+      "mo": "06:00",
+      "dong": "18:00",
+      "phut_tham_quan": 90,
+      "gia_ve": 0,
+      "so_thich": [
+        "am_thuc",
+        "mua_sam",
+        "pho_co"
+      ]
+    },
+    {
+      "id": "pho_duong_tau",
+      "ten": "Phố đường tàu",
+      "ten_khac": [
+        "đường tàu",
+        "duong tau",
+        "train street"
+      ],
+      "lat": 21.0287,
+      "lon": 105.8443,
+      "mo": "07:00",
+      "dong": "22:00",
+      "phut_tham_quan": 45,
+      "gia_ve": 0,
+      "so_thich": [
+        "chup_anh",
+        "pho_co"
+      ]
+    },
+    {
+      "id": "tran_quoc",
+      "ten": "Chùa Trấn Quốc – Hồ Tây",
+      "ten_khac": [
+        "trấn quốc",
+        "tran quoc",
+        "hồ tây",
+        "ho tay"
+      ],
+      "lat": 21.048,
+      "lon": 105.8368,
+      "mo": "08:00",
+      "dong": "17:00",
+      "phut_tham_quan": 45,
+      "gia_ve": 0,
+      "so_thich": [
+        "tam_linh",
+        "dao_pho"
+      ]
+    },
+    {
+      "id": "bt_dan_toc_hoc",
+      "ten": "Bảo tàng Dân tộc học",
+      "ten_khac": [
+        "dân tộc học",
+        "dan toc hoc"
+      ],
+      "lat": 21.0405,
+      "lon": 105.7987,
+      "mo": "08:30",
+      "dong": "17:30",
+      "phut_tham_quan": 120,
+      "gia_ve": 40000,
+      "tre_em_mien_phi_duoi": 6,
+      "so_thich": [
+        "bao_tang",
+        "van_hoa",
+        "tre_em"
+      ]
+    },
+    {
+      "id": "pho_di_bo",
+      "ten": "Phố đi bộ Hồ Gươm",
+      "ten_khac": [
+        "phố đi bộ",
+        "pho di bo"
+      ],
+      "lat": 21.0288,
+      "lon": 105.8525,
+      "mo": "19:00",
+      "dong": "23:59",
+      "phut_tham_quan": 90,
+      "gia_ve": 0,
+      "so_thich": [
+        "buoi_toi",
+        "am_thuc",
+        "dao_pho"
+      ]
+    },
+    {
+      "id": "nha_hat_lon",
+      "ten": "Nhà hát Lớn Hà Nội",
+      "ten_khac": [
+        "nhà hát lớn",
+        "nha hat lon"
+      ],
+      "lat": 21.0243,
+      "lon": 105.8576,
+      "mo": "09:00",
+      "dong": "17:00",
+      "phut_tham_quan": 45,
+      "gia_ve": 0,
+      "so_thich": [
+        "kien_truc",
+        "chup_anh"
+      ]
+    },
+    {
+      "id": "bat_trang",
+      "ten": "Làng gốm Bát Tràng",
+      "ten_khac": [
+        "bát tràng",
+        "bat trang"
+      ],
+      "lat": 20.9757,
+      "lon": 105.9123,
+      "mo": "08:00",
+      "dong": "17:00",
+      "phut_tham_quan": 150,
+      "gia_ve": 0,
+      "so_thich": [
+        "trai_nghiem",
+        "tre_em",
+        "ngoai_thanh"
+      ]
+    },
+    {
+      "id": "chua_huong",
+      "ten": "Chùa Hương",
+      "ten_khac": [
+        "chùa hương",
+        "chua huong"
+      ],
+      "lat": 20.617,
+      "lon": 105.747,
+      "mo": "06:00",
+      "dong": "17:00",
+      "phut_tham_quan": 300,
+      "gia_ve": 150000,
+      "so_thich": [
+        "tam_linh",
+        "thien_nhien",
+        "ngoai_thanh"
+      ]
+    }
+  ]
+}

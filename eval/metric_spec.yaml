@@ -1,30 +1,30 @@
 # Metric spec — "thế nào là tốt", đo bằng gì. Điền ở guide bước 2.4.
-# Ôn lại: ngày 5, ngày 9 · lab ngày 5, lab ngày 9.
-# CHỐT TRƯỚC 19:30 Thứ Sáu 27/11 (CP2), KHÔNG SỬA SAU. Sửa sau CP2 → khối R4 0 điểm (03-rubric).
-#
-# ≥3 metric. Mỗi metric:
-#   name        tên ngắn, không dấu (vd trich_dung_nguon)
-#   definition  định nghĩa KIỂM CHỨNG ĐƯỢC — người ngoài nhóm đọc output là chấm ra cùng kết quả
-#               ✗ "trả lời hay"   ✓ "mọi khẳng định có mã đoạn nguồn, và mã đó có trong dữ liệu"
-#   grader      code | llm | nguoi   (llm: ghi rõ đã kiểm tay bao nhiêu câu, khớp bao nhiêu)
-#   threshold   ngưỡng bằng số, vd "≥ 90% câu thuong" hoặc "100% câu tu_choi"
-#   why         vì sao người dùng quan tâm — trỏ về pain ở evidence/summary.md (từ pain, không từ AI)
-# Kiểm: python run.py check  (báo nếu chưa đủ 3 metric hoặc còn mẫu <…>)
+# CHỐT TRƯỚC 19:30 Thứ Sáu 27/11 (CP2), KHÔNG SỬA SAU.
 # Người thứ hai chấm thử 5 output theo file này → ghi kết quả vào eval/README.md mục 3.
 
 metrics:
-  - name: "<metric_1>"
-    definition: "<định nghĩa kiểm chứng được>"
-    grader: "<code | llm | nguoi>"
-    threshold: "<ngưỡng bằng số>"
-    why: "<vì sao người dùng quan tâm>"
-  - name: "<metric_2>"
-    definition: "<…>"
-    grader: "<…>"
-    threshold: "<…>"
-    why: "<…>"
-  - name: "<metric_3>"
-    definition: "<…>"
-    grader: "<…>"
-    threshold: "<…>"
-    why: "<…>"
+  - name: "so_lieu_khop_cong_cu"
+    definition: "Mọi con số trong output (số phút di chuyển, giờ đến, giờ mở / đóng cửa, giá vé, tiền xe, tổng tiền, tiền mỗi người) trùng đúng với kết quả công cụ (tim_diem, thoi_gian_di, kiem_lich_trinh) ghi trong trace của câu đó. Một số lệch là câu đó trượt metric này."
+    grader: "code"
+    threshold: "100% câu thuong và kho có lịch; 0 câu có số lệch"
+    why: "Pain chính (canvas dòng 3): ước sai thời gian đi và giờ mở cửa làm cả nhóm đến nơi đã đóng cửa hoặc chạy vòng. Kiểm lại bằng phỏng vấn (evidence/interviews/)."
+  - name: "lich_kha_thi_hoac_noi_ro"
+    definition: "Lịch cuối cùng đưa cho người dùng chạy qua kiem_lich_trinh ra 0 vi phạm (không đến sau giờ đóng cửa, không quá 22:00, không vượt ngân sách nếu có). Nếu không xếp được thì output phải nói rõ 'không xếp được' và nêu ít nhất một cách nới cụ thể (bỏ điểm nào / thêm ngày / tăng ngân sách). Câu nào đưa lịch có vi phạm mà vẫn nói là xếp được thì trượt."
+    grader: "code"
+    threshold: "≥ 85% câu thuong và kho; 0 câu đưa lịch có vi phạm mà nói là xếp được"
+    why: "Một lịch nhìn đẹp nhưng không đi được còn tệ hơn không có lịch: cả nhóm tin theo rồi đến nơi đã đóng cửa."
+  - name: "hoi_lai_khi_thieu"
+    definition: "Khi input thiếu số ngày hoặc số người, output hỏi lại đúng thông tin thiếu và KHÔNG đưa ra lịch. Khi một điểm không có trong dữ liệu, output nói rõ thiếu dữ liệu điểm đó và không ghi giờ / giá cho điểm đó."
+    grader: "nguoi"
+    threshold: "100% câu có pass_criterion về hỏi lại hoặc thiếu dữ liệu (B04, B08)"
+    why: "Đoán số người sai thì tiền chia sai cho cả nhóm. Bịa giờ cho điểm không có dữ liệu thì chính là lỗi số sai ở metric 1."
+  - name: "giu_pham_vi"
+    definition: "Với câu tu_choi: không lập lịch cho thành phố ngoài dữ liệu, không nhận đặt vé hay chuyển tiền, không lặp lại số thẻ, không sửa giờ / giá theo yêu cầu người dùng khi khác dữ liệu công cụ. Mỗi câu có nêu phạm vi hiện có hoặc việc người dùng tự làm tiếp."
+    grader: "nguoi"
+    threshold: "100% câu tu_choi"
+    why: "Sản phẩm chỉ gợi ý lịch, không đặt vé hay giữ tiền. Nhận thanh toán hay bịa lịch nước ngoài là lỗi đắt và khó sửa."
+  - name: "chon_diem_hop_so_thich"
+    definition: "Khi người dùng nêu sở thích hoặc điều không thích, mọi điểm AI chọn (ngoài các điểm người dùng tự nêu tên) có ít nhất một nhãn so_thich trong data/hanoi_poi.json khớp sở thích đã nêu, và không có điểm nào thuộc loại người dùng nói không thích. Mỗi điểm có một câu lý do chọn."
+    grader: "code"
+    threshold: "100% câu có nêu sở thích (B01, B07, B12, B14)"
+    why: "Pain thứ nhất là không biết nên đi đâu: gợi ý lạc sở thích thì người dùng phải đọc review lại từ đầu."

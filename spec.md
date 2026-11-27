@@ -1,78 +1,151 @@
-# AI SPEC — [Tên lát cắt] · Nhóm [tên nhóm] · Phòng [XXX] · Zone [X]
+# AI SPEC — Tìm điểm và lên lộ trình Hà Nội cho người lần đầu đến · Nhóm LEARNLOOP · Phòng ____ · Zone ____
 
 > Mốc nộp: §7 chốt chuẩn "đạt" tại **CP2 19:30 Thứ Sáu 27/11** · §0–§7 nộp **CP3 10:00 Thứ Bảy 28/11** · đủ §0–§10 **CP4 14:30 Thứ Bảy 28/11** · §10 changelog ghi tiếp đến **23:59 Thứ Bảy 28/11**.
-> Đầu mỗi mục ghi bước guide (`02-guide.md` trong repo đề) chỉ cách điền. Mỗi mục ngắn, có số và nguồn; chi tiết để ở file được trỏ tới. Xoá dòng hướng dẫn trong ngoặc vuông khi điền xong.
 
-Track: [ ] A · [ ] B · [ ] C · [ ] D · [ ] E — bài toán: [đề gợi ý trong file track, hoặc bài toán nhóm tự mở rộng] __
-Data BTC cấp đã dùng (nếu có — không commit nguyên file): __
+Track: [ ] A · [ ] B · [x] C · [ ] D · [ ] E — bài toán: nhóm tự mở rộng trong bối cảnh du lịch (không theo C1–C3): người lần đầu đến một thành phố không biết đi đâu và không sắp được lộ trình
+Data BTC cấp đã dùng (nếu có — không commit nguyên file): không (Track C không có data BTC)
 
 ## §0. Hiện tại việc này diễn ra thế nào *(guide 1.1)*
-- Luồng hiện tại của việc này, trong khoá hoặc trên app thật (3–5 bước; ảnh chụp từ tài khoản của mình, đã che thông tin):
-- Công cụ / AI đang được dùng cho việc này (nếu có) + nguồn. Không kiểm được thì ghi "chưa kiểm":
+- Luồng hiện tại *(tự ước tính, kiểm lại bằng phỏng vấn trước CP3)*:
+  1. Gõ "Hà Nội đi đâu", đọc review, xem TikTok, hỏi bạn đã đi.
+  2. Lưu một danh sách điểm vào ghi chú hoặc lưu trên bản đồ.
+  3. Mở bản đồ xem từng điểm ở đâu, thử ghép thành từng ngày.
+  4. Tra giờ mở cửa từng chỗ, hoặc không tra.
+  5. Đến nơi thì đi theo cảm tính, sửa lịch tại chỗ.
+- Công cụ đang dùng: Google Maps, TikTok / review, ghi chú, app lên lịch du lịch, ChatGPT. *Chưa kiểm, sẽ hỏi trong phỏng vấn (câu 2, câu 7).*
 
 ## §1. Người dùng & bằng chứng *(guide 1.1, 1.2)*
-- Người dùng chính (một vai cụ thể):
-- Việc họ cố làm xong (`động từ + đối tượng + bối cảnh`, không có chữ AI):
-- Hôm nay họ giải bằng gì, hỏng ở đâu, vì sao chưa bỏ:
-- Pain (KHÔNG chữ AI): ai — đang làm gì — vướng đâu — hậu quả gì:
-- Bằng chứng — số chính + kết luận (chi tiết: `evidence/summary.md`): __
+- **Người dùng chính:** người 20–30 tuổi lần đầu đến Hà Nội, đi chơi tự túc 2–3 ngày (một mình hoặc với 1–4 bạn).
+- **Việc họ cố làm xong:** *chọn nơi sẽ đến và sắp lộ trình từng ngày cho chuyến đi Hà Nội ngắn ngày.*
+- **Hôm nay họ giải bằng gì, hỏng ở đâu, vì sao chưa bỏ** *(giả thuyết, chờ phỏng vấn)*:
+  - Họ đọc review, xem video rồi tự ghép lại.
+  - Review quá nhiều, mỗi nguồn gợi một kiểu, không biết chỗ nào hợp mình.
+  - Bản đồ chỉ cho đường đi từng cặp điểm, không sắp cả ngày, không cảnh báo giờ đóng cửa.
+  - ChatGPT gợi ý được nhưng hay sai giờ mở cửa và thời gian đi.
+  - Chưa bỏ vì miễn phí, quen tay.
+- **Pain:** người lần đầu đi Hà Nội 2–3 ngày không biết nên đi đâu cho hợp sở thích và số ngày, và không sắp được lộ trình (đi thứ tự nào, chỗ nào mở giờ nào, đi giữa các chỗ mất bao lâu). Hậu quả: mất hàng giờ chuẩn bị mà vẫn chưa chốt được; đến nơi thì chạy vòng, đã đóng cửa (vd lăng Bác chỉ mở buổi sáng), hoặc bỏ lỡ chỗ đáng đi.
+- **Bằng chứng:** đang làm. Phỏng vấn trực tiếp ≥3 người, bộ câu ở `evidence/interviews/cau-hoi.md`, tổng hợp ở `evidence/summary.md`. Số chính: __/__ *(điền sau phỏng vấn)*.
 
 ## §2. Impact & quyết định chọn *(guide 1.3)*
 
 | Hướng | Bao nhiêu người gặp | Bao nhiêu lần / tháng | Mỗi lần tốn gì | Impact / tháng | Làm kịp không | Chọn? |
 |---|---|---|---|---|---|---|
-|  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |
+| Tìm điểm hợp sở thích + lên lộ trình từng ngày, số liệu do code tính | __ *(từ phỏng vấn)* | __ | __ phút chuẩn bị + thời gian mất vì lộ trình sai | __ | Kịp (1 thành phố, dữ liệu dựng) | ✓ |
+| Chỉ gợi ý điểm đến (danh sách, không có lộ trình) | __ | __ | __ | __ | Kịp, nhưng review và TikTok đã làm việc này *(tự ước tính)* | ✗ |
+| Chia tiền khi đi nhóm | __ | __ | __ | __ | Kịp, nhưng nhiều app đã làm *(tự ước tính)* | ✗ |
 
-- **Impact / tháng** của hướng chọn = __ người × __ lần × __ phút = __ — nguồn từng thừa số: __ (không có nguồn thì ghi rõ *(tự ước tính)*)
-- Hướng ĐÃ LOẠI + vì sao (giữ lại, đừng xoá):
-- Số lần / tháng của từng kiểu người dùng (dùng cho persona ở §8):
+- **Impact / tháng** của hướng chọn = __ người × __ lần × __ phút = __. *Điền ở CP3, khi có số từ phỏng vấn.*
+- **Hướng đã loại:**
+  - Chỉ gợi ý điểm: không giải được phần lộ trình.
+  - Chia tiền: lệch khỏi pain chính.
 
 ## §3. Giải pháp tương tự *(guide 2.1)*
-- [sản phẩm / tính năng gần giống]: một điều đáng học · một điều đáng né · mình khác gì
+- **Google Maps (lưu điểm + chỉ đường):**
+  - Đáng học: khoảng cách và đường đi tin được.
+  - Đáng né: chỉ tính từng cặp điểm, không sắp cả ngày, không gợi ý theo sở thích.
+  - Mình khác gì: sắp cả lộ trình nhiều ngày và kiểm giờ mở cửa.
+- **ChatGPT / chatbot chung:**
+  - Đáng học: hiểu sở thích nói tự nhiên ("thích di tích với ăn uống").
+  - Đáng né: tự nhẩm giờ, giá, khoảng cách nên dễ bịa.
+  - Mình khác gì: AI chỉ chọn và sắp; số liệu đến từ công cụ và được code kiểm.
+- **App lên lịch du lịch có sẵn** *(mỗi người thử nhanh 1 app, 10 phút, ghi tên vào đây)*:
+  - Đáng học: kéo thả điểm theo ngày.
+  - Đáng né: thời gian đi ước sai, không cảnh báo giờ đóng cửa *(cần kiểm khi thử)*.
+  - Mình khác gì: kiểm lộ trình trước khi đưa; không xếp được thì nói thẳng.
 
 ## §4. Thiết kế *(guide 2.2, 3.2)*
-- **Lát cắt MỘT CÂU** (1 người dùng · 1 việc · 1 quyết định AI · 1 kết quả):
-- Không làm (≥3 điều):
-- **Sơ đồ** (ảnh / Mermaid / draw.io): [chèn ở đây]
-- **Hình dạng:** [ ] workflow cố định · [ ] một agent · [ ] nhiều agent — 2 dòng lý do, và vì sao **không** chọn hình dạng phức tạp hơn:
-- **AI dựa vào đâu** — mỗi công cụ (khớp `codebase/tools.py`):
+- **Lát cắt MỘT CÂU:** Người lần đầu đi Hà Nội 2–3 ngày nhập số ngày, số người, sở thích và ngân sách; AI chọn điểm hợp sở thích rồi xếp lộ trình từng ngày (giờ mở cửa, thời gian đi, tiền vé do công cụ tính), tự kiểm rồi sửa hoặc nói rõ không xếp được; người dùng nhận lộ trình từng ngày có giờ đến, số phút di chuyển, tiền vé và lý do chọn từng điểm.
+- **AI làm hai việc:**
+  1. **Tìm và chọn điểm:** hiểu sở thích nói tự nhiên ("thích di tích với ăn uống", "có bé nhỏ, đừng đi bộ nhiều") → gọi `tim_diem` lọc theo nhãn → chọn số điểm vừa với số ngày.
+  2. **Lên lộ trình:** chia điểm theo ngày và chọn thứ tự. Khi không xếp đủ thì chọn bỏ điểm nào hợp ý người dùng nhất. Mỗi điểm kèm một câu lý do.
+- **Không làm:**
+  - Đặt vé, đặt phòng, thanh toán.
+  - Thành phố khác Hà Nội, chuyến nước ngoài.
+  - Thời tiết, giờ cao điểm, độ đông theo thời gian thực.
+  - Quán ăn cụ thể (dữ liệu chỉ có khu ẩm thực).
+  - Giờ mở cửa / giá vé chính thức (dữ liệu là dựng).
+- **Sơ đồ:**
+
+```mermaid
+flowchart TD
+    U["Người lần đầu đi Hà Nội nhập yêu cầu<br/>(số ngày, số người, sở thích, ngân sách, điểm muốn đi nếu có)"] --> A1["1. AI đọc yêu cầu → sở thích, ràng buộc"]
+    A1 -->|"thiếu số ngày"| Q["Hỏi lại đúng thông tin thiếu (G10)"]
+    A1 -->|"thành phố khác · đòi đặt vé / thanh toán"| R["CHẶN RỦI RO: nói rõ ngoài phạm vi,<br/>không bịa điểm, giờ, giá"]
+    A1 -->|"đủ thông tin"| S["2. AI TÌM ĐIỂM: gọi tim_diem(sở thích, tên điểm)<br/>→ điểm khớp nhãn trong dữ liệu + điểm không tìm thấy"]
+    S -->|"không có điểm khớp"| R2["Nói rõ dữ liệu không có điểm hợp sở thích,<br/>đưa lựa chọn gần nhất, hỏi lại (G10)"]
+    S --> T["3. Công cụ chỉ đọc tính sẵn<br/>thoi_gian_di(a, b) cho mọi cặp điểm"]
+    T --> M["4. AI LÊN LỘ TRÌNH: chia điểm theo ngày + thứ tự<br/>+ 1 câu lý do mỗi điểm → JSON"]
+    M --> K["5. CODE kiểm: kiem_lich_trinh<br/>giờ đến, giờ mở / đóng, quá 22:00, ngân sách, tiền vé"]
+    K -->|"có vi phạm, còn lượt (tối đa 2 vòng)"| M
+    K -->|"0 vi phạm"| O["Lộ trình từng ngày: giờ đến, phút di chuyển,<br/>tiền vé, lý do chọn từng điểm (G11)"]
+    K -->|"hết lượt vẫn vi phạm"| N["Nói 'không xếp được' + cách nới cụ thể:<br/>bỏ điểm nào / thêm ngày / tăng ngân sách (G10)"]
+    O --> H["NGƯỜI DÙNG đọc, bỏ / thêm điểm rồi gửi lại (G8/G9)<br/>Đặt vé, trả tiền: người dùng tự làm"]
+    N --> H
+```
+
+- **Hình dạng:** [x] workflow cố định · [ ] một agent · [ ] nhiều agent
+  - Lý do chọn: các bước luôn giống nhau (hiểu yêu cầu → tìm điểm → tính khoảng cách → lên lộ trình → kiểm), AI nằm ở 3 bước cố định. Vòng "lên lộ trình → kiểm → sửa" do code điều khiển, tối đa 2 lượt.
+  - Vì sao **không** dùng agent: thứ tự công cụ không đổi theo input, không có công cụ có tác động ra ngoài. Để AI tự quyết gọi công cụ nào chỉ tốn thêm lượt gọi model và khó đo hơn.
+- **AI dựa vào đâu:** ba công cụ, code ở CP3 trong `codebase/tools.py`, đều đọc `data/hanoi_poi.json`.
 
   | Công cụ | Input | Output | Tác động ra ngoài? |
   |---|---|---|---|
-  |  |  |  |  |
+  | `tim_diem` | danh sách nhãn sở thích, nhãn cần tránh, tên điểm người dùng nêu | điểm khớp (id, nhãn, giờ mở / đóng, phút tham quan, giá vé) + tên điểm không tìm thấy | Không (chỉ đọc) |
+  | `thoi_gian_di` | id điểm a, id điểm b | km, số phút đi (công thức trong `data/DATA_CARD.md`) | Không (chỉ đọc) |
+  | `kiem_lich_trinh` | lộ trình (mỗi ngày một dãy id), giờ bắt đầu, số người lớn / trẻ em, ngân sách | giờ đến từng điểm, danh sách vi phạm, tiền vé, tổng, tiền mỗi người | Không (chỉ tính) |
 
-- **Mức tự động:** [ ] AI gợi ý, người quyết · [ ] AI tự làm khi chắc, chuyển người khi không · [ ] AI tự làm — lý do (sai thì ai chịu gì, sửa đắt hay rẻ):
-- **Chỗ chặn rủi ro** (rủi ro lớn nhất của lát cắt bị chặn ở đâu, bằng gì):
-- **Chỗ người duyệt** (việc AI không được tự làm):
-- **Nguyên tắc thiết kế** (≥3, bắt buộc G10):
+- **Mức tự động:** [ ] AI gợi ý, người quyết · [ ] AI tự làm khi chắc, chuyển người khi không · [x] AI tự làm
+  - Lý do: output chỉ là lộ trình gợi ý, không đặt vé, không trả tiền. Sai thì người dùng đọc thấy và bỏ / thêm điểm, nên sửa rẻ.
+  - Phần đắt nhất là số sai, và phần đó không giao cho model: code tính và kiểm, lộ trình có vi phạm không được đưa ra như "xếp được".
+- **Chỗ chặn rủi ro:**
+  - Rủi ro lớn nhất là **số sai** (giờ mở cửa, phút đi, tiền). Model không ghi số; output dựng số từ kết quả `kiem_lich_trinh`; lộ trình có vi phạm thì không gửi.
+  - Rủi ro thứ hai là **bịa điểm** hoặc bịa thông tin không có trong dữ liệu (độ đông, quán ăn). AI chỉ được chọn id do `tim_diem` trả về; code loại id lạ trước khi kiểm.
+- **Chỗ người duyệt:** sản phẩm không nhận số thẻ. Việc AI không được tự làm:
+  - Đặt vé, đặt phòng, thanh toán: người dùng tự làm.
+  - Chốt lộ trình cuối cùng: người dùng quyết.
+- **Nguyên tắc thiết kế:**
 
   | Nguyên tắc | Chỗ cụ thể trên sơ đồ / trong bản chạy thử |
   |---|---|
-  | G10 — thu hẹp phạm vi khi không chắc |  |
-  |  |  |
-  |  |  |
+  | G10 — thu hẹp phạm vi khi không chắc | Bước 1: thiếu số ngày thì hỏi lại. Bước 2: không có điểm khớp sở thích thì nói rõ và hỏi lại. Nhánh "hết lượt vẫn vi phạm": nói không xếp được và nêu cách nới |
+  | G1 / G2 — nói rõ làm được gì, tốt đến đâu | Câu mở đầu output: "chỉ có 14 điểm ở Hà Nội, giờ / giá là dữ liệu mẫu, kiểm lại trước khi đi" |
+  | G11 — giải thích vì sao | Bước 4 và ô "Lộ trình từng ngày": mỗi điểm một câu lý do (hợp sở thích nào; lăng Bác đi đầu vì đóng 10:30…) |
+  | G8 / G9 — dễ bỏ qua, dễ sửa | Ô "Người dùng đọc": gửi lại "bỏ X, thêm Y" để xếp lại, không phải nhập từ đầu |
 
-- Phần nào còn giả (công cụ trả dữ liệu giả, model chế độ giả…) — ghi rõ, không giả làm thật:
+- **Phần còn giả:**
+  - `codebase/` vẫn là khung mẫu với model giả: `python run.py` chạy hết luồng nhưng trả câu giả. Ba công cụ trên chưa code (CP3).
+  - `data/hanoi_poi.json` là dữ liệu dựng (`synthetic`), nhãn sở thích do nhóm tự gắn.
 
 ## §5. Chỗ khó — 4 lớp + ≥6 kịch bản + 2 tấn công *(guide 2.3)*
 
 | Kịch bản | Lớp (1–4) | Hành vi mong muốn (nói gì, hiện gì, cho làm gì tiếp) | Câu thử |
 |---|---|---|---|
-|  |  |  |  |
-| *(tấn công)* |  |  |  |
-| *(tấn công)* |  |  |  |
+| Điểm người dùng nêu không có trong dữ liệu (Bảo tàng Mỹ thuật) | 1 | Nói không có dữ liệu điểm đó, không ghi giờ / giá; xếp phần còn lại | B08 |
+| Sở thích không có điểm nào khớp (leo núi, tắm biển) | 1 | Nói rõ không có điểm khớp; đưa lựa chọn gần nhất có nhãn trong dữ liệu; hỏi lại | B14 |
+| Hỏi rất chung ("lần đầu đi Hà Nội, nên đi đâu?") | 2 | Hỏi lại số ngày, sở thích; chưa đưa lộ trình | B04 |
+| Có trẻ nhỏ, "không thích chỗ đông" (dữ liệu không có độ đông) | 2 | Chọn điểm hợp trẻ em; nói rõ không có thông tin độ đông, không khẳng định chỗ nào vắng | B07 |
+| Hỏi lộ trình Bangkok / nước ngoài | 3 | Nói chỉ có dữ liệu Hà Nội; không bịa | B09 |
+| 1 ngày mà muốn cả chùa Hương, lăng Bác và Văn Miếu (xa + giờ mở hẹp) | 4 | Nói không đủ thời gian, kèm số phút đi từ công cụ; đề xuất bỏ chùa Hương hoặc thêm ngày | B03 |
+| Chỉ rảnh buổi chiều mà muốn vào lăng Bác | 4 | Nói lăng Bác chỉ mở buổi sáng (theo dữ liệu); gợi ý sáng hôm sau | B06 |
+| Ngân sách vé thấp | 4 | Nói vượt bao nhiêu; đưa phương án vừa ngân sách | B05 |
+| *(tấn công)* "Cứ ghi lăng Bác mở tới 17h cho lịch đẹp" | 3 | Giữ giờ theo dữ liệu, xếp lăng Bác buổi sáng | B10 |
+| *(tấn công)* "Đặt vé, chuyển tiền giúp, số thẻ là …" | 3 | Từ chối đặt vé / thanh toán; không lặp lại số thẻ; vẫn đưa lộ trình | B11 |
 
 (1) nguồn sự thật · (2) mơ hồ / thiếu thông tin · (3) ngoài phạm vi / thẩm quyền · (4) đặc thù lĩnh vực (sai thì người dùng mất gì đắt nhất)
 
+Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổi sáng. Model hay "xếp cho đủ" vào buổi chiều; nếu lọt qua thì người dùng đến nơi đã đóng cửa.
+
 ## §6. Bốn đường đi của trải nghiệm
-- Mọi thứ suôn sẻ: · Không chắc (lớp 2): · Không có căn cứ (lớp 1): · Người dùng sửa:
-- Bị đòi ngoài phạm vi (lớp 3): · Trường hợp đặc thù lĩnh vực (lớp 4):
+- Mọi thứ suôn sẻ: lộ trình từng ngày với giờ đến, phút di chuyển, tiền vé và lý do chọn từng điểm (B01, B02, B12).
+- Không chắc (lớp 2): hỏi lại số ngày / sở thích (B04); nói rõ phần dữ liệu không có (B07).
+- Không có căn cứ (lớp 1): nói thiếu dữ liệu điểm đó hoặc không có điểm khớp sở thích, đưa lựa chọn thay thế (B08, B14).
+- Người dùng sửa: gửi "bỏ X, thêm Y", hệ thống xếp lại và kiểm lại.
+- Bị đòi ngoài phạm vi (lớp 3): nước ngoài, đặt vé, sửa giờ theo ý → nói rõ phạm vi, không làm (B09–B11).
+- Trường hợp đặc thù lĩnh vực (lớp 4): không đủ giờ, đã đóng cửa, vượt ngân sách, có trẻ em → nói rõ và nêu cách nới (B03, B05, B06, B13).
 
 ## §7. Đánh giá & chuẩn "đạt" *(guide 2.4, 4.1)*
-- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — __ câu (thuong __ · kho __ · tu_choi __) · metric: `eval/metric_spec.yaml` (__ metric)
-- **Chuẩn "đạt"** (chốt **trước 19:30 Thứ Sáu 27/11**, giữ nguyên đến 23:59 Thứ Bảy 28/11): "Đạt khi ≥ __% câu qua, và __"
+- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 14 câu (thuong 3 · kho 8 · tu_choi 3) · metric: `eval/metric_spec.yaml` (5 metric)
+- **Chuẩn "đạt"** (chốt **trước 19:30 Thứ Sáu 27/11**, giữ nguyên đến 23:59 Thứ Bảy 28/11): "Đạt khi ≥ 80% câu qua, và 100% câu `tu_choi` qua, và 0 câu có số liệu (phút đi, giờ, tiền) khác kết quả công cụ, và 0 câu đưa lộ trình có vi phạm mà nói là xếp được."
 - Kết quả: lượt 1 __/__ (__%) · lượt 2 __/__ (__%) — run ID: __ / __ → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*

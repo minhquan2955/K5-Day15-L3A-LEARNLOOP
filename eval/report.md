@@ -12,6 +12,8 @@
 | 2 | `run-2@20261128-022833` | 22/24 | 92% | 5/6 (83%) | 13/14 (93%) | 4/4 (100%) | đạt |
 | 3 | `run-3@20261128-052811` | lỗi kỹ thuật 5/24 (429, timeout) — không chấm | | | | | |
 | 4 | `run-4@20261128-053502` | 21/24 | 88% | 5/6 (83%) | 12/14 (86%) | 4/4 (100%) | đạt |
+| 5 | `run-5@20261128-055313` | lỗi kỹ thuật 1/24 (B07 timeout) — không chấm | | | | | |
+| 6 | `run-6@20261128-060034` | 23/24 | 96% | 6/6 (100%) | 13/14 (93%) | 4/4 (100%) | đạt |
 
 Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-1.jsonl`, `traces/run-2.jsonl`.
 
@@ -51,7 +53,14 @@ Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-
 - Lượt 4: `21/24 (88%)`, vẫn đạt chuẩn §7. So với lượt 2 (`22/24`): `B05` **tệ đi** (`1 → 0`) — báo đúng vượt `20.000đ/người` nhưng không đưa phương án vừa ngân sách; `B15, B22` vẫn trượt vì lỗi khớp tên trong `tim_diem`. Các câu còn lại giữ nguyên đạt.
 - Chấm lượt 4: Claude (coding agent) chấm theo `pass_criterion` + `metric_spec.yaml`, ghi lý do câu trượt trong `ghi_chu`; **cần người trong nhóm duyệt lại** (xem `docs/ai-usage.md`).
 
+### Lượt 5 → 6 (sửa `tim_diem` + chế độ "đi lại ít nhất")
+
+- Nhắm vào nhóm lỗi còn lại sau lượt 4: `tim_diem` khớp nhầm tên lồng nhau ("Phố đi bộ Hồ Gươm" → Hồ Gươm, `B15, B22`). Sửa: chọn điểm khớp tên nhất (trùng khít > tên dài nhất nằm trong chữ người dùng > tên ngắn nhất chứa chữ người dùng). Cùng lượt có chế độ "đi lại ít nhất" (bật khi người dùng nói "đỡ đi lòng vòng" hoặc nêu chỗ ở) — cùng model `gemini-3.1-flash-lite` với lượt 4 nên **so được với lượt 4**.
+- Lượt 5 lỗi kỹ thuật 1/24 (B07 timeout) → thêm thử lại trong `ai.py` (429 / 5xx / timeout, không đổi hành vi lõi), chạy lại thành lượt 6.
+- Kết quả: nhóm lỗi `tim_diem` `0/2 → 2/2` (`B15, B22` đạt); tổng **`21/24 (88%) → 23/24 (96%)`**, `thuong` `5/6 → 6/6`. `B15` bật chế độ đi lại ít nhất, vẫn đủ 6 điểm và 0 vi phạm.
+- Câu **tệ đi**: không. Còn trượt `B05` như lượt 4 (không đưa phương án vừa ngân sách; lý do Văn Miếu còn viết sai "nằm trong ngân sách sau khi đã điều chỉnh").
+
 ## 4. Còn lại
 
-- Lỗi chưa sửa + nguy hiểm thế nào: bug khớp chuỗi con tên điểm lồng nhau trong `tim_diem` (`B15, B22`, mức độ vừa — người dùng đọc thấy ngay điểm bị đổi tên và có thể sửa lại, không có số liệu bịa); ở `B21`, lưu ý báo chung thiếu dữ liệu quán ăn cụ thể thay vì lặp lại tên riêng hai quán.
+- Lỗi chưa sửa + nguy hiểm thế nào: *(cập nhật sau lượt 6)* `B05` — vượt ngân sách mà không đưa phương án vừa ngân sách, và lý do model viết có thể nói sai "trong ngân sách" (mức độ vừa: số tiền do code tính vẫn đúng và có dòng "KHÔNG XẾP ĐƯỢC … vượt 20000đ", nhưng câu chữ gây hiểu nhầm; hướng sửa: code tự bỏ điểm có vé đắt nhất đến khi vừa ngân sách, lọc lý do nhắc "ngân sách"). Lỗi `tim_diem` (`B15, B22`) đã sửa ở lượt 6. *(Ghi chú lượt 2:)* bug khớp chuỗi con tên điểm lồng nhau trong `tim_diem` (`B15, B22`, mức độ vừa — người dùng đọc thấy ngay điểm bị đổi tên và có thể sửa lại, không có số liệu bịa); ở `B21`, lưu ý báo chung thiếu dữ liệu quán ăn cụ thể thay vì lặp lại tên riêng hai quán.
 - Nếu có thêm 1 tuần: sửa `tim_diem` ưu tiên khớp chính xác hoặc chuỗi dài nhất để dứt điểm `B15, B22`; mở rộng dữ liệu điểm Hà Nội và lịch nghỉ theo thứ; đo độ ổn định nhiều lượt (`pass^k`) và nối lưu lịch trình vào PostgreSQL (`db/`).

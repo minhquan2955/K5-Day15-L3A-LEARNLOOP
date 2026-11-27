@@ -67,7 +67,10 @@ void main() {
     expect(url.queryParameters['api'], '1');
     expect(url.queryParameters.containsKey('origin'), isFalse);
     expect(url.queryParameters['destination'], 'Văn Miếu, Hà Nội');
-    expect(url.queryParameters['waypoints'], 'Lăng Chủ tịch Hồ Chí Minh, Hà Nội');
+    expect(
+      url.queryParameters['waypoints'],
+      'Lăng Chủ tịch Hồ Chí Minh, Hà Nội',
+    );
     expect(url.queryParameters['travelmode'], 'driving');
     expect(mapsPlace('Hồ Gươm – Đền Ngọc Sơn'), 'Hồ Gươm, Hà Nội');
   });
@@ -84,8 +87,14 @@ void main() {
     final stops = itinerary.days.single.details;
     expect(itinerary.detailed, isTrue);
     expect(itinerary.perPersonVnd, 70000);
-    expect(stops[1].facts, 'đi 9 phút · tham quan 75 phút · vé 140.000đ · mở 08:00–17:00');
-    expect(Uri.parse(stops[0].mapsUrl!).queryParameters.containsKey('origin'), isFalse);
+    expect(
+      stops[1].facts,
+      'đi 9 phút · tham quan 75 phút · vé 140.000đ · mở 08:00–17:00',
+    );
+    expect(
+      Uri.parse(stops[0].mapsUrl!).queryParameters.containsKey('origin'),
+      isFalse,
+    );
     expect(
       Uri.parse(stops[1].mapsUrl!).queryParameters['origin'],
       'Lăng Chủ tịch Hồ Chí Minh, Hà Nội',
@@ -106,33 +115,40 @@ void main() {
     expect(itineraryFromJson({'days': []}), isNull);
   });
 
-  testWidgets('thẻ lịch trình hiện giờ, số phút, vé, nút chỉ đường và nguồn thời tiết', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 1200));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: ItineraryCard(
-              itinerary: itineraryFromJson(apiItinerary(weather: true))!,
-              id: 'test',
-              travel: TravelState(),
-              detail: 'Lộ trình gợi ý',
+  testWidgets(
+    'thẻ lịch trình hiện giờ, số phút, vé, nút chỉ đường và nguồn thời tiết',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 1200));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ItineraryCard(
+                itinerary: itineraryFromJson(apiItinerary(weather: true))!,
+                id: 'test',
+                travel: TravelState(),
+                detail: 'Lộ trình gợi ý',
+              ),
             ),
           ),
         ),
-      ),
-    );
-    expect(find.text('07:41'), findsOneWidget);
-    expect(find.text('Ngày 1 · thứ Ba 01/12'), findsOneWidget);
-    expect(find.textContaining('Mưa vừa, 20–25°C'), findsOneWidget);
-    expect(find.byIcon(Icons.umbrella_outlined), findsOneWidget);
-    expect(find.byTooltip('Chỉ đường đến Văn Miếu – Quốc Tử Giám'), findsOneWidget);
-    expect(find.text('Chỉ đường cả ngày'), findsOneWidget);
-    expect(find.textContaining('Tổng vé 140.000đ (70.000đ/người)'), findsOneWidget);
-    expect(find.text('Weather data by Open-Meteo.com'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+      );
+      expect(find.text('07:41'), findsOneWidget);
+      expect(find.text('Ngày 1 · thứ Ba 01/12'), findsOneWidget);
+      expect(find.textContaining('Mưa vừa, 20–25°C'), findsOneWidget);
+      expect(find.byIcon(Icons.umbrella_outlined), findsOneWidget);
+      expect(
+        find.byTooltip('Chỉ đường đến Văn Miếu – Quốc Tử Giám'),
+        findsOneWidget,
+      );
+      expect(find.text('Chỉ đường cả ngày'), findsOneWidget);
+      expect(
+        find.textContaining('Tổng vé 140.000đ (70.000đ/người)'),
+        findsOneWidget,
+      );
+      expect(find.text('Weather data by Open-Meteo.com'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

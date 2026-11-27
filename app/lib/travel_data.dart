@@ -371,7 +371,7 @@ String mapsPlace(String name) => '${name.split(' – ').first.trim()}, Hà Nội
 String mapsDirections(List<String> places, {String? origin}) =>
     Uri.https('www.google.com', '/maps/dir/', {
       'api': '1',
-      if (origin != null) 'origin': origin,
+      'origin': ?origin,
       'destination': places.last,
       if (places.length > 1)
         'waypoints': places.sublist(0, places.length - 1).join('|'),
@@ -388,10 +388,14 @@ List<String> dayRoutes(List<String> places) => [
 ];
 
 int? _int(Object? value) => value is num ? value.round() : null;
-String? _text(Object? value) => value is String && value.isNotEmpty ? value : null;
+String? _text(Object? value) =>
+    value is String && value.isNotEmpty ? value : null;
 
 /// Đọc `itinerary` từ `/api/plan`. Trường nào thiếu thì bỏ qua; ưu tiên link do máy chủ tạo.
-Itinerary? itineraryFromJson(Object? data, {List<String> images = const ['temple.jpg', 'quarter.jpg', 'lake.jpg']}) {
+Itinerary? itineraryFromJson(
+  Object? data, {
+  List<String> images = const ['temple.jpg', 'quarter.jpg', 'lake.jpg'],
+}) {
   if (data is! Map || data['days'] is! List) return null;
   final days = <ItineraryDay>[];
   for (final day in data['days'] as List) {
@@ -402,39 +406,45 @@ Itinerary? itineraryFromJson(Object? data, {List<String> images = const ['temple
       if (stop is! Map) continue;
       final name = '${stop['name'] ?? ''}';
       final place = mapsPlace(name);
-      details.add(StopDetail(
-        name: name,
-        arrive: '${stop['arrive'] ?? ''}',
-        travelMin: _int(stop['travel_min_from_prev']),
-        visitMin: _int(stop['visit_min']),
-        ticketVnd: _int(stop['ticket_vnd']),
-        open: _text(stop['mo']),
-        close: _text(stop['dong']),
-        reason: _text(stop['reason']) ?? '',
-        mapsUrl: _text(stop['maps_url']) ?? mapsDirections([place], origin: previous),
-      ));
+      details.add(
+        StopDetail(
+          name: name,
+          arrive: '${stop['arrive'] ?? ''}',
+          travelMin: _int(stop['travel_min_from_prev']),
+          visitMin: _int(stop['visit_min']),
+          ticketVnd: _int(stop['ticket_vnd']),
+          open: _text(stop['mo']),
+          close: _text(stop['dong']),
+          reason: _text(stop['reason']) ?? '',
+          mapsUrl:
+              _text(stop['maps_url']) ??
+              mapsDirections([place], origin: previous),
+        ),
+      );
       previous = place;
     }
     if (details.isEmpty) continue;
     final weather = day['weather'];
     final serverRoutes = day['maps_urls'];
-    days.add(ItineraryDay(
-      [for (final stop in details) (stop.arrive, stop.name)],
-      images[days.length % images.length],
-      details: details,
-      routeUrls: serverRoutes is List && serverRoutes.isNotEmpty
-          ? [for (final url in serverRoutes) '$url']
-          : dayRoutes([for (final stop in details) mapsPlace(stop.name)]),
-      weather: weather is Map && weather['mo_ta'] is String
-          ? DayWeather(
-              weather['mo_ta'] as String,
-              _int(weather['nhiet_do_thap']) ?? 0,
-              _int(weather['nhiet_do_cao']) ?? 0,
-              _int(weather['kha_nang_mua']),
-            )
-          : null,
-      date: DateTime.tryParse('${day['date'] ?? ''}'),
-    ));
+    days.add(
+      ItineraryDay(
+        [for (final stop in details) (stop.arrive, stop.name)],
+        images[days.length % images.length],
+        details: details,
+        routeUrls: serverRoutes is List && serverRoutes.isNotEmpty
+            ? [for (final url in serverRoutes) '$url']
+            : dayRoutes([for (final stop in details) mapsPlace(stop.name)]),
+        weather: weather is Map && weather['mo_ta'] is String
+            ? DayWeather(
+                weather['mo_ta'] as String,
+                _int(weather['nhiet_do_thap']) ?? 0,
+                _int(weather['nhiet_do_cao']) ?? 0,
+                _int(weather['kha_nang_mua']),
+              )
+            : null,
+        date: DateTime.tryParse('${day['date'] ?? ''}'),
+      ),
+    );
   }
   if (days.isEmpty) return null;
   final notes = data['notes'];

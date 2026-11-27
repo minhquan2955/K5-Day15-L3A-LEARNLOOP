@@ -3,8 +3,15 @@
 > Điền ở guide bước 1.1. Viết **trước** khi hỏi người đầu tiên, để không sửa cho khớp kết quả. Kết quả ngược giả thuyết vẫn đủ điểm nếu số là thật.
 
 - Ngày giờ viết: 27/11/2026, chiều, trước khi phỏng vấn người đầu tiên.
-- Người dùng chính (một vai cụ thể): người 20–30 tuổi nhận việc lên lịch cho nhóm bạn 3–5 người đi chơi Hà Nội tự túc 2–3 ngày.
-- **Mình nghĩ:** người nhận việc lên lịch cho nhóm mất nhiều thời gian và hay xếp sai. Họ phải tự ghép điểm từ review, tự ước thời gian đi giữa các điểm và giờ mở cửa, rồi tính tiền chia cho cả nhóm ở công cụ khác. Hậu quả là đến nơi đã đóng cửa (ví dụ lăng Bác chỉ mở buổi sáng), chạy vòng mất thời gian, và cả nhóm lệch nhau về tiền.
-- **Có thể còn cách giải thích khác:** họ không cần tự xếp lịch mà chỉ muốn chép một lịch có sẵn của người đã đi. Nếu đúng vậy thì pain nằm ở "tìm lịch đáng tin", không phải ở "xếp lịch".
-- **Mình đúng nếu thấy:** ≥2/3 người được phỏng vấn kể được ít nhất một lần trong 3 tháng qua lịch đi chơi nhóm bị sai vì thời gian đi, giờ mở cửa hoặc tiền chia.
-- **Nguồn sẽ dùng** (≥1 nguồn đạt ngưỡng, guide 1.2): [ ] đào data · [x] phỏng vấn ≥3 · [ ] khảo sát ≥20. Nguồn chính: phỏng vấn trực tiếp ≥3 người ngoài nhóm từng lên lịch cho chuyến đi nhóm 2–3 ngày, theo bộ câu ở `evidence/interviews/cau-hoi.md`. Nguồn để kiểm lại: khảo sát ≥20 người (nếu kịp trước CP3).
+- Người dùng chính (một vai cụ thể): người 20–30 tuổi lần đầu đến Hà Nội, đi chơi tự túc 2–3 ngày (một mình hoặc với 1–4 bạn).
+- **Mình nghĩ:** người lần đầu đi Hà Nội gặp hai chỗ vướng.
+  - **Không biết nên đi đâu:** quá nhiều review, không biết chỗ nào hợp sở thích và đủ thời gian.
+  - **Không sắp được lộ trình:** không biết đi thứ tự nào, chỗ nào mở giờ nào, đi giữa các chỗ mất bao lâu.
+  - **Hậu quả:** mất hàng giờ chuẩn bị mà vẫn chưa chốt được; đến nơi thì chạy vòng, đã đóng cửa (vd lăng Bác chỉ mở buổi sáng), hoặc bỏ lỡ chỗ đáng đi.
+- **Có thể còn cách giải thích khác:**
+  - (a) Họ không cần ai gợi ý: chép một lịch có sẵn trên mạng là đủ, và lịch đó không gây vấn đề.
+  - (b) Họ không lên kế hoạch gì, đến đâu tính đó, và cũng không thấy phiền.
+- **Mình đúng nếu thấy:** ≥2/3 người được phỏng vấn (lần đầu đi một thành phố 2–3 ngày, trong 6 tháng qua) kể rằng họ mất ≥1 giờ để chọn điểm, **và** kể được ít nhất một lần lộ trình không như dự tính (chạy vòng, đến nơi đã đóng cửa, bỏ lỡ chỗ muốn đi).
+- **Nguồn sẽ dùng** (≥1 nguồn đạt ngưỡng, guide 1.2): [ ] đào data · [x] phỏng vấn ≥3 · [ ] khảo sát ≥20.
+  - Nguồn chính: phỏng vấn trực tiếp ≥3 người ngoài nhóm, theo bộ câu ở `evidence/interviews/cau-hoi.md`.
+  - Nguồn để kiểm lại: khảo sát ≥20 người, nếu kịp trước CP3.

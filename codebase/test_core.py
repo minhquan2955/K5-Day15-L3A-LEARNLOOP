@@ -204,4 +204,27 @@ assert r["itinerary"]["feasible"] and r["itinerary"]["per_person_vnd"] <= 150000
 assert "Đi đủ các điểm bạn nêu thì tiền vé 280,000đ/người, vượt ngân sách 150,000đ/người 130,000đ" in r["output"]
 assert "Để vừa ngân sách, lịch dưới đã bỏ" in r["output"] and "trong ngân sách" not in r["output"]
 assert [s["id"] for s in r["itinerary"]["days"][0]["stops"]].count("van_mieu") == 1  # giữ Văn Miếu (bỏ điểm rẻ hơn)
+
+# --- B05 (lượt 7): model TỰ cắt cho vừa ngân sách → vẫn phải nói đi đủ thì vượt bao nhiêu ---
+TU_CAT = {"ngay": [["ho_guom", "hoa_lo", "bt_dan_toc_hoc"]],
+          "bo": [{"id": "hoang_thanh", "ly_do": "Loại bỏ để đảm bảo tổng chi phí vé nằm trong ngân sách cho phép."},
+                 {"id": "van_mieu", "ly_do": "Loại bỏ để đảm bảo tổng chi phí vé nằm trong ngân sách cho phép."}]}
+replies[:] = [B05V, TU_CAT]
+r = agent.answer("x")
+assert r["itinerary"]["feasible"] and r["itinerary"]["per_person_vnd"] == 140000, r["output"]
+assert "Đi đủ các điểm bạn nêu thì tiền vé 280,000đ/người, vượt ngân sách 150,000đ/người 130,000đ" in r["output"]
+assert "trong ngân sách" not in r["output"] and "vì ngân sách vé" in r["output"]
+# Không có điểm nào bị bỏ → không ghi thêm
+replies[:] = [dict(B05V, diem_muon_di=["Hồ Gươm", "Hỏa Lò"]), {"ngay": [["ho_guom", "hoa_lo"]]}]
+assert "Đi đủ các điểm" not in agent.answer("x")["output"]
+
+# --- B07 (lượt 7): nhóm có trẻ em mà model đưa tre_em vào "tranh" → chuyển sang sở thích, vẫn có lịch ---
+replies[:] = [{"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 2, "tuoi_tre_em": [6, 8], "so_thich": [], "tranh": ["tre_em"]},
+              {"ngay": [["bt_dan_toc_hoc"], ["bat_trang"]]}]
+r = agent.answer("Đi Hà Nội 2 ngày với 2 bé 6 và 8 tuổi, bé đi bộ nhiều sẽ mệt")
+assert r["itinerary"] and [s["id"] for d in r["itinerary"]["days"] for s in d["stops"]] == ["bt_dan_toc_hoc", "bat_trang"]
+# Không có trẻ em thì "tranh" giữ nguyên
+replies[:] = [{"trang_thai": "ok", "so_ngay": 1, "nguoi_lon": 2, "so_thich": ["van_hoa"], "tranh": ["tre_em"]},
+              {"ngay": [["van_mieu", "ho_guom"]]}]
+assert "Dân tộc học" not in agent.answer("x")["output"]
 print("OK: test_core")

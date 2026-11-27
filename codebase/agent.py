@@ -66,6 +66,7 @@ Luật bắt buộc:
 - Chỉ bóc tách dữ kiện; KHÔNG tự đánh giá lịch dày/xa hay từ chối trước ở bước này khi đã có so_ngay ở Hà Nội (để công cụ kiểm).
 - Đếm số người: "mình với N bạn" hoặc "tôi và N người" = 1 + N người lớn (vd "mình với 2 bạn" -> nguoi_lon = 3; "nhóm mình 4 bạn" -> nguoi_lon = 4). Thiếu số người thì mặc định 1.
 - "trẻ em" không rõ tuổi -> null trong tuoi_tre_em.
+- Nhóm có trẻ em (tuoi_tre_em không rỗng) -> thêm "tre_em" vào so_thich; KHÔNG BAO GIỜ đưa "tre_em" vào tranh ("bé đi bộ nhiều sẽ mệt" là ít điểm / gần nhau, không phải tránh điểm hợp trẻ em).
 - Nhãn so_thich và tranh CHỈ lấy từ: %s.
   - Nếu người dùng đã nêu danh sách diem_muon_di cụ thể mà KHÔNG nêu sở thích chung -> để so_thich = [].
   - Map sở thích tự nhiên sang nhãn gần nhất; nếu sở thích hoàn toàn không có ở Hà Nội (vd leo núi, tắm biển) -> để so_thich = [] và giữ trang_thai = "ok".
@@ -182,8 +183,12 @@ def answer(text: str) -> dict:
                          % (cho_o["ten"], "dữ liệu điểm" if cho_o["nguon"] == "du_lieu" else "OpenStreetMap"))
     toi_uu = doc.get("che_do") == "it_di_chuyen" or xp is not None
 
-    so_thich = doc.get("so_thich") or []
-    tranh = doc.get("tranh") or []
+    so_thich = list(doc.get("so_thich") or [])
+    tranh = list(doc.get("tranh") or [])
+    if tuoi and "tre_em" in tranh:  # nhóm có trẻ em mà model lại "tránh" điểm hợp trẻ em → đọc nhầm, chuyển sang sở thích
+        tranh.remove("tre_em")
+        so_thich.append("tre_em")
+        note("sửa: nhóm có trẻ em, chuyển tre_em từ tranh sang so_thich")
     found = tim_diem(so_thich, tranh, doc.get("diem_muon_di") or [])
     for ten in found["khong_tim_thay"]:
         notes.append("Không có dữ liệu về \"%s\" nên không xếp giờ / giá cho điểm này." % ten)
@@ -271,7 +276,23 @@ def answer(text: str) -> dict:
         return {"output": "Xin lỗi, lần này chưa xếp được lộ trình. Bạn thử gửi lại giúp mình.", "itinerary": None}
     if ngan_sach and kq["per_person_vnd"] > ngan_sach:  # model sửa hết lượt vẫn vượt → code tự bỏ điểm có vé cho vừa
         kq = _cat_cho_vua_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes)
+    if ngan_sach:  # dù model hay code cắt: thiếu điểm người dùng nêu mà đi đủ thì vượt → nói rõ vượt bao nhiêu
+        _bao_vuot_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes)
     return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao, so_thich, opt, xp)
+
+
+def _bao_vuot_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes):
+    """Điểm người dùng nêu chưa có trong lịch, và đi đủ các điểm đó thì vượt ngân sách → ghi số vượt (từ kiem_lich_trinh)."""
+    neu = [p["id"] for p in ung_vien if p.get("nguoi_dung_neu")]
+    xep = {s["id"] for d in kq["days"] for s in d["stops"]}
+    if not neu or all(i in xep for i in neu):
+        return
+    du = kiem_lich_trinh([neu], gio, nguoi_lon, tuoi, ngan_sach, xp=xp)
+    if du["per_person_vnd"] > ngan_sach:
+        notes.insert(1, "Đi đủ các điểm bạn nêu thì tiền vé %sđ/người, vượt ngân sách %sđ/người %sđ; lịch dưới đã bỏ "
+                        "bớt điểm có vé (tiền vé còn %sđ/người)."
+                     % (f"{du['per_person_vnd']:,}", f"{ngan_sach:,}", f"{du['per_person_vnd'] - ngan_sach:,}",
+                        f"{kq['per_person_vnd']:,}"))
 
 
 def _cat_cho_vua_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes):
@@ -295,11 +316,6 @@ def _cat_cho_vua_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, no
         _, pid, ngay, hien = tot
         da_bo.append(pid)
     if da_bo:
-        if neu:
-            du = kiem_lich_trinh([[i for i in POI if i in neu]], gio, nguoi_lon, tuoi, ngan_sach, xp=xp)
-            if du["per_person_vnd"] > ngan_sach:
-                notes.append("Đi đủ các điểm bạn nêu thì tiền vé %sđ/người, vượt ngân sách %sđ/người %sđ."
-                             % (f"{du['per_person_vnd']:,}", f"{ngan_sach:,}", f"{du['per_person_vnd'] - ngan_sach:,}"))
         notes.append("Để vừa ngân sách, lịch dưới đã bỏ %s; tiền vé còn %sđ/người. Tăng ngân sách thì có thể thêm lại."
                      % (", ".join(POI[i]["ten"] for i in da_bo), f"{hien['per_person_vnd']:,}"))
     return hien
@@ -443,7 +459,10 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
             if go_min is not None:
                 info += ", đi từ khách sạn %d phút" % go_min
             extra = " (gợi ý: có thể thêm ngày hoặc điều chỉnh ngân sách/điểm)" if bid in user_ids else ""
-            notes.append("Không xếp %s (%s): %s%s" % (p["ten"], info, b.get("ly_do", ""), extra))
+            ly_do_bo = b.get("ly_do", "")
+            if not isinstance(ly_do_bo, str) or _KHONG_CAN_CU.search(ly_do_bo) or re.search(r"\d", ly_do_bo):
+                ly_do_bo = "vì ngân sách vé" if "ngân sách" in str(ly_do_bo) else "không còn chỗ trong lịch"
+            notes.append("Không xếp %s (%s): %s%s" % (p["ten"], info, ly_do_bo, extra))
     if not feasible:
         notes.append("KHÔNG XẾP ĐƯỢC trọn vẹn: " + "; ".join(kq["vi_pham"]) +
                      ". Cách nới: bỏ bớt điểm, thêm ngày, hoặc tăng ngân sách.")

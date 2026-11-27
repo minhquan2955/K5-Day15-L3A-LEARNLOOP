@@ -729,8 +729,12 @@ class ItineraryCard extends StatelessWidget {
             Icons.payments_outlined,
             'Tổng vé ${vnd(itinerary.totalVnd!)}'
             '${itinerary.perPersonVnd == null ? '' : ' (${vnd(itinerary.perPersonVnd!)}/người)'}'
-            '${itinerary.taxiVnd == null ? '' : ' · taxi ước tính ${vnd(itinerary.taxiVnd!)}'}',
+            '${itinerary.taxiVnd == null ? '' : ' · taxi ước tính ${vnd(itinerary.taxiVnd!)} (chỉ tham khảo)'}',
           ),
+        ],
+        if (itinerary.keyNotes.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          KeyNotes(notes: itinerary.keyNotes),
         ],
         if (itinerary.days.any((day) => day.weather != null))
           Align(
@@ -1017,5 +1021,67 @@ class DayPlan extends StatelessWidget {
         ],
       ),
     ],
+  );
+}
+
+/// Lưu ý quan trọng hiện thẳng trên thẻ (tối đa 4); còn lại xem trong "Xem chi tiết".
+class KeyNotes extends StatelessWidget {
+  const KeyNotes({super.key, required this.notes, this.max = 4});
+  final List<String> notes;
+  final int max;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: tint,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Lưu ý',
+            style: TextStyle(
+              color: brown,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          for (final note in notes.take(max))
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    note.startsWith('KHÔNG XẾP') || note.startsWith('Không xếp')
+                        ? Icons.warning_amber_rounded
+                        : Icons.info_outline,
+                    size: 14,
+                    color: brown,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      note,
+                      style: caption.copyWith(fontSize: 11, color: ink),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (notes.length > max)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                '+${notes.length - max} lưu ý khác — bấm "Xem chi tiết"',
+                style: caption.copyWith(fontSize: 11),
+              ),
+            ),
+        ],
+      ),
+    ),
   );
 }

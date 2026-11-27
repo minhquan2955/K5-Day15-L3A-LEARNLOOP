@@ -48,7 +48,12 @@ Map<String, Object?> apiItinerary({bool weather = false}) => {
   'per_person_vnd': 70000,
   'taxi_vnd': 78000,
   'feasible': true,
-  'notes': ['Dữ liệu chỉ có 14 điểm ở Hà Nội.'],
+  'notes': [
+    'Dữ liệu chỉ có 14 điểm ở Hà Nội.',
+    'Dự báo thời tiết từ Open-Meteo.com (CC BY 4.0).',
+    'Ngày 1 trống từ 12:08 đến 18:54. Có thể thêm: Nhà tù Hỏa Lò.',
+    'Xuất phát và về: Hàng Bạc, Hoàn Kiếm.',
+  ],
 };
 
 void main() {
@@ -113,6 +118,8 @@ void main() {
     expect(itinerary.start, DateTime(2026, 12, 1));
     expect(itineraryFromJson(null), isNull);
     expect(itineraryFromJson({'days': []}), isNull);
+    expect(itinerary.keyNotes, hasLength(2));
+    expect(KeyNotes(notes: List.filled(6, 'x')).max, 4);
   });
 
   testWidgets(
@@ -148,6 +155,12 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Weather data by Open-Meteo.com'), findsOneWidget);
+      // Lưu ý quan trọng hiện thẳng trên thẻ, bỏ 2 câu luôn có; taxi ghi rõ chỉ tham khảo
+      expect(find.text('Lưu ý'), findsOneWidget);
+      expect(find.textContaining('Ngày 1 trống từ 12:08'), findsOneWidget);
+      expect(find.textContaining('Xuất phát và về: Hàng Bạc'), findsOneWidget);
+      expect(find.textContaining('Dữ liệu chỉ có 14 điểm'), findsNothing);
+      expect(find.textContaining('(chỉ tham khảo)'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

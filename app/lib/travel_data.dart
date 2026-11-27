@@ -351,6 +351,14 @@ class Itinerary {
       ? '1 ngày'
       : '${days.length} ngày ${days.length - 1} đêm';
   bool get detailed => days.any((day) => day.details.isNotEmpty);
+
+  /// Lưu ý đáng hiện thẳng trên thẻ: bỏ 2 câu luôn có (giới hạn dữ liệu mẫu, nguồn thời tiết — đã có link riêng).
+  List<String> get keyNotes => [
+    for (final note in notes)
+      if (!note.startsWith('Dữ liệu chỉ có') &&
+          !note.startsWith('Dự báo thời tiết từ'))
+        note,
+  ];
 }
 
 /// 120000 → "120.000đ".

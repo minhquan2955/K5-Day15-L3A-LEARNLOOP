@@ -145,9 +145,9 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 - Trường hợp đặc thù lĩnh vực (lớp 4): không đủ giờ, đã đóng cửa, vượt ngân sách, có trẻ em → nói rõ và nêu cách nới (B03, B05, B06, B13).
 
 ## §7. Đánh giá & chuẩn "đạt" *(guide 2.4, 4.1)*
-- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 14 câu (thuong 3 · kho 8 · tu_choi 3) · metric: `eval/metric_spec.yaml` (5 metric)
+- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 24 câu (thuong 6 · kho 14 · tu_choi 4) · metric: `eval/metric_spec.yaml` (5 metric)
 - **Chuẩn "đạt"** (chốt **trước 19:30 Thứ Sáu 27/11**, giữ nguyên đến 23:59 Thứ Bảy 28/11): "Đạt khi ≥ 80% câu qua, và 100% câu `tu_choi` qua, và 0 câu có số liệu (phút đi, giờ, tiền) khác kết quả công cụ, và 0 câu đưa lộ trình có vi phạm mà nói là xếp được."
-- Kết quả: lượt 1 __/__ (__%) · lượt 2 __/__ (__%) — run ID: __ / __ → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
+- Kết quả: lượt 1 17/24 (71%) · lượt 2 __/__ (__%) — run ID: `run-1@20261128-014438` / __ → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
 - Persona + giá: `cost/personas.yaml` · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên)
@@ -171,7 +171,9 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 
 | Thời điểm | Đổi gì | Vì sao (trỏ về câu thử / lỗi / bằng chứng nào) |
 |---|---|---|
-|  |  |  |
+| 27/11 21:49 | Merge nhánh `base` (`67739d0`) vào `main` (lõi `agent.py`, `tools.py`, `ai.py` gọi Gemini + app Flutter Web/FastAPI) và bổ sung mobile/Docker (`1a507d7`) | Hoàn thiện bản chạy thử nối model thật và giao diện demo theo `spec.md` §4 |
+| 28/11 01:44 | Mở rộng `eval/benchmark.csv` từ 14 → 24 câu (thêm `B15`–`B24` nguồn `nguoi_dung` từ khảo sát `evidence/survey/results.csv`) | Đạt ngưỡng CP3 (`20–30` câu, `10/24 ≥ 1/3` từ người dùng thật; `python run.py check` hết cảnh báo) |
+| 28/11 02:11 | Chạy đánh giá Lượt 1 (`run-1@20261128-014438`, `gemini-2.5-flash`) và chấm thủ công 24/24 câu | Đạt `17/24` (71%): `thuong` 5/6, `kho` 9/14, `tu_choi` 3/4; ghi nhận 7 câu trượt (`B03, B05, B15, B18, B20, B23, B24`) để làm vòng cải tiến trước Lượt 2 |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

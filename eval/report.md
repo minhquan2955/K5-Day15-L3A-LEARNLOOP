@@ -8,7 +8,7 @@
 
 | Lượt | Run ID | Đạt / tổng | % | thuong | kho | tu_choi | So với chuẩn "đạt" |
 |---|---|---|---|---|---|---|---|
-| 1 | | __/__ | | __/__ | __/__ | __/__ | đạt / chưa |
+| 1 | `run-1@20261128-014438` | 17/24 | 71% | 5/6 (83%) | 9/14 (64%) | 3/4 (75%) | chưa |
 | 2 | | __/__ | | __/__ | __/__ | __/__ | đạt / chưa |
 
 Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-1.jsonl`, `traces/run-2.jsonl`.
@@ -17,17 +17,18 @@ Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-
 
 | Nhóm lỗi | Số câu | Câu |
 |---|---|---|
-| vd: bịa nguồn *(ví dụ)* | | |
-| vd: đoán khi thiếu thông tin *(ví dụ)* | | |
-| | | |
+| Bước 1 (`SYSTEM_DOC`) đọc sai số người / dừng sớm không gọi công cụ / thiếu phân tách yêu cầu ngoài phạm vi | 3 | `B15, B20, B24` |
+| Bước 2 (`SYSTEM_XEP`) xếp thiếu ngày / bỏ qua ràng buộc đặc thù (ngân sách, ngoại thành) | 3 | `B05, B18, B23` |
+| Tự ước số liệu thời gian trong lý do bỏ điểm, chưa nêu gợi ý nới | 1 | `B03` |
 
 **≥3 lỗi cụ thể:**
 
 | Câu | Input | Output | Vì sao sai |
 |---|---|---|---|
-| | | | |
-| | | | |
-| | | | |
+| `B05` | "1 ngày ở Hà Nội, 4 người, muốn đi Hoàng thành, Văn Miếu, Hồ Gươm, Hỏa Lò, Bảo tàng Dân tộc học. Ngân sách vé 150k/người." | Báo `KHÔNG XẾP ĐƯỢC: vượt ngân sách 150000đ/người 20000đ` (tổng vé `170.000đ/người`), lý do Hồ Gươm viết `"miễn phí vé vào hồ"` | Sau 2 vòng sửa vẫn không cắt bớt điểm có vé để đưa ra phương án vừa `150k/người`, và câu lý do tự ghi nhầm vé Hồ Gươm |
+| `B15` | "Mình có sẵn danh sách muốn đi ở Hà Nội trong 2 ngày với 2 bạn..." | Tính vé Hoàng thành `140,000đ` (`2` người lớn × `70k`) | Hiểu nhầm `"Mình ... với 2 bạn"` thành `2` người thay vì `3` người |
+| `B18` | "Nhóm mình 4 bạn đi Hà Nội 3 ngày 2 đêm đúng dịp nghỉ lễ..." | Chỉ xuất `Ngày 1` và `Ngày 2`, không nói dữ liệu thiếu thông tin độ đông | Xếp thiếu 1 ngày so với input 3 ngày, chưa cảnh báo thiếu dữ liệu độ đông |
+| `B20` | "Nhóm 3 bạn chỉ có 1 ngày ở Hà Nội từ 8h sáng, muốn đi hết Bát Tràng, Bảo tàng Dân tộc học, Chùa Hương và Văn Miếu..." | Dừng ngay ở bước 1 (`tool_calls = 0`) với câu hỏi chung | Không gọi `thoi_gian_di` / `kiem_lich_trinh` nên không có số liệu vi phạm cụ thể từ công cụ |
 
 ## 3. Một lần cải tiến
 

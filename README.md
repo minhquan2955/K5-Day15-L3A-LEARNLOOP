@@ -100,7 +100,7 @@ Nhóm dùng stack khác (Node, Streamlit, notebook…): sửa hàm `run_app()` t
 
 | Thành phần | Thật / Giả | Ghi chú |
 |---|---|---|
-| Lời gọi AI ở quyết định trung tâm | **Giả ở CP2** (bắt buộc **Thật** từ CP3) | Model: đang chạy chế độ `fake` ở CP2; sẽ nối model thật trước CP3 |
+| Lời gọi AI ở quyết định trung tâm | **Thật** (đã nối từ CP3) | Model: `gemini-2.5-flash` (Gemini API qua `urllib` trong `codebase/ai.py`) |
 | 3 công cụ tính toán (`tim_diem`, `thoi_gian_di`, `kiem_lich_trinh`) | **Thật** (chỉ đọc) | Đọc và tính trực tiếp trên `data/hanoi_poi.json` |
 | Dữ liệu điểm tham quan (`data/hanoi_poi.json`) | **Giả** (`synthetic`) | 14 điểm Hà Nội dựng sẵn cho bản chạy thử (`data/DATA_CARD.md`) |
 | Đặt vé, đặt phòng, thanh toán | **Không làm** | Ngoài phạm vi; người dùng tự thực hiện |

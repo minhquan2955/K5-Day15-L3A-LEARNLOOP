@@ -11,9 +11,10 @@
 
 | STT | Họ và tên | Mã học viên | Vai trò | Phần việc chính |
 |---|---|---|---|---|
-| 1 | ____ | ____ | Đội trưởng | ____ |
-| 2 | Đỗ Duy Bộ | 2A202603591 | Thành viên | Phỏng vấn người dùng, bộ câu thử |
-| 3 | ____ | ____ | Thành viên | ____ |
+| 1 | Nguyễn Minh Quân | 2A202603510 | Đội trưởng | THiết kế giao diện, BA |
+| 2 | Đỗ Duy Bộ | 2A202603591 | Thành viên | Backend, Deploy |
+| 3 | Phạm Trường Chinh | 2A202603426 | Thành viên | Phát triển AI feature |
+| 4 | Nguyễn Văn Ba | 2A202603489 | Thành viên | Phát triển AI feature |
 
 **Quy tắc điền**
 - **Lớp:** `L3A` hoặc `L3B`. **Track:** một chữ `A` (EdTech), `B` (Y tế), `C` (Du lịch), `D` (Thương mại điện tử), `E` (Tài chính) hoặc `F` (Làn khác). **Link repo:** link GitHub công khai của nhóm.

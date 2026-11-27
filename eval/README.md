@@ -11,14 +11,15 @@
 
 ## 2. Bộ câu thử dựng ra sao
 
-- `eval/benchmark.csv`: **14 câu** *(bản CP2; sẽ mở rộng lên 20–30 câu trước CP3)* — `thuong` **3** (`B01, B02, B12`) · `kho` **8** (`B03–B08, B13, B14`) · `tu_choi` **3** (`B09–B11`, trong đó **2 câu tấn công** `B10, B11`).
-- Nguồn (`python run.py check` in sẵn): `nguoi_dung` **0** · `data_that` **0** · `tu_viet` **14** · `sinh_seed` **0** → từ người dùng / data thật **0/14** *(sẽ bổ sung ≥7–10 câu `nguoi_dung` từ phỏng vấn và khảo sát trước CP3 để đạt ngưỡng ≥1/3)*.
-- Độ phủ — lưới input 4 chiều (guide 2.4 bước 5):
+- `eval/benchmark.csv` có **21 câu** ở bản CP3, gồm **5** `thuong` (`B01, B02, B12, B15, B19`), **13** `kho` và **3** `tu_choi` (`B09–B11`, gồm hai câu tấn công `B10, B11`).
+- Nguồn gồm **14** `tu_viet` từ CP2 và **7** `data_that` từ khảo sát, đạt **7/21 (1/3)**. Mỗi câu `B15–B21` chuyển một tình huống từ `evidence/survey/results.csv` thành yêu cầu lập lịch ở Hà Nội và ghi mã phiếu trong cột `source`. Điểm đến, số ngày, số người và giờ được thêm khi cần để tạo tình huống kiểm thử.
+- Độ phủ của 14 câu CP2 theo lưới input 4 chiều (guide 2.4 bước 5):
   1. **Số ngày & khung giờ:** 1 ngày (`B03, B05, B06, B08, B10–B13`), 2 ngày (`B02, B07, B14`), 3 ngày (`B01`), thiếu số ngày (`B04`), chỉ rảnh từ 13:00 (`B06`).
   2. **Quy mô nhóm & độ tuổi:** đi 1 mình (`B02, B14`), nhóm 2–4 người lớn (`B01, B03, B05, B06, B08–B12`), gia đình có trẻ nhỏ 5–8 tuổi (`B07, B13`).
   3. **Kiểu đầu vào:** mô tả sở thích tự nhiên (`B01, B07, B12, B14`), nêu sẵn danh sách điểm (`B02, B03, B05, B06, B08, B10, B11, B13`), hỏi chung chung (`B04`).
   4. **Ràng buộc & biên:** ngân sách vé (`B01, B05`), miễn vé trẻ dưới 6 tuổi (`B13`), điểm/sở thích ngoài dữ liệu (`B08, B14`), ngoài phạm vi Hà Nội & tấn công chỉnh giờ/thanh toán (`B09–B11`).
-- Câu `kho` và `tu_choi` trỏ về 4 lớp chỗ khó (`spec.md` §5): lớp 1 (nguồn sự thật): `B08, B14` · lớp 2 (mơ hồ / thiếu thông tin): `B04, B07` · lớp 3 (ngoài phạm vi / thẩm quyền): `B09, B10, B11` · lớp 4 (đặc thù lĩnh vực): `B03, B05, B06, B13`.
+- Bản CP3 thêm các tình huống gom điểm gần nhau và dành riêng ngày đi xa (`B15, B19`), dời điểm khi đóng cửa hoặc xếp quá dày (`B16, B17`), sửa lịch và thiếu dữ liệu (`B18`), thiếu số người (`B20`) và chưa có thông tin hàng quán theo thời gian thực (`B21`).
+- Câu `kho` và `tu_choi` trỏ về 4 lớp chỗ khó (`spec.md` §5): lớp 1 (nguồn sự thật): `B08, B14, B18, B21` · lớp 2 (mơ hồ / thiếu thông tin): `B04, B07, B20` · lớp 3 (ngoài phạm vi / thẩm quyền): `B09, B10, B11` · lớp 4 (đặc thù lĩnh vực): `B03, B05, B06, B13, B16, B17`.
 
 ## 3. Metric và cách chấm
 

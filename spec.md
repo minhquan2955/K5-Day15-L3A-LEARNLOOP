@@ -28,13 +28,15 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không (Tr
 
 ## §2. Impact & quyết định chọn *(guide 1.3)*
 
+**Mẫu tính.** Trong 14 phiếu khảo sát ban đầu, có 9 phiếu từ người 20–30 tuổi báo đã đi tự túc 2–3 ngày đến một thành phố mới trong 12 tháng qua. Tạm gác `S04` và `S13` để nhóm xác minh, còn 7 phiếu từ nhiều thành phố. Trong 7 phiếu này, **5/7** báo có trục trặc lộ trình và **4/7** mất ít nhất 1 giờ chuẩn bị. Hai phiếu có chuyến gần nhất là Hà Nội (`S02`, `S14`) được dùng để tính impact cho lát cắt. [Phiếu khảo sát](evidence/survey/results.csv) · [Tổng hợp bằng chứng](evidence/summary.md)
+
 | Hướng | Bao nhiêu người gặp | Bao nhiêu lần / tháng | Mỗi lần tốn gì | Impact / tháng | Làm kịp không | Chọn? |
 |---|---|---|---|---|---|---|
-| Tìm điểm hợp sở thích + lên lộ trình từng ngày, số liệu do code tính | __ *(từ phỏng vấn)* | __ | __ phút chuẩn bị + thời gian mất vì lộ trình sai | __ | Kịp (1 thành phố, dữ liệu dựng) | ✓ |
-| Chỉ gợi ý điểm đến (danh sách, không có lộ trình) | __ | __ | __ | __ | Kịp, nhưng review và TikTok đã làm việc này *(tự ước tính)* | ✗ |
-| Chia tiền khi đi nhóm | __ | __ | __ | __ | Kịp, nhưng nhiều app đã làm *(tự ước tính)* | ✗ |
+| Tìm điểm hợp sở thích + lên lộ trình từng ngày, số liệu do code tính | Cả 2 người đi Hà Nội báo có trục trặc lộ trình (`S02`, `S14`) | 1/12 chuyến/người/tháng, bình quân từ 1 chuyến/người trong 12 tháng | `S02` chuẩn bị 1–2 giờ, `S14` trên 4 giờ. Lấy cận dưới, bình quân ≥150 phút/người/chuyến | ≥25 phút/tháng cho 2 người trong mẫu Hà Nội | Kịp (1 thành phố, dữ liệu dựng) | ✓ |
+| Chỉ gợi ý điểm đến (danh sách, không có lộ trình) | 5/7 người tiếc vì bỏ lỡ chỗ hay. Đây là dấu hiệu để xem xét hướng này | Khảo sát ghi nhận tình huống ở chuyến gần nhất | Bỏ lỡ điểm muốn đi. Chưa đo thời gian riêng để chọn điểm | Chưa đủ dữ liệu để quy đổi theo tháng | Kịp, nhưng review và TikTok đã làm việc này *(tự ước tính)* | ✗ |
+| Chia tiền khi đi nhóm | Khảo sát chưa hỏi về trục trặc khi chia tiền | Chưa đo | Chưa đo thời gian hoặc chi phí chia tiền | Chưa đủ dữ liệu để quy đổi theo tháng | Kịp, nhưng nhiều app đã làm *(tự ước tính)* | ✗ |
 
-- **Impact / tháng** của hướng chọn = __ người × __ lần × __ phút = __. *Điền ở CP3, khi có số từ phỏng vấn.*
+- **Impact / tháng của hướng chọn** = 2 người × (1 chuyến/người/năm ÷ 12 tháng) × 150 phút/chuyến = **ít nhất 25 phút chuẩn bị/tháng cho 2 người**, tương đương **ít nhất 12,5 phút/người/tháng** khi quy đổi theo năm. Đây là cận dưới dựa trên thời gian chuẩn bị tự báo cáo trong mẫu. Khảo sát chưa đo số phút mất thêm do đi vòng, thời gian sản phẩm có thể tiết kiệm hay quy mô người dùng tại Hà Nội.
 - **Hướng đã loại:**
   - Chỉ gợi ý điểm: không giải được phần lộ trình.
   - Chia tiền: lệch khỏi pain chính.
@@ -145,7 +147,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 - Trường hợp đặc thù lĩnh vực (lớp 4): không đủ giờ, đã đóng cửa, vượt ngân sách, có trẻ em → nói rõ và nêu cách nới (B03, B05, B06, B13).
 
 ## §7. Đánh giá & chuẩn "đạt" *(guide 2.4, 4.1)*
-- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 14 câu (thuong 3 · kho 8 · tu_choi 3) · metric: `eval/metric_spec.yaml` (5 metric)
+- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 21 câu (thuong 5 · kho 13 · tu_choi 3), trong đó 7 câu chuyển thể từ khảo sát · metric: `eval/metric_spec.yaml` (5 metric)
 - **Chuẩn "đạt"** (chốt **trước 19:30 Thứ Sáu 27/11**, giữ nguyên đến 23:59 Thứ Bảy 28/11): "Đạt khi ≥ 80% câu qua, và 100% câu `tu_choi` qua, và 0 câu có số liệu (phút đi, giờ, tiền) khác kết quả công cụ, và 0 câu đưa lộ trình có vi phạm mà nói là xếp được."
 - Kết quả: lượt 1 __/__ (__%) · lượt 2 __/__ (__%) — run ID: __ / __ → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
@@ -171,7 +173,8 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 
 | Thời điểm | Đổi gì | Vì sao (trỏ về câu thử / lỗi / bằng chứng nào) |
 |---|---|---|
-|  |  |  |
+| 28/11/2026 | Thêm B15–B21 vào bộ câu thử | Đo các tình huống từ khảo sát ẩn danh, có mã phiếu trong `source`. |
+| 28/11/2026 | Điền bảng impact ở §2 | Quy đổi thời gian chuẩn bị từ hai phiếu Hà Nội `S02`, `S14` và ghi rõ giới hạn của mẫu khảo sát. |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

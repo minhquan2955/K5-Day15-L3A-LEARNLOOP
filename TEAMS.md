@@ -4,15 +4,15 @@
 > Giữ nguyên tên file `TEAMS.md` ở thư mục gốc repo, giữ nguyên các dòng `- Tên nhóm:` … và tiêu đề cột của bảng. Chỉ thay chỗ `____`.
 > Kiểm bằng `python run.py check`: phần "Kiểm TEAMS.md" không báo gì là đúng format.
 
-- Tên nhóm: ____
-- Lớp: ____
-- Track: ____
-- Link repo: ____
+- Tên nhóm: LEARNLOOP
+- Lớp: L3A
+- Track: C
+- Link repo: https://github.com/minhquan2955/K5-Day15-L3A-LEARNLOOP
 
 | STT | Họ và tên | Mã học viên | Vai trò | Phần việc chính |
 |---|---|---|---|---|
 | 1 | ____ | ____ | Đội trưởng | ____ |
-| 2 | ____ | ____ | Thành viên | ____ |
+| 2 | Đỗ Duy Bộ | 2A202603591 | Thành viên | Phỏng vấn người dùng, bộ câu thử |
 | 3 | ____ | ____ | Thành viên | ____ |
 
 **Quy tắc điền**

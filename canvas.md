@@ -1,16 +1,15 @@
-# Canvas — [tên nhóm] · Track [A–F]
+# Canvas — LEARNLOOP · Track C
 
 > Điền ở guide bước 1.4. CP1 17:00 Thứ Sáu 27/11: nộp bản đầu, đủ 7 dòng (dòng 4 được ghi giả thuyết + nguồn sẽ kiểm).
 > CP2 19:30 Thứ Sáu 27/11: cập nhật (số bằng chứng đầu, lát cắt đã chốt) và điền dòng "Đã đổi gì so với CP1".
-> Track F: chép thêm thẻ đề của nhóm (khung trong file track F) xuống dưới bảng này.
 
 | # | Dòng | Nhóm điền |
 |---|---|---|
-| 1 | Track + lát cắt dự kiến | |
-| 2 | Người dùng chính (một vai cụ thể — không phải "học viên nói chung") | |
-| 3 | Pain một câu: ai — đang làm gì — vướng đâu — hậu quả | |
-| 4 | Bằng chứng đầu — CP1: giả thuyết + nguồn sẽ kiểm · CP2: số đầu tiên + 1 trích dẫn | |
-| 5 | **Lát cắt MỘT CÂU** (1 người dùng · 1 việc · 1 quyết định AI · 1 kết quả) | |
-| 6 | AI tự làm đến đâu + 1 dòng lý do: sai thì ai chịu gì | |
-| 7 | Phân công có tên | |
-| — | *(CP2)* Đã đổi gì so với CP1 | |
+| 1 | Track + lát cắt dự kiến | Track C (Du lịch), hướng nhóm tự mở rộng trong bối cảnh du lịch (không theo C1–C3). Lát cắt: gợi ý nên đi đâu và xếp lộ trình từng ngày cho người lần đầu đi Hà Nội 2–3 ngày; giờ mở cửa, thời gian đi và tiền vé do code tính |
+| 2 | Người dùng chính (một vai cụ thể — không phải "học viên nói chung") | Người 20–30 tuổi **lần đầu đến Hà Nội**, đi chơi tự túc 2–3 ngày (một mình hoặc với 1–4 bạn), chưa biết Hà Nội có gì và các điểm cách nhau bao xa |
+| 3 | Pain một câu: ai — đang làm gì — vướng đâu — hậu quả | Người lần đầu đi Hà Nội 2–3 ngày đang tự lên kế hoạch đi chơi nhưng **không biết nên đi đâu** cho hợp sở thích và số ngày, và **không sắp được lộ trình** (đi thứ tự nào, chỗ nào mở giờ nào, đi giữa các chỗ mất bao lâu). Hậu quả: mất hàng giờ đọc review mà vẫn chưa chốt được, đến nơi thì chạy vòng, đã đóng cửa (vd lăng Bác chỉ mở buổi sáng), hoặc bỏ lỡ chỗ đáng đi |
+| 4 | Bằng chứng đầu — CP1: giả thuyết + nguồn sẽ kiểm · CP2: số đầu tiên + 1 trích dẫn | **Giả thuyết:** ≥2/3 người được phỏng vấn (lần đầu đi một thành phố 2–3 ngày, trong 6 tháng qua) kể rằng họ mất ≥1 giờ để chọn điểm, **và** kể được ít nhất một lần lộ trình không như dự tính (chạy vòng, đã đóng cửa, bỏ lỡ). **Nguồn sẽ kiểm:** phỏng vấn trực tiếp ≥3 người ngoài nhóm (bộ câu: `evidence/interviews/cau-hoi.md`). **CP2:** số đầu tiên __/__ + 1 trích dẫn *(điền sau khi phỏng vấn)* |
+| 5 | **Lát cắt MỘT CÂU** (1 người dùng · 1 việc · 1 quyết định AI · 1 kết quả) | Người lần đầu đi Hà Nội 2–3 ngày nhập số ngày, số người, sở thích và ngân sách; AI chọn điểm hợp sở thích rồi xếp lộ trình từng ngày (giờ mở cửa, thời gian đi, tiền vé do công cụ tính), tự kiểm rồi sửa hoặc nói rõ không xếp được; người dùng nhận lộ trình từng ngày có giờ đến, số phút di chuyển, tiền vé và lý do chọn từng điểm |
+| 6 | AI tự làm đến đâu + 1 dòng lý do: sai thì ai chịu gì | **AI tự làm, code kiểm lộ trình trước khi đưa ra.** Sai thì rẻ và sửa được: lộ trình chỉ là gợi ý, không đặt vé, không trả tiền, người dùng đọc lại và bỏ hoặc thêm điểm. Nhưng các con số (giờ mở cửa, phút đi, tiền) **chỉ lấy từ công cụ**, vì sai số là lỗi đắt nhất: người dùng tin theo rồi đến nơi đã đóng cửa |
+| 7 | Phân công có tên | Đỗ Duy Bộ: phỏng vấn, bộ câu thử · ____: kiến trúc, `codebase/` · ____: metric, data card · ____: phỏng vấn *(điền tên thành viên)* |
+| — | *(CP2)* Đã đổi gì so với CP1 | __ *(điền khi nộp CP2, sau khi có kết quả phỏng vấn đầu tiên)* |

@@ -48,6 +48,7 @@
 | 4 | `run-4@20261128-053502` | `gemini-3.1-flash-lite` | Như lượt 3, chạy với `--wait 5`; 0 lỗi. Chấm bởi Claude (coding agent), ghi `[Claude chấm, cần người duyệt]` trong `ghi_chu` | 21/24 | 88% | đạt |
 | 5 | `run-5@20261128-055313` | `gemini-3.1-flash-lite` | Lượt 4 + sửa `tim_diem` (khớp tên dài nhất) + chế độ "đi lại ít nhất" (`toi_uu_lo_trinh`, `tim_noi_o`) · **lỗi kỹ thuật 1/24** (B07 timeout) → không chấm, chạy lại thành lượt 6 | — | — | — |
 | 6 | `run-6@20261128-060034` | `gemini-3.1-flash-lite` | Như lượt 5 + `ai.py` thử lại khi 429 / 5xx / timeout (chỉ chống lỗi mạng); `--wait 5`; 0 lỗi. Chấm bởi Claude, cần người duyệt | 23/24 | 96% | đạt |
+| 7 | `run-7@20261128-061509` | `gemini-3.1-flash-lite` | Lượt 6 + code tự cắt điểm có vé khi lịch cuối vẫn vượt ngân sách (`B05`) + ghi taxi "chỉ tham khảo"; 0 lỗi. Chấm bởi Claude, cần người duyệt | 22/24 | 92% | đạt |
 
 Lượt chạy lại vì lỗi kỹ thuật, lượt sau CP4: ghi thêm dòng, không sửa dòng cũ.
 

@@ -14,6 +14,7 @@
 | 4 | `run-4@20261128-053502` | 21/24 | 88% | 5/6 (83%) | 12/14 (86%) | 4/4 (100%) | đạt |
 | 5 | `run-5@20261128-055313` | lỗi kỹ thuật 1/24 (B07 timeout) — không chấm | | | | | |
 | 6 | `run-6@20261128-060034` | 23/24 | 96% | 6/6 (100%) | 13/14 (93%) | 4/4 (100%) | đạt |
+| 7 | `run-7@20261128-061509` | 22/24 | 92% | 6/6 (100%) | 12/14 (86%) | 4/4 (100%) | đạt |
 
 Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-1.jsonl`, `traces/run-2.jsonl`.
 
@@ -59,6 +60,12 @@ Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-
 - Lượt 5 lỗi kỹ thuật 1/24 (B07 timeout) → thêm thử lại trong `ai.py` (429 / 5xx / timeout, không đổi hành vi lõi), chạy lại thành lượt 6.
 - Kết quả: nhóm lỗi `tim_diem` `0/2 → 2/2` (`B15, B22` đạt); tổng **`21/24 (88%) → 23/24 (96%)`**, `thuong` `5/6 → 6/6`. `B15` bật chế độ đi lại ít nhất, vẫn đủ 6 điểm và 0 vi phạm.
 - Câu **tệ đi**: không. Còn trượt `B05` như lượt 4 (không đưa phương án vừa ngân sách; lý do Văn Miếu còn viết sai "nằm trong ngân sách sau khi đã điều chỉnh").
+
+### Lượt 7 (sửa `B05`)
+
+- Thay đổi: khi model sửa hết lượt mà lịch cuối vẫn vượt ngân sách, code tự bỏ ít điểm có vé nhất cho vừa và ghi "đi đủ thì vượt bao nhiêu"; lý do nhắc "trong ngân sách" bị thay. Thêm chữ "chỉ tham khảo" cho tiền taxi.
+- Kết quả: **`23/24 → 22/24`**. `B05` vẫn trượt nhưng **vì lý do khác**: lần này model tự đưa lịch vừa ngân sách (140.000đ/người) nên phần code cắt không chạy, và output không nói đi đủ các điểm thì vượt bao nhiêu → bản sửa **chưa đủ** (cần luôn ghi số vượt khi phải bỏ điểm người dùng nêu vì ngân sách, kể cả khi model tự cắt).
+- Câu **tệ đi**: `B07` (`1 → 0`) — bước đọc yêu cầu đưa `tre_em` vào `tranh` thay vì `so_thich`, nên không có lịch. Thay đổi lượt 7 không đụng bước đọc yêu cầu → **dao động của model**; cho thấy cần đo độ ổn định nhiều lượt (`pass^k`) trước khi kết luận một lần sửa tốt hay xấu.
 
 ## 4. Còn lại
 

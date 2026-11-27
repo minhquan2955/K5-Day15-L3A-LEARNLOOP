@@ -167,6 +167,15 @@ assert r["itinerary"]["feasible"]
 tai = [sum(s["visit_min"] for s in d["stops"]) for d in r["itinerary"]["days"]]
 assert max(tai) <= 420 and min(tai) > 0, tai  # không dồn hết vào một ngày
 assert "origin=21.048%2C105.8368" in r["itinerary"]["days"][0]["maps_urls"][0]  # link cả ngày đi từ chỗ ở
+# Code dời điểm sang ngày khác / đổi vị trí → lý do AI viết cho chỗ cũ bị thay bằng lý do do code viết
+replies[:] = [{"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 2, "che_do": "it_di_chuyen",
+               "diem_muon_di": ["Dân tộc học", "Hồ Gươm", "Văn Miếu", "Bát Tràng", "Lăng Bác", "Đồng Xuân", "Hỏa Lò"]},
+              {"ngay": TRON, "ly_do": {"ho_guom": "Kết thúc ngày đầu tiên gần khách sạn.",
+                                        "bat_trang": "Trải nghiệm làng gốm hợp gia đình.",
+                                        "van_mieu": "Di tích bạn muốn đi."}}]
+r = agent.answer("x")
+ld = {s["id"]: (d["day"], s["reason"]) for d in r["itinerary"]["days"] for s in d["stops"]}
+assert "ngày đầu tiên" not in r["output"] and ld["ho_guom"][1].startswith("Bạn muốn đi điểm này"), ld
 # Chế độ mặc định không đổi gì: không tối ưu, không ghi chú
 replies[:] = [{"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 2,
                "diem_muon_di": ["Dân tộc học", "Hồ Gươm", "Văn Miếu", "Bát Tràng", "Lăng Bác", "Đồng Xuân", "Hỏa Lò"]},

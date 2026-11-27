@@ -35,6 +35,8 @@ _BUOI = [(re.compile(r"buổi sáng|sáng sớm", re.I), 5 * 60, 12 * 60),
          (re.compile(r"buổi chiều|\bchiều\b(?! (?:dài|rộng|cao))", re.I), 12 * 60, 18 * 60 + 30),
          (re.compile(r"buổi tối|ban đêm|\bđêm\b|\btối\b(?! ?(?:ưu|đa|thiểu|giản))", re.I), 17 * 60 + 30, 24 * 60)]
 KHOANG_TRONG = 180  # phút trống giữa hai điểm từ mức này thì gợi ý lấp
+# Lý do nhắc vị trí trong lịch — sai khi code đã đổi ngày / thứ tự (chế độ đi lại ít nhất)
+_VI_TRI = re.compile(r"ngày (?:đầu|cuối|thứ|\d)|đầu tiên|đầu ngày|bắt đầu|kết thúc|cuối ngày|cuối cùng|tiếp theo|tiếp nối|sau khi", re.I)
 _NHAN = {"di_tich": "di tích", "lich_su": "lịch sử", "van_hoa": "văn hoá", "am_thuc": "ẩm thực", "pho_co": "phố cổ",
          "dao_pho": "dạo phố", "bao_tang": "bảo tàng", "kien_truc": "kiến trúc", "tam_linh": "tâm linh",
          "thien_nhien": "thiên nhiên", "chup_anh": "chụp ảnh", "mua_sam": "mua sắm", "buoi_toi": "đi chơi tối",
@@ -375,8 +377,19 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
 
     feasible = not kq["vi_pham"]
     theo_id = {p["id"]: p for p in ung_vien}
+    vi_tri_ai = {}  # id → (ngày, vị trí) theo cách AI chia, để biết code đã dời điểm nào
+    for n, d in enumerate(plan.get("ngay") or []):
+        for k, i in enumerate(d if isinstance(d, list) else []):
+            vi_tri_ai.setdefault(i, (n + 1, k))
+    for d in days_nonempty:
+        for k, s in enumerate(d["stops"]):
+            s["_doi_cho"] = bool(opt) and vi_tri_ai.get(s["id"]) != (d["day"], k)
+            s["_doi_ngay"] = bool(opt) and (vi_tri_ai.get(s["id"]) or (None,))[0] != d["day"]
     for s in (s for d in days_nonempty for s in d["stops"]):
         moi = ly_do.get(s["id"], "")
+        doi_ngay, doi_cho = s.pop("_doi_ngay"), s.pop("_doi_cho")
+        if doi_ngay or (doi_cho and isinstance(moi, str) and _VI_TRI.search(moi)):
+            moi = ""  # lý do AI viết cho chỗ cũ → không còn đúng sau khi code dời điểm
         if not _ly_do_tin_duoc(moi, s["arrive"]):  # bịa thứ dữ liệu không có, hoặc buổi trái giờ đến → lý do do code viết
             moi = _ly_do_code(theo_id.get(s["id"], POI[s["id"]]), so_thich)
         s["reason"] = moi

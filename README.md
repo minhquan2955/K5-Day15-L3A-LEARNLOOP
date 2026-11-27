@@ -64,6 +64,8 @@ Giao diện mặc định dùng chat mẫu. Để dùng Gemini, build giao diệ
 
 Xem log bằng `docker compose logs -f`. Dừng bằng `docker compose down`.
 
+Để khởi tạo PostgreSQL và danh mục địa điểm mẫu, xem [schema và hướng dẫn chạy PostgreSQL](db/README.md).
+
 ## Lệnh
 
 | Lệnh | Làm gì |

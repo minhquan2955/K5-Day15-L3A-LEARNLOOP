@@ -17,7 +17,10 @@ Chế độ giả (mặc định khi .env chưa có MODEL_PROVIDER, hoặc MODEL
 Nối model thật: điền .env (chép từ .env.example), rồi viết nhánh gọi API ở dưới theo docs/connect-model.md
 (có ví dụ OpenAI, Claude, model chạy trên máy, và cách nối nhà cung cấp khác). Không dán API key vào file này.
 """
+import json
 import os
+import urllib.error
+import urllib.request
 
 from tracing import model_call
 
@@ -49,8 +52,35 @@ def call_model(system: str, user: str) -> dict:
         last = (user.strip().splitlines() or [""])[-1]
         return {"text": "[câu trả lời giả — chưa nối model] " + last[:60], "model": "fake", "tokens_in": 0, "tokens_out": 0}
 
-    # NHÓM VIẾT: gọi model thật ở đây (theo MODEL_PROVIDER, MODEL_NAME, API_KEY) rồi trả đúng 4 khoá.
-    # Ví dụ chép được cho từng nhà cung cấp: docs/connect-model.md mục 2.
+    if MODEL_PROVIDER == "gemini":
+        return _gemini(system, user)
     raise NotImplementedError(
         "chưa viết phần gọi model thật cho MODEL_PROVIDER=%s trong codebase/ai.py — xem docs/connect-model.md"
         % MODEL_PROVIDER)
+
+
+def _gemini(system, user):
+    """Gemini generateContent qua urllib (không cần SDK). Luôn bật JSON mode: mọi bước trong agent.py đọc JSON."""
+    url = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent" % MODEL_NAME
+    body = {
+        "systemInstruction": {"parts": [{"text": system}]},
+        "contents": [{"role": "user", "parts": [{"text": user}]}],
+        # thinkingBudget: giới hạn suy nghĩ để mỗi lượt vài giây thay vì >90 s; code đã kiểm lịch nên không cần nghĩ sâu
+        "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json",
+                             "thinkingConfig": {"thinkingBudget": 1024}},
+    }
+    req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"),
+                                 headers={"Content-Type": "application/json", "x-goog-api-key": API_KEY})
+    try:
+        with urllib.request.urlopen(req, timeout=90) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        raise RuntimeError("Gemini HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300])) from None
+    parts = data["candidates"][0].get("content", {}).get("parts", [])
+    u = data.get("usageMetadata", {})
+    return {
+        "text": "".join(p.get("text", "") for p in parts if not p.get("thought")),
+        "model": MODEL_NAME,
+        "tokens_in": u.get("promptTokenCount", 0),
+        "tokens_out": u.get("candidatesTokenCount", 0) + u.get("thoughtsTokenCount", 0),
+    }

@@ -15,6 +15,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "codebase"))
 
 import tracing  # noqa: E402
+from server import crud  # noqa: E402
 from agent import answer  # noqa: E402
 
 ACCESS_CODE = os.environ.get("ACCESS_CODE", "")
@@ -25,6 +26,8 @@ app = FastAPI(title="LEARNLOOP API")
 # chỉ cho `flutter run -d chrome` (cổng ngẫu nhiên) gọi khi dev; bản deploy cùng origin nên không cần
 app.add_middleware(CORSMiddleware, allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
                    allow_methods=["*"], allow_headers=["*"])
+
+crud.install(app)
 
 
 class PlanIn(BaseModel):

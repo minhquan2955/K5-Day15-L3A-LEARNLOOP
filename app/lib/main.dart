@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import 'chat.dart';
+import 'login.dart';
 import 'pages.dart';
 import 'theme.dart';
 import 'travel_data.dart';
@@ -46,17 +49,34 @@ String composeRequest({
 ].join(' ');
 
 class HanoiApp extends StatefulWidget {
-  const HanoiApp({super.key});
+  const HanoiApp({super.key, this.travel});
+  final TravelState? travel; // test truyền vào state có client giả
 
   @override
   State<HanoiApp> createState() => _HanoiAppState();
 }
 
 class _HanoiAppState extends State<HanoiApp> {
-  final travel = TravelState();
+  late final travel = (widget.travel ?? TravelState())..restore();
+  final messenger = GlobalKey<ScaffoldMessengerState>();
+  late final StreamSubscription<String> errors = travel.errors.listen(
+    (message) =>
+        messenger.currentState?.showSnackBar(SnackBar(content: Text(message))),
+  );
   final homeSearch = TextEditingController();
   late final router = GoRouter(
+    refreshListenable: travel,
+    redirect: (context, state) {
+      if (travel.restoring) return null;
+      final atLogin = state.matchedLocation == '/login';
+      if (!travel.loggedIn) return atLogin ? null : '/login';
+      return atLogin ? '/' : null;
+    },
     routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => LoginPage(travel: travel),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => TravelShell(
           shell: shell,
@@ -73,7 +93,8 @@ class _HanoiAppState extends State<HanoiApp> {
             routes: [
               GoRoute(
                 path: '/',
-                builder: (context, state) => HomePage(search: homeSearch),
+                builder: (context, state) =>
+                    HomePage(search: homeSearch, travel: travel),
               ),
             ],
           ),
@@ -115,16 +136,24 @@ class _HanoiAppState extends State<HanoiApp> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    errors; // bắt đầu nghe lỗi ghi dữ liệu
+  }
+
+  @override
   void dispose() {
+    errors.cancel();
     router.dispose();
     homeSearch.dispose();
-    travel.dispose();
+    if (widget.travel == null) travel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
     debugShowCheckedModeBanner: false,
+    scaffoldMessengerKey: messenger,
     title: 'Hanoi Travel Planner',
     routerConfig: router,
     scrollBehavior: const TravelScroll(),
@@ -188,26 +217,26 @@ class TravelShell extends StatelessWidget {
                     children: [
                       navItem(
                         0,
-                        'Home',
+                        'Trang chủ',
                         Icons.home_outlined,
                         Icons.home_rounded,
                       ),
                       navItem(
                         1,
-                        'Explore',
+                        'Khám phá',
                         Icons.explore_outlined,
                         Icons.explore,
                       ),
                       const Expanded(child: SizedBox()),
                       navItem(
                         2,
-                        'My Trip',
+                        'Chuyến đi',
                         Icons.work_outline_rounded,
                         Icons.work_rounded,
                       ),
                       navItem(
                         3,
-                        'Profile',
+                        'Cá nhân',
                         Icons.person_outline_rounded,
                         Icons.person_rounded,
                       ),

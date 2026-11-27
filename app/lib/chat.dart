@@ -10,7 +10,6 @@ import 'pages.dart' show BadgeText;
 import 'theme.dart';
 import 'travel_data.dart';
 
-const apiBase = String.fromEnvironment('API', defaultValue: 'mock');
 const demoPrompt =
     'Hãy tạo cho tôi lịch trình du lịch Hà Nội 2 ngày 1 đêm, yêu thích văn hóa, ẩm thực và chụp ảnh đẹp.';
 const demoReply =

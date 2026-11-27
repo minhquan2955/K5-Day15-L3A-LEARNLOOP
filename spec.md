@@ -28,13 +28,15 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không (Tr
 
 ## §2. Impact & quyết định chọn *(guide 1.3)*
 
+**Mẫu tính.** Trong 14 phiếu khảo sát ban đầu, có 9 phiếu từ người 20–30 tuổi báo đã đi tự túc 2–3 ngày đến một thành phố mới trong 12 tháng qua. Tạm gác `S04` và `S13` để nhóm xác minh, còn 7 phiếu từ nhiều thành phố. Trong 7 phiếu này, **5/7** báo có trục trặc lộ trình và **4/7** mất ít nhất 1 giờ chuẩn bị. Hai phiếu có chuyến gần nhất là Hà Nội (`S02`, `S14`) được dùng để tính impact cho lát cắt. [Phiếu khảo sát](evidence/survey/results.csv) · [Tổng hợp bằng chứng](evidence/summary.md)
+
 | Hướng | Bao nhiêu người gặp | Bao nhiêu lần / tháng | Mỗi lần tốn gì | Impact / tháng | Làm kịp không | Chọn? |
 |---|---|---|---|---|---|---|
-| Tìm điểm hợp sở thích + lên lộ trình từng ngày, số liệu do code tính | __ *(từ phỏng vấn)* | __ | __ phút chuẩn bị + thời gian mất vì lộ trình sai | __ | Kịp (1 thành phố, dữ liệu dựng) | ✓ |
-| Chỉ gợi ý điểm đến (danh sách, không có lộ trình) | __ | __ | __ | __ | Kịp, nhưng review và TikTok đã làm việc này *(tự ước tính)* | ✗ |
-| Chia tiền khi đi nhóm | __ | __ | __ | __ | Kịp, nhưng nhiều app đã làm *(tự ước tính)* | ✗ |
+| Tìm điểm hợp sở thích + lên lộ trình từng ngày, số liệu do code tính | Cả 2 người đi Hà Nội báo có trục trặc lộ trình (`S02`, `S14`) | 1/12 chuyến/người/tháng, bình quân từ 1 chuyến/người trong 12 tháng | `S02` chuẩn bị 1–2 giờ, `S14` trên 4 giờ. Lấy cận dưới, bình quân ≥150 phút/người/chuyến | ≥25 phút/tháng cho 2 người trong mẫu Hà Nội | Kịp (1 thành phố, dữ liệu dựng) | ✓ |
+| Chỉ gợi ý điểm đến (danh sách, không có lộ trình) | 5/7 người tiếc vì bỏ lỡ chỗ hay. Đây là dấu hiệu để xem xét hướng này | Khảo sát ghi nhận tình huống ở chuyến gần nhất | Bỏ lỡ điểm muốn đi. Chưa đo thời gian riêng để chọn điểm | Chưa đủ dữ liệu để quy đổi theo tháng | Kịp, nhưng review và TikTok đã làm việc này *(tự ước tính)* | ✗ |
+| Chia tiền khi đi nhóm | Khảo sát chưa hỏi về trục trặc khi chia tiền | Chưa đo | Chưa đo thời gian hoặc chi phí chia tiền | Chưa đủ dữ liệu để quy đổi theo tháng | Kịp, nhưng nhiều app đã làm *(tự ước tính)* | ✗ |
 
-- **Impact / tháng** của hướng chọn = __ người × __ lần × __ phút = __. *Điền ở CP3, khi có số từ phỏng vấn.*
+- **Impact / tháng của hướng chọn** = 2 người × (1 chuyến/người/năm ÷ 12 tháng) × 150 phút/chuyến = **ít nhất 25 phút chuẩn bị/tháng cho 2 người**, tương đương **ít nhất 12,5 phút/người/tháng** khi quy đổi theo năm. Đây là cận dưới dựa trên thời gian chuẩn bị tự báo cáo trong mẫu. Khảo sát chưa đo số phút mất thêm do đi vòng, thời gian sản phẩm có thể tiết kiệm hay quy mô người dùng tại Hà Nội.
 - **Hướng đã loại:**
   - Chỉ gợi ý điểm: không giải được phần lộ trình.
   - Chia tiền: lệch khỏi pain chính.
@@ -173,6 +175,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 |---|---|---|
 | 27/11 21:49 | Merge nhánh `base` (`67739d0`) vào `main` (lõi `agent.py`, `tools.py`, `ai.py` gọi Gemini + app Flutter Web/FastAPI) và bổ sung mobile/Docker (`1a507d7`) | Hoàn thiện bản chạy thử nối model thật và giao diện demo theo `spec.md` §4 |
 | 28/11 01:44 | Mở rộng `eval/benchmark.csv` từ 14 → 24 câu (thêm `B15`–`B24` nguồn `nguoi_dung` từ khảo sát `evidence/survey/results.csv`) | Đạt ngưỡng CP3 (`20–30` câu, `10/24 ≥ 1/3` từ người dùng thật; `python run.py check` hết cảnh báo) |
+| 28/11 02:06 | Điền bảng impact ở §2 | Quy đổi thời gian chuẩn bị từ hai phiếu Hà Nội `S02`, `S14` và ghi rõ giới hạn của mẫu khảo sát |
 | 28/11 02:11 | Chạy đánh giá Lượt 1 (`run-1@20261128-014438`, `gemini-2.5-flash`) và chấm thủ công 24/24 câu | Đạt `17/24` (71%): `thuong` 5/6, `kho` 9/14, `tu_choi` 3/4; ghi nhận 7 câu trượt (`B03, B05, B15, B18, B20, B23, B24`) để làm vòng cải tiến trước Lượt 2 |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)

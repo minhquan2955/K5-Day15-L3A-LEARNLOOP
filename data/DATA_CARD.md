@@ -14,6 +14,15 @@
 | Nhãn | `synthetic` |
 | Giới hạn | Giá và giờ **không phải** số chính thức, không dùng để đi thật. Thời gian đi ước theo công thức, chưa tính giờ cao điểm hay đường một chiều. Chỉ có Hà Nội. Nhãn sở thích là chủ quan của nhóm. Không có độ đông, quán ăn cụ thể. Chưa có ngày đóng cửa theo thứ (vd bảo tàng nghỉ thứ Hai), ngày lễ, thời tiết |
 
+## Dataset 3 · Toạ độ chỗ ở (Nominatim / OpenStreetMap, gọi lúc chạy)
+
+| | |
+|---|---|
+| Dùng để làm gì | Công cụ `tim_noi_o`: điểm xuất phát / về mỗi ngày khi người dùng nêu chỗ ở (chế độ "đi lại ít nhất") |
+| Từ đâu | Khớp tên 14 điểm trong Dataset 1 trước (vd "gần Hồ Tây" → toạ độ Chùa Trấn Quốc); không khớp thì gọi Nominatim `/search` (OpenStreetMap, dữ liệu ODbL, tối đa 1 request / giây, phải có User-Agent; chỉ dùng phi thương mại ở quy mô nhỏ — sản phẩm thật cần máy chủ riêng hoặc nhà cung cấp trả phí) |
+| Xử lý | Giới hạn khung Hà Nội (lat 20,55–21,40, lon 105,30–106,05); ngoài khung → báo lỗi, dùng khách sạn mặc định. Toạ độ làm tròn 5 chữ số |
+| Giới hạn | Độ chính xác phụ thuộc OSM; tên khách sạn nhỏ có thể không có. Thời gian đi vẫn theo công thức chim bay × 1,3 của Dataset 1 |
+
 ## Dataset 2 · Dự báo thời tiết (Open-Meteo, gọi lúc chạy)
 
 | | |

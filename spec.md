@@ -95,6 +95,8 @@ flowchart TD
   | `tim_diem` | danh sách nhãn sở thích, nhãn cần tránh, tên điểm người dùng nêu | điểm khớp (id, nhãn, giờ mở / đóng, phút tham quan, giá vé) + tên điểm không tìm thấy | Không (chỉ đọc) |
   | `thoi_gian_di` | id điểm a, id điểm b | km, số phút đi (công thức trong `data/DATA_CARD.md`) | Không (chỉ đọc) |
   | `thoi_tiet` | ngày bắt đầu, số ngày | dự báo từng ngày (mô tả, nhiệt độ thấp / cao, % khả năng mưa, mm mưa) từ Open-Meteo, chỉ trong 16 ngày tới; lỗi thì trả lý do | Không (chỉ đọc API, không gửi dữ liệu người dùng) |
+  | `tim_noi_o` | chỗ ở người dùng nêu (tên khách sạn, địa chỉ, khu vực) | toạ độ chỗ ở: khớp tên điểm trong dữ liệu trước, không có thì tra Nominatim (OpenStreetMap) trong khung Hà Nội; không tìm được thì báo lỗi, dùng khách sạn mặc định | Không (chỉ đọc API; gửi đúng chuỗi chỗ ở) |
+  | `toi_uu_lo_trinh` | các ngày AI đã chia, giờ bắt đầu, chỗ ở | thứ tự mới ít phút đi nhất + hướng từng ngày + phút đi trước / sau: thử mọi thứ tự trong ngày (DFS cắt nhánh, ≤8 điểm), chuyển / đổi điểm giữa các ngày; chỉ nhận khi kịp giờ mở cửa, không ngày trống, không ngày nào vượt max(420 phút tham quan, ngày dày nhất AI chia) | Không (chỉ tính) |
   | `kiem_lich_trinh` | lộ trình (mỗi ngày một dãy id), giờ bắt đầu, số người lớn / trẻ em, ngân sách | giờ đến từng điểm, danh sách vi phạm, tiền vé, tổng, tiền mỗi người | Không (chỉ tính) |
 
 - **Mức tự động:** [ ] AI gợi ý, người quyết · [ ] AI tự làm khi chắc, chuyển người khi không · [x] AI tự làm
@@ -160,6 +162,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 
 ## §9. Rủi ro & an toàn
 - Dữ liệu: đã ẩn danh gì, không thu gì, không đưa gì vào model gói miễn phí:
+  - Chỗ ở người dùng nêu (chế độ "đi lại ít nhất") được gửi tới Nominatim (OpenStreetMap) để lấy toạ độ, chỉ đúng chuỗi đó, không lưu. Người dùng có thể chỉ nêu khu vực ("gần Hồ Tây") thay vì số nhà.
 - AI **không được** làm gì kể cả khi người dùng yêu cầu:
 - Ai có thể bị hại nếu AI sai, và nhóm chặn thế nào:
 
@@ -181,6 +184,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 | 28/11 02:35 | Nâng cấp `codebase/agent.py` & `codebase/ai.py` (**LEARNLOOP v2**: đảo thứ tự key JSON, feedback đầu prompt, Code Policy Gates, `thieu_du_lieu`, `thinkingBudget=256`) và chạy đánh giá Lượt 2 (`run-2@20261128-022833`) | Khắc phục 6/7 câu trượt Lượt 1 (`B03, B05, B18, B20, B23, B24`) và giảm `-57,6%` `tokens_out` (`2.067 → 876`); Lượt 2 đạt **`22/24` (92%)**, `tu_choi` `4/4` (100%), đạt chuẩn §7 (`eval/report.md`) |
 | 28/11 03:30 | **Mở phạm vi, thêm vào lõi v2 (không đổi logic đang có):** công cụ `thoi_tiet` (Open-Meteo, chỉ đọc, không cần key); bước đọc yêu cầu lấy thêm `ngay_bat_dau`, bỏ "thời tiết" khỏi `thieu_du_lieu`; có ngày đi thì mỗi ngày có ngày, thứ và dự báo, ngày mưa ưu tiên điểm trong nhà; mỗi điểm / ngày có link chỉ đường Google Maps trong `itinerary` (không đưa vào output chữ) | Người dùng cần bấm để được chỉ đường và muốn biết thời tiết. Không câu thử nào có ngày đi nên phần thời tiết không gọi API khi eval; cần **lượt 3** để code nộp khớp kết quả |
 | 28/11 05:00 | Sửa 3 lỗi thấy khi chạy thật với Gemini trước lượt 3: (1) lý do model viết nhắc thứ dữ liệu không có ("tránh đông đúc") hoặc buổi trái giờ đến ("buổi chiều" lúc 10:53) → luật mới trong `SYSTEM_XEP` + code kiểm, không tin được thì thay bằng lý do do code viết từ dữ liệu; (2) ngày trống từ 3 giờ trở lên giữa hai điểm → luật chia đều thời lượng + code nêu khung trống và gợi ý điểm mở cửa vừa khung (phút đi từ `thoi_gian_di`); (3) tiền taxi làm tròn nghìn trong `kiem_lich_trinh` | Chạy thật `/api/plan` lúc 04:30: lý do Lăng Bác "tránh đông đúc", Văn Miếu "xếp vào buổi chiều" nhưng đến 10:53, ngày 2 trống 10:15–18:51, taxi "153,903đ". Có test hồi quy trong `codebase/test_core.py` |
+| 28/11 06:30 | **Chế độ "đi lại ít nhất"** (nhánh riêng, sau lượt 4): bước đọc yêu cầu lấy thêm `che_do`, `noi_o`; `tim_noi_o` → toạ độ chỗ ở; sau khi AI chia ngày, `toi_uu_lo_trinh` thử mọi thứ tự trong ngày và chuyển / đổi điểm giữa các ngày cho tổng phút đi ít nhất (có trần tải mỗi ngày); output ghi hướng từng ngày và phút đi trước / sau. Chế độ mặc định không đổi | Người dùng hỏi cách xếp khi chỗ ở nằm giữa các cụm điểm (mỗi ngày / mỗi buổi một hướng). Thử: lịch trộn hướng 194 → 164 phút đi, ngày 1 phía Tây, ngày 2 phía Đông Nam. Chưa chạy eval cho chế độ này |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

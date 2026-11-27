@@ -7,6 +7,9 @@
 5. kiem_lich_trinh + kiểm đủ số ngày (code) → còn vi phạm thì phản hồi ở ĐẦU prompt (Theorem R.1), tối đa MAX_SUA lượt
 Thêm sau lượt 2: biết ngày đi thì thoi_tiet (code, Open-Meteo) → dự báo từng ngày; mỗi điểm / ngày có link
 chỉ đường Google Maps (link_google_maps, không cần key) trong itinerary — không đưa link vào output chữ.
+Chế độ "đi lại ít nhất" (người dùng nói đỡ đi lòng vòng / ít di chuyển, hoặc nêu chỗ ở): tim_noi_o (code) → toạ độ
+chỗ ở; sau khi AI chia ngày, toi_uu_lo_trinh (code) thử mọi thứ tự trong ngày + chuyển / đổi điểm giữa các ngày để
+tổng phút đi ít nhất mà vẫn kịp giờ mở cửa (chỗ ở nằm giữa các cụm → mỗi ngày tự tách một hướng).
 Output dựng bằng code từ kết quả kiem_lich_trinh và thoi_gian_di: model không ghi con số nào.
 """
 import datetime
@@ -14,8 +17,8 @@ import json
 import re
 
 from ai import call_model
-from tools import (MUA_NHIEU, POI, TAGS, hom_nay, kiem_lich_trinh, link_google_maps, thoi_gian_di, thoi_tiet,
-                   tim_diem)
+from tools import (HOTEL, MUA_NHIEU, POI, TAGS, hom_nay, kiem_lich_trinh, link_google_maps, thoi_gian_di, thoi_tiet,
+                   tim_diem, tim_noi_o, toi_uu_lo_trinh)
 from tracing import note
 
 MAX_SUA = 2
@@ -47,6 +50,8 @@ SYSTEM_DOC = """Bạn là bộ tách biến (Distillation) đọc yêu cầu du 
  "bo_diem": [tên điểm người dùng muốn bỏ],
  "gio_bat_dau": "HH:MM",
  "ngay_bat_dau": "YYYY-MM-DD" | null,
+ "noi_o": "chỗ ở người dùng nêu (tên khách sạn, địa chỉ, khu vực), giữ nguyên chữ" | null,
+ "che_do": "can_bang" | "it_di_chuyen",
  "ngan_sach_moi_nguoi": int,
  "tu_choi_them": ["đặt vé" | "đặt phòng" | "chuyển tiền" | "sửa giờ/giá theo ý" | ...],
  "thieu_du_lieu": ["độ đông" | "ngày lễ" | "quán ăn cụ thể" | "giờ mở cửa thực tế hôm nay" | ...],
@@ -68,6 +73,8 @@ Luật bắt buộc:
 - Đòi đặt vé / đặt phòng / chuyển tiền / sửa giờ mở cửa trái dữ liệu -> ghi vào tu_choi_them (không lặp lại số thẻ).
 - Nếu người dùng hỏi về độ đông, ngày lễ, quán ăn cụ thể ngoài điểm tham quan, hay giờ mở cửa thực tế hôm nay -> ghi tên yếu tố đó vào thieu_du_lieu. Thời tiết KHÔNG ghi vào đây (code tra dự báo khi biết ngày đi).
 - Hôm nay là {HOM_NAY}. Người dùng nói ngày đi ("5/12", "thứ Bảy này", "cuối tuần sau", "mai") -> ngay_bat_dau là ngày đầu tiên dạng YYYY-MM-DD; không nói -> null. KHÔNG hỏi lại chỉ vì thiếu ngày đi.
+- noi_o: chỉ ghi khi người dùng nói rõ mình ở đâu ("khách sạn ở 20 Hàng Bạc", "ở gần Hồ Tây"); không nói -> null.
+- che_do = "it_di_chuyen" khi người dùng muốn đỡ đi lòng vòng / đi lại ít nhất / tiết kiệm thời gian di chuyển / xếp theo hướng; còn lại "can_bang".
 - gio_bat_dau mặc định "07:30"; "trưa", "từ 13h" -> "13:00"; "16h30" -> "16:30". ngan_sach_moi_nguoi bằng đồng (0 nếu không nói).
 - Nếu có "Lộ trình trước" và "Sửa:", áp yêu cầu sửa vào yêu cầu gốc (bỏ điểm -> bo_diem, thêm điểm -> diem_muon_di).
 
@@ -84,7 +91,8 @@ SYSTEM_XEP = """Bạn xếp lộ trình đi chơi Hà Nội. Chỉ dùng id tron
 
 Luật bắt buộc:
 - Đúng so_ngay ngày yêu cầu. Nếu số ung_vien >= so_ngay thì KHÔNG ĐƯỢC để ngày nào rỗng (chia đều điểm sang các ngày).
-- Mỗi ngày xuất phát từ khách sạn ở phố cổ (ngày 1 từ gio_bat_dau_ngay_1, các ngày sau từ 07:30).
+- Mỗi ngày xuất phát từ chỗ ở ("khach_san" trong phut_di; mặc định khách sạn ở phố cổ) và về lại chỗ ở (ngày 1 từ gio_bat_dau_ngay_1, các ngày sau từ 07:30).
+- che_do = "it_di_chuyen": chia điểm theo HƯỚNG so với chỗ ở — mỗi ngày (hoặc mỗi buổi) một cụm điểm cùng phía; không bắt người dùng băng qua chỗ ở nhiều lần trong ngày. Code sẽ tự tối ưu thứ tự trong ngày.
 - Ưu tiên giữ điểm nguoi_dung_neu=true nếu kịp giờ mở/đóng cửa và vừa ngân sách. Nếu điểm nguoi_dung_neu=true phải bỏ vì quá giờ hoặc quá ngân sách -> đưa vào "bo" và gợi ý thêm ngày hoặc đổi điểm.
 - Nếu tổng thời gian rảnh đủ, mỗi ngày trọn vẹn nên có tổng phut_tham_quan khoảng 240–420 phút (ít hơn nếu bắt đầu muộn, có trẻ em, hoặc ít ứng viên). Nếu còn ứng viên hợp sở thích chưa xếp mà ngày còn trống thời gian và vừa ngân sách thì xếp thêm.
 - Khi ngan_sach_ve_moi_nguoi > 0: tổng gia_ve của các điểm đã chọn PHẢI <= ngan_sach_ve_moi_nguoi. Nếu tổng vé vượt ngân sách -> CHỦ ĐỘNG bỏ bớt điểm có gia_ve > 0 (ưu tiên giữ điểm miễn phí hoặc điểm hợp ý nhất) và ghi điểm bị bỏ vào "bo".
@@ -160,6 +168,16 @@ def answer(text: str) -> dict:
             notes.append("Dữ liệu hiện không có thông tin về %s nên không thể khẳng định hoặc tối ưu theo yếu tố này." % thieu)
     if not ngay_di and _THOI_TIET.search(clean_text):
         notes.append("Cho mình biết ngày đi để xem dự báo thời tiết (chỉ có dự báo trong 16 ngày tới).")
+    xp = None
+    if isinstance(doc.get("noi_o"), str) and doc["noi_o"].strip():
+        cho_o = tim_noi_o(doc["noi_o"].strip())
+        if "loi" in cho_o:
+            notes.append("Chưa xác định được chỗ ở (%s) nên tính từ khách sạn mặc định ở phố cổ." % cho_o["loi"])
+        else:
+            xp = {"id": HOTEL["id"], "ten": cho_o["ten"], "lat": cho_o["lat"], "lon": cho_o["lon"]}
+            notes.append("Xuất phát và về: %s (vị trí theo %s) — kiểm lại trên bản đồ nếu chưa đúng."
+                         % (cho_o["ten"], "dữ liệu điểm" if cho_o["nguon"] == "du_lieu" else "OpenStreetMap"))
+    toi_uu = doc.get("che_do") == "it_di_chuyen" or xp is not None
 
     so_thich = doc.get("so_thich") or []
     tranh = doc.get("tranh") or []
@@ -188,7 +206,7 @@ def answer(text: str) -> dict:
             "itinerary": None,
         }
 
-    phut = thoi_gian_di([p["id"] for p in ung_vien])
+    phut = thoi_gian_di([p["id"] for p in ung_vien], xp)
     uv_gui = ung_vien if ngan_sach else [
         {k: v for k, v in p.items() if k not in ("gia_ve", "tre_em_mien_phi_duoi")} for p in ung_vien
     ]
@@ -204,10 +222,13 @@ def answer(text: str) -> dict:
         "ung_vien": uv_gui,
         "phut_di": phut,
     }
+    if toi_uu:
+        yeu_cau["che_do"] = "it_di_chuyen"
+        yeu_cau["cho_o"] = xp["ten"] if xp else "khách sạn ở phố cổ"
     du_bao = _lay_thoi_tiet(ngay_di, so_ngay, notes)
     if any(du_bao):
         yeu_cau["thoi_tiet_tung_ngay"] = [x and {"mo_ta": x["mo_ta"], "kha_nang_mua": x["kha_nang_mua"]} for x in du_bao]
-    loi, plan, kq = [], None, None
+    loi, plan, kq, opt = [], None, None, None
     for lan in range(MAX_SUA + 1):
         # Theorem R.1: đặt phản hồi vi phạm ở ĐẦU prompt khi sửa
         if lan > 0 and loi:
@@ -230,7 +251,12 @@ def answer(text: str) -> dict:
         plan = moi
         ids = {p["id"] for p in ung_vien}
         ngay = [[i for i in d if i in ids] for d in (plan.get("ngay") or [])][:so_ngay]
-        kq = kiem_lich_trinh(ngay, gio, nguoi_lon, tuoi, ngan_sach)
+        if toi_uu:  # đi lại ít nhất: bỏ điểm trùng giữa các ngày, rồi code tối ưu thứ tự + chia lại theo hướng
+            gap = set()
+            ngay = [[i for i in d if not (i in gap or gap.add(i))] for d in ngay]
+            opt = toi_uu_lo_trinh(ngay, gio, xp)
+            ngay = opt["ngay"]
+        kq = kiem_lich_trinh(ngay, gio, nguoi_lon, tuoi, ngan_sach, xp=xp)
         loi = list(kq["vi_pham"])
         if len(ung_vien) >= so_ngay and (len(ngay) < so_ngay or any(not d for d in ngay)):
             loi.append("Phải chia điểm đủ %d ngày và không để ngày nào trống" % so_ngay)
@@ -240,7 +266,7 @@ def answer(text: str) -> dict:
 
     if kq is None:
         return {"output": "Xin lỗi, lần này chưa xếp được lộ trình. Bạn thử gửi lại giúp mình.", "itinerary": None}
-    return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao, so_thich)
+    return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao, so_thich, opt, xp)
 
 
 def _ngay(v):
@@ -333,7 +359,8 @@ def _goi_y_khoang_trong(days, ung_vien, notes):
                             else ". Dữ liệu chưa có điểm nào vừa khung giờ này."))
 
 
-def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=None, so_thich=None):
+def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=None, so_thich=None, opt=None,
+                 xp=None):
     ly_do = plan.get("ly_do") or {}
     user_ids = {p["id"] for p in ung_vien if p.get("nguoi_dung_neu")}
     days_nonempty = [d for d in kq["days"] if d["stops"]]
@@ -354,6 +381,12 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
             moi = _ly_do_code(theo_id.get(s["id"], POI[s["id"]]), so_thich)
         s["reason"] = moi
     _goi_y_khoang_trong(days_nonempty, ung_vien, notes)
+    if opt:  # số phút lấy từ toi_uu_lo_trinh
+        if opt["da_doi"] and opt["phut_di_sau"] < opt["phut_di_truoc"]:
+            notes.append("Đã sắp lại để đi lại ít nhất: tổng thời gian di chuyển %d phút (thứ tự ban đầu %d phút)."
+                         % (opt["phut_di_sau"], opt["phut_di_truoc"]))
+        else:
+            notes.append("Thứ tự này đã là ít di chuyển nhất: tổng thời gian di chuyển %d phút." % opt["phut_di_sau"])
     for b in plan.get("bo") or []:
         bid = b.get("id")
         if bid in POI:
@@ -380,12 +413,15 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
             d["weather"] = tt
             tieu_de += " · %s, %d–%d°C" % (tt["mo_ta"], tt["nhiet_do_thap"], tt["nhiet_do_cao"]) + (
                 "" if tt["kha_nang_mua"] is None else ", khả năng mưa %d%%" % tt["kha_nang_mua"])
+        if opt and d["day"] <= len(opt["huong"]) and opt["huong"][d["day"] - 1]:
+            tieu_de += " · đi %s" % opt["huong"][d["day"] - 1]
         lines.append(tieu_de)
         for s in d["stops"]:
             lines.append("- %s · %s (đi %d phút, tham quan %d phút, vé %sđ, mở %s–%s): %s"
                          % (s["arrive"], s["name"], s["travel_min_from_prev"], s["visit_min"],
                             f"{s['ticket_vnd']:,}", s["mo"], s["dong"], s["reason"]))
-        lines.append("  Kết thúc %s, về khách sạn khoảng %s" % (d["ket_thuc"], d["ve_khach_san"]))
+        lines.append("  Kết thúc %s, về %s khoảng %s" % (d["ket_thuc"], "chỗ ở" if xp else "khách sạn",
+                                                       d["ve_khach_san"]))
     lines.append("\nTổng vé %sđ (%sđ/người) · taxi ước tính %sđ"
                  % (f"{kq['total_vnd']:,}", f"{kq['per_person_vnd']:,}", f"{kq['xe_vnd']:,}"))
     lines += ["\nLưu ý:"] + ["- " + n for n in notes]
@@ -395,7 +431,9 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
         for k, s in enumerate(d["stops"]):
             s["maps_url"] = link_google_maps([s["id"]], tu=ids[k - 1] if k else None)
         # trình duyệt di động chỉ nhận tối đa 3 điểm dừng giữa đường → mỗi link tối đa 4 điểm, link sau nối tiếp link trước
-        d["maps_urls"] = [link_google_maps(ids[i:i + 4], tu=ids[i - 1] if i else None) for i in range(0, len(ids), 4)]
+        # có chỗ ở: link cả ngày đi từ chỗ ở; không có: từ vị trí hiện tại của máy
+        d["maps_urls"] = [link_google_maps(ids[i:i + 4], tu=ids[i - 1] if i else (HOTEL["id"] if xp else None), xp=xp)
+                          for i in range(0, len(ids), 4)]
     itinerary = {"days": [{"day": d["day"], "date": d.get("date"), "weather": d.get("weather"),
                            "stops": d["stops"], "maps_urls": d["maps_urls"]} for d in days_nonempty],
                  "total_vnd": kq["total_vnd"], "per_person_vnd": kq["per_person_vnd"],

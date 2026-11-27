@@ -122,4 +122,55 @@ assert "Ngày 1 trống" not in r["output"]
 # 3. Tiền taxi làm tròn nghìn (trong công cụ, nên vẫn khớp công cụ)
 assert r["itinerary"]["taxi_vnd"] % 1000 == 0
 assert kiem_lich_trinh([["van_mieu", "ho_guom"]], "08:00", 2, [])["xe_vnd"] % 1000 == 0
+
+# --- Chế độ "đi lại ít nhất": tối ưu thứ tự + chia ngày theo hướng, chỗ ở người dùng ---
+from tools import tim_noi_o, toi_uu_lo_trinh  # noqa: E402
+
+# AI chia lộn xộn: trộn phía Tây (Dân tộc học, Lăng Bác, Văn Miếu) với phía Đông (Bát Tràng) — chỗ ở ở giữa (phố cổ)
+TRON = [["bt_dan_toc_hoc", "ho_guom", "van_mieu"], ["bat_trang", "lang_bac", "dong_xuan", "hoa_lo"]]
+o = toi_uu_lo_trinh(TRON, ["07:30", "07:30"])
+assert o["da_doi"] and o["phut_di_sau"] < o["phut_di_truoc"], o
+assert sorted(sum(o["ngay"], [])) == sorted(sum(TRON, [])) and all(o["ngay"])  # đủ điểm, không ngày nào trống
+assert o["huong"][0] != o["huong"][1]  # mỗi ngày một hướng
+assert not any("bat_trang" in d and "bt_dan_toc_hoc" in d for d in o["ngay"])  # không băng qua chỗ ở trong một ngày
+assert kiem_lich_trinh(o["ngay"], ["07:30", "07:30"], 2, [])["vi_pham"] == []
+# Thứ tự trong ngày tôn trọng giờ mở cửa: lăng Bác (đóng 10:30) phải đi sớm, phố đi bộ (mở 19:00) cuối ngày
+o = toi_uu_lo_trinh([["pho_di_bo", "van_mieu", "lang_bac"]], "07:30")
+assert o["ngay"][0][0] == "lang_bac" and o["ngay"][0][-1] == "pho_di_bo"
+# Không thứ tự nào kịp (13:00 mà có lăng Bác) → giữ nguyên để kiem_lich_trinh báo vi phạm
+o = toi_uu_lo_trinh([["lang_bac", "van_mieu"]], "13:00")
+assert o["ngay"] == [["lang_bac", "van_mieu"]] and not o["da_doi"]
+
+# Chỗ ở: khớp tên điểm trong dữ liệu thì không gọi mạng
+goi.clear()
+tools._tra_dia_chi = lambda q: goi.append(q) or []
+c = tim_noi_o("khách sạn gần Hồ Tây")
+assert c["nguon"] == "du_lieu" and c["ten"] == "gần Chùa Trấn Quốc – Hồ Tây" and not goi
+# Không khớp → Nominatim (dữ liệu giả); ngoài Hà Nội / không thấy / mất mạng → báo lỗi
+tools._tra_dia_chi = lambda q: [{"lat": "21.0340", "lon": "105.8510", "display_name": "20 Hàng Bạc, Hàng Bạc, Hoàn Kiếm"}]
+assert tim_noi_o("20 Hàng Bạc") == {"ten": "20 Hàng Bạc, Hàng Bạc", "lat": 21.034, "lon": 105.851, "nguon": "openstreetmap"}
+tools._tra_dia_chi = lambda q: [{"lat": "16.05", "lon": "108.20", "display_name": "Đà Nẵng"}]
+assert "ngoài Hà Nội" in tim_noi_o("khách sạn Mường Thanh")["loi"]
+tools._tra_dia_chi = lambda q: []
+assert "không tìm thấy" in tim_noi_o("abc xyz")["loi"]
+tools._tra_dia_chi = mat_mang
+assert "chưa tra được" in tim_noi_o("abc xyz")["loi"]
+
+# Luồng đầy đủ: người dùng ở gần Hồ Tây, muốn đỡ đi lòng vòng
+replies[:] = [{"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 2, "noi_o": "khách sạn gần Hồ Tây", "che_do": "it_di_chuyen",
+               "diem_muon_di": ["Dân tộc học", "Hồ Gươm", "Văn Miếu", "Bát Tràng", "Lăng Bác", "Đồng Xuân", "Hỏa Lò"]},
+              {"ngay": TRON, "ly_do": {}}]
+r = agent.answer("x")
+assert "Xuất phát và về: gần Chùa Trấn Quốc – Hồ Tây" in r["output"], r["output"]
+assert "Đã sắp lại để đi lại ít nhất" in r["output"] and " · đi phía" in r["output"] and "về chỗ ở khoảng" in r["output"]
+assert r["itinerary"]["feasible"]
+tai = [sum(s["visit_min"] for s in d["stops"]) for d in r["itinerary"]["days"]]
+assert max(tai) <= 420 and min(tai) > 0, tai  # không dồn hết vào một ngày
+assert "origin=21.048%2C105.8368" in r["itinerary"]["days"][0]["maps_urls"][0]  # link cả ngày đi từ chỗ ở
+# Chế độ mặc định không đổi gì: không tối ưu, không ghi chú
+replies[:] = [{"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 2,
+               "diem_muon_di": ["Dân tộc học", "Hồ Gươm", "Văn Miếu", "Bát Tràng", "Lăng Bác", "Đồng Xuân", "Hỏa Lò"]},
+              {"ngay": TRON, "ly_do": {}}, {"ngay": TRON, "ly_do": {}}, {"ngay": TRON, "ly_do": {}}]
+r = agent.answer("x")  # lịch lộn xộn có vi phạm → lõi gọi lại model, không tự tối ưu ở chế độ mặc định
+assert "đi lại ít nhất" not in r["output"] and [s["id"] for s in r["itinerary"]["days"][0]["stops"]] == TRON[0]
 print("OK: test_core")

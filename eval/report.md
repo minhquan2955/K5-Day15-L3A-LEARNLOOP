@@ -15,6 +15,7 @@
 | 5 | `run-5@20261128-055313` | lỗi kỹ thuật 1/24 (B07 timeout) — không chấm | | | | | |
 | 6 | `run-6@20261128-060034` | 23/24 | 96% | 6/6 (100%) | 13/14 (93%) | 4/4 (100%) | đạt |
 | 7 | `run-7@20261128-061509` | 22/24 | 92% | 6/6 (100%) | 12/14 (86%) | 4/4 (100%) | đạt |
+| 8 | `run-8@20261128-062529` | 24/24 | 100% | 6/6 (100%) | 14/14 (100%) | 4/4 (100%) | đạt |
 
 Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-1.jsonl`, `traces/run-2.jsonl`.
 
@@ -66,6 +67,13 @@ Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-
 - Thay đổi: khi model sửa hết lượt mà lịch cuối vẫn vượt ngân sách, code tự bỏ ít điểm có vé nhất cho vừa và ghi "đi đủ thì vượt bao nhiêu"; lý do nhắc "trong ngân sách" bị thay. Thêm chữ "chỉ tham khảo" cho tiền taxi.
 - Kết quả: **`23/24 → 22/24`**. `B05` vẫn trượt nhưng **vì lý do khác**: lần này model tự đưa lịch vừa ngân sách (140.000đ/người) nên phần code cắt không chạy, và output không nói đi đủ các điểm thì vượt bao nhiêu → bản sửa **chưa đủ** (cần luôn ghi số vượt khi phải bỏ điểm người dùng nêu vì ngân sách, kể cả khi model tự cắt).
 - Câu **tệ đi**: `B07` (`1 → 0`) — bước đọc yêu cầu đưa `tre_em` vào `tranh` thay vì `so_thich`, nên không có lịch. Thay đổi lượt 7 không đụng bước đọc yêu cầu → **dao động của model**; cho thấy cần đo độ ổn định nhiều lượt (`pass^k`) trước khi kết luận một lần sửa tốt hay xấu.
+
+### Lượt 8 (sửa tiếp `B05`, `B07`)
+
+- `B05`: tách bước "đi đủ các điểm bạn nêu thì vượt … đ" chạy mỗi khi điểm người dùng nêu bị bỏ vì ngân sách (dù model hay code cắt); lý do bỏ điểm tự nhận "trong ngân sách" → câu chuẩn. `B07`: nhóm có trẻ em mà model đưa `tre_em` vào `tranh` → code chuyển sang `so_thich` (+ luật prompt).
+- Kết quả: **`22/24 → 24/24 (100%)`**; `B05`, `B07` đạt. Không câu nào tệ đi.
+- Ghi chú chất lượng: ở `B03`, `B20` lý do không xếp Chùa Hương thành câu chung "không còn chỗ trong lịch" vì lý do model có chữ số bị lọc — vẫn đạt (số từ công cụ đủ) nhưng giải thích kém hơn; nên thay bằng câu code viết theo nguyên nhân (quá giờ đóng cửa / quá xa / vượt ngân sách).
+- Kết quả từng lượt dao động (lượt 7 `B07` trượt dù không đổi code phần đó): một lượt 100% chưa chứng minh ổn định — nên chạy 3 lượt liên tiếp (`pass^3`) trước khi kết luận.
 
 ## 4. Còn lại
 

@@ -152,7 +152,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 ## §7. Đánh giá & chuẩn "đạt" *(guide 2.4, 4.1)*
 - Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 24 câu (thuong 6 · kho 14 · tu_choi 4) · metric: `eval/metric_spec.yaml` (5 metric)
 - **Chuẩn "đạt"** (chốt **trước 19:30 Thứ Sáu 27/11**, giữ nguyên đến 23:59 Thứ Bảy 28/11): "Đạt khi ≥ 80% câu qua, và 100% câu `tu_choi` qua, và 0 câu có số liệu (phút đi, giờ, tiền) khác kết quả công cụ, và 0 câu đưa lộ trình có vi phạm mà nói là xếp được."
-- Kết quả: lượt 1 17/24 (71%) · lượt 2 22/24 (92%) · lượt 4 21/24 (88%, đổi model `gemini-3.1-flash-lite`; lượt 3 lỗi kỹ thuật, không chấm) · lượt 6 23/24 (96%, sửa `tim_diem` + chế độ đi lại ít nhất; lượt 5 lỗi kỹ thuật) · lượt 7 22/24 (92%, sửa `B05` chưa đủ, `B07` dao động) — run ID: `run-1@20261128-014438` / `run-2@20261128-022833` / `run-4@20261128-053502` / `run-6@20261128-060034` / `run-7@20261128-061509` → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
+- Kết quả: lượt 1 17/24 (71%) · lượt 2 22/24 (92%) · lượt 4 21/24 (88%, đổi model `gemini-3.1-flash-lite`; lượt 3 lỗi kỹ thuật, không chấm) · lượt 6 23/24 (96%, sửa `tim_diem` + chế độ đi lại ít nhất; lượt 5 lỗi kỹ thuật) · lượt 7 22/24 (92%, sửa `B05` chưa đủ, `B07` dao động) · lượt 8 24/24 (100%) — run ID: `run-1@20261128-014438` / `run-2@20261128-022833` / `run-4@20261128-053502` / `run-6@20261128-060034` / `run-7@20261128-061509` / `run-8@20261128-062529` → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
 - Persona + giá: `cost/personas.yaml` · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên)

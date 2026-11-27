@@ -146,7 +146,7 @@ def kiem_lich_trinh(ngay: list, gio_bat_dau: str, nguoi_lon: int, tuoi_tre_em: l
         vi_pham.append("Tiền vé %dđ/người, vượt ngân sách %dđ/người %dđ"
                        % (ve_moi_nguoi, ngan_sach_moi_nguoi, ve_moi_nguoi - ngan_sach_moi_nguoi))
     return {"days": out_ngay, "vi_pham": vi_pham, "total_vnd": tong_ve, "per_person_vnd": ve_moi_nguoi,
-            "xe_vnd": tong_xe, "so_nguoi": so_nguoi}
+            "xe_vnd": round(tong_xe, -3), "so_nguoi": so_nguoi}  # taxi là ước tính: làm tròn nghìn
 
 
 # ---------- Thời tiết (Open-Meteo, miễn phí phi thương mại, không cần key, dữ liệu CC BY 4.0) ----------

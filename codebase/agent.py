@@ -23,6 +23,19 @@ _THE = re.compile(r"(?:\d[ -]?){12,19}")
 _DELIM = re.compile(r"(?:<\|[^|>]{1,40}\|>|#{3,}|\r)")
 _THOI_TIET = re.compile(r"thời tiết|trời mưa|\bmưa\b|nắng|nóng|lạnh|rét", re.I)
 _THU = ["thứ Hai", "thứ Ba", "thứ Tư", "thứ Năm", "thứ Sáu", "thứ Bảy", "Chủ nhật"]
+# Lý do nhắc thông tin dữ liệu không có → không tin được
+_KHONG_CAN_CU = re.compile(r"đông đúc|đông người|chỗ đông|tránh đông|bớt đông|\bvắng\b|chen chúc|kẹt xe|tắc đường|"
+                           r"giờ cao điểm|quán ngon|nhà hàng", re.I)
+# Buổi trong ngày nhắc trong lý do phải khớp giờ đến do công cụ tính (phút từ 0:00)
+_BUOI = [(re.compile(r"buổi sáng|sáng sớm", re.I), 5 * 60, 12 * 60),
+         (re.compile(r"buổi trưa|giữa trưa", re.I), 11 * 60, 14 * 60),
+         (re.compile(r"buổi chiều|\bchiều\b(?! (?:dài|rộng|cao))", re.I), 12 * 60, 18 * 60 + 30),
+         (re.compile(r"buổi tối|ban đêm|\bđêm\b|\btối\b(?! ?(?:ưu|đa|thiểu|giản))", re.I), 17 * 60 + 30, 24 * 60)]
+KHOANG_TRONG = 180  # phút trống giữa hai điểm từ mức này thì gợi ý lấp
+_NHAN = {"di_tich": "di tích", "lich_su": "lịch sử", "van_hoa": "văn hoá", "am_thuc": "ẩm thực", "pho_co": "phố cổ",
+         "dao_pho": "dạo phố", "bao_tang": "bảo tàng", "kien_truc": "kiến trúc", "tam_linh": "tâm linh",
+         "thien_nhien": "thiên nhiên", "chup_anh": "chụp ảnh", "mua_sam": "mua sắm", "buoi_toi": "đi chơi tối",
+         "trai_nghiem": "trải nghiệm", "tre_em": "hợp trẻ em", "ngoai_thanh": "ngoại thành"}
 
 SYSTEM_DOC = """Bạn là bộ tách biến (Distillation) đọc yêu cầu du lịch Hà Nội và trả về DUY NHẤT một JSON theo đúng thứ tự trường sau:
 {"so_ngay": int|null,
@@ -79,7 +92,9 @@ Luật bắt buộc:
 - Có trẻ em hoặc ngại đi bộ: ít điểm hơn, ưu tiên điểm gần nhau và điểm có nhãn tre_em.
 - Tôn trọng giờ mở/đóng: phải đến và tham quan xong trước giờ đóng cửa. Điểm chỉ mở buổi tối để cuối ngày.
 - Gom điểm gần nhau (theo phut_di) trong cùng một ngày.
+- Chia thời lượng đều giữa các ngày: không để một ngày trống từ 3 giờ trở lên giữa hai điểm (vd chờ điểm chỉ mở buổi tối) trong khi ngày khác kết thúc sớm hoặc còn ứng viên xếp vừa; dời bớt điểm ban ngày sang ngày đó.
 - Có thoi_tiet_tung_ngay: ngày kha_nang_mua cao (từ 60) ưu tiên bảo tàng và điểm ít đi ngoài trời; điểm ngoài trời (dao_pho, chup_anh, thien_nhien, ngoai_thanh) dời sang ngày khô hơn nếu được. Lý do được nhắc thời tiết, không ghi số.
+- "ly_do" chỉ dựa trên: nhãn sở thích, điểm người dùng nêu, giờ mở/đóng, độ gần nhau theo phut_di, thời tiết nếu có. KHÔNG nhắc độ đông / vắng, kẹt xe, quán ăn cụ thể (dữ liệu không có). KHÔNG viết "buổi sáng / chiều / tối" nếu không chắc điểm đó rơi vào buổi nào.
 - TUYỆT ĐỐI KHÔNG tự ước hay tự bịa số giờ, số phút đi, số tiền trong "ly_do" hoặc "bo[].ly_do" (code sẽ gắn số thật từ công cụ). Không viết "miễn phí vé" cho điểm có gia_ve > 0."""
 
 
@@ -225,7 +240,7 @@ def answer(text: str) -> dict:
 
     if kq is None:
         return {"output": "Xin lỗi, lần này chưa xếp được lộ trình. Bạn thử gửi lại giúp mình.", "itinerary": None}
-    return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao)
+    return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao, so_thich)
 
 
 def _ngay(v):
@@ -256,7 +271,69 @@ def _lay_thoi_tiet(ngay_di, so_ngay, notes):
     return du_bao
 
 
-def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=None):
+def _phut(hhmm):
+    h, m = hhmm.split(":")
+    return int(h) * 60 + int(m)
+
+
+def _gio(phut):
+    return "%02d:%02d" % (phut // 60, phut % 60)
+
+
+def _ly_do_tin_duoc(ly_do, den):
+    """Lý do model viết có tin được không: không nhắc thứ dữ liệu không có, buổi nhắc tới khớp giờ đến."""
+    if not isinstance(ly_do, str) or not ly_do.strip() or _KHONG_CAN_CU.search(ly_do):
+        return False
+    t = _phut(den)
+    khop = [lo <= t < hi for rx, lo, hi in _BUOI if rx.search(ly_do)]
+    return not khop or any(khop)
+
+
+def _ly_do_code(p, so_thich):
+    """Lý do do code viết từ dữ liệu, dùng khi lý do của model không tin được."""
+    phan = []
+    if p.get("nguoi_dung_neu"):
+        phan.append("bạn muốn đi điểm này")
+    khop = [_NHAN.get(t, t.replace("_", " ")) for t in p.get("so_thich") or [] if t in (so_thich or [])]
+    if khop:
+        phan.append("hợp sở thích " + ", ".join(khop))
+    if p.get("dong", "23:59") <= "12:00":
+        phan.append("chỉ mở buổi sáng nên xếp sớm")
+    elif p.get("mo", "00:00") >= "18:00":
+        phan.append("chỉ mở buổi tối nên để cuối ngày")
+    s = "; ".join(phan)
+    return s[:1].upper() + s[1:] + "." if s else ""
+
+
+def _goi_y_khoang_trong(days, ung_vien, notes):
+    """Khoảng trống >= KHOANG_TRONG phút giữa hai điểm → nói rõ và gợi ý điểm mở cửa vừa khung đó (phút đi từ công cụ)."""
+    da_xep = {s["id"] for d in days for s in d["stops"]}
+    hop_y = [p["id"] for p in ung_vien if p["id"] not in da_xep]
+    khac = [i for i in POI if i not in da_xep and i not in hop_y]
+    for d in days:
+        for a, b in zip(d["stops"], d["stops"][1:]):
+            xong = _phut(a["arrive"]) + a["visit_min"]
+            phai_di = _phut(b["arrive"]) - b["travel_min_from_prev"]
+            if phai_di - xong < KHOANG_TRONG:
+                continue
+            ung = hop_y + khac
+            di = thoi_gian_di([a["id"], b["id"]] + ung)
+            vua = []
+            for i in ung:
+                p = POI[i]
+                bat_dau = max(xong + di["%s>%s" % (a["id"], i)], _phut(p["mo"]))
+                ket_thuc = bat_dau + p["phut_tham_quan"]
+                if ket_thuc <= _phut(p["dong"]) and ket_thuc + di["%s>%s" % (i, b["id"])] <= _phut(b["arrive"]):
+                    vua.append((i not in hop_y, di["%s>%s" % (a["id"], i)], p["ten"]))
+            vua.sort()
+            goi_y = ", ".join(x[2] for x in vua[:3])
+            notes.append("Ngày %d trống từ %s đến %s (sau %s, trước %s)%s"
+                         % (d["day"], _gio(xong), _gio(phai_di), a["name"], b["name"],
+                            (". Có thể thêm: %s — gửi \"thêm <tên điểm>\" để xếp lại." % goi_y) if goi_y
+                            else ". Dữ liệu chưa có điểm nào vừa khung giờ này."))
+
+
+def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=None, so_thich=None):
     ly_do = plan.get("ly_do") or {}
     user_ids = {p["id"] for p in ung_vien if p.get("nguoi_dung_neu")}
     days_nonempty = [d for d in kq["days"] if d["stops"]]
@@ -270,8 +347,13 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
         kq["vi_pham"].append("Ngày %s đang bị để trống" % ", ".join(str(x) for x in empty_days))
 
     feasible = not kq["vi_pham"]
+    theo_id = {p["id"]: p for p in ung_vien}
     for s in (s for d in days_nonempty for s in d["stops"]):
-        s["reason"] = ly_do.get(s["id"], "")
+        moi = ly_do.get(s["id"], "")
+        if not _ly_do_tin_duoc(moi, s["arrive"]):  # bịa thứ dữ liệu không có, hoặc buổi trái giờ đến → lý do do code viết
+            moi = _ly_do_code(theo_id.get(s["id"], POI[s["id"]]), so_thich)
+        s["reason"] = moi
+    _goi_y_khoang_trong(days_nonempty, ung_vien, notes)
     for b in plan.get("bo") or []:
         bid = b.get("id")
         if bid in POI:

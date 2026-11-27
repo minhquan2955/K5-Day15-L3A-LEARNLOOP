@@ -95,4 +95,31 @@ tools._tai_du_bao = mat_mang  # API lỗi → chỉ ghi chú, lịch vẫn ra
 replies[:] = [dict(DOC2, ngay_bat_dau=mai), PLAN2]
 r = agent.answer("x")
 assert "chưa lấy được dự báo" in r["output"] and r["itinerary"]["feasible"]
+
+# --- Lỗi thấy khi chạy thật với Gemini (28/11): lý do sai, chiều trống, tiền taxi lẻ ---
+DOC_THAT = {"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 2, "so_thich": ["di_tich", "am_thuc"],
+            "diem_muon_di": ["lăng bác", "văn miếu", "hồ gươm", "phố đi bộ"]}
+PLAN_THAT = {"ngay": [["lang_bac", "chua_mot_cot", "hoang_thanh", "van_mieu"], ["ho_guom", "dong_xuan", "pho_di_bo"]],
+             "ly_do": {"lang_bac": "Điểm tham quan buổi sáng sớm để đảm bảo giờ mở cửa và tránh đông đúc.",
+                       "chua_mot_cot": "Nằm ngay cạnh Lăng Bác, thuận tiện di chuyển tiếp nối.",
+                       "hoang_thanh": "Tối ưu đường đi vì gần cụm Ba Đình.",
+                       "van_mieu": "Điểm di tích quan trọng, xếp vào buổi chiều để hoàn thành ngày đầu.",
+                       "pho_di_bo": "Chỉ mở vào buổi tối, kết thúc ngày thứ hai."}}
+replies[:] = [DOC_THAT, PLAN_THAT]
+r = agent.answer("x")
+ly_do = {s["id"]: s["reason"] for d in r["itinerary"]["days"] for s in d["stops"]}
+# 1. Lý do nhắc độ đông (dữ liệu không có) / "buổi chiều" khi đến lúc 10:xx → thay bằng lý do do code viết
+assert "đông" not in r["output"] and "buổi chiều" not in r["output"]
+assert ly_do["lang_bac"] == "Bạn muốn đi điểm này; hợp sở thích di tích; chỉ mở buổi sáng nên xếp sớm.", ly_do["lang_bac"]
+assert ly_do["van_mieu"].startswith("Bạn muốn đi điểm này")
+# Lý do đúng thì giữ nguyên ("tối ưu" không phải buổi tối; "buổi tối" khớp giờ đến 19:00)
+assert ly_do["chua_mot_cot"] == PLAN_THAT["ly_do"]["chua_mot_cot"]
+assert ly_do["hoang_thanh"] == PLAN_THAT["ly_do"]["hoang_thanh"]
+assert ly_do["pho_di_bo"] == PLAN_THAT["ly_do"]["pho_di_bo"]
+# 2. Ngày 2 trống từ trưa đến tối → nói rõ khung trống + gợi ý điểm mở cửa vừa khung
+assert "Ngày 2 trống từ" in r["output"] and "Có thể thêm:" in r["output"], r["output"]
+assert "Ngày 1 trống" not in r["output"]
+# 3. Tiền taxi làm tròn nghìn (trong công cụ, nên vẫn khớp công cụ)
+assert r["itinerary"]["taxi_vnd"] % 1000 == 0
+assert kiem_lich_trinh([["van_mieu", "ho_guom"]], "08:00", 2, [])["xe_vnd"] % 1000 == 0
 print("OK: test_core")

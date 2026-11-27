@@ -8,7 +8,7 @@
 | Nguồn | Đạt ngưỡng? | File |
 |---|---|---|
 | Đào data (x/N, %, cách đếm chạy lại được, ≥5 ví dụ) | ☐ | `evidence/data-mining.md` |
-| Phỏng vấn (≥3 người ngoài nhóm, đúng người dùng) | ☐ | `evidence/interviews/P1.md`… |
+| Phỏng vấn (≥3 người ngoài nhóm, đúng người dùng) | ☐ đang làm: đã có bộ câu hỏi (`evidence/interviews/cau-hoi.md`), chưa hỏi ai | `evidence/interviews/P1.md`… |
 | Khảo sát (≥20 người ngoài nhóm, đúng người dùng) | ☐ | `evidence/survey/` |
 
 ## 2. Số chính

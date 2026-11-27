@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'pages.dart' show BadgeText;
 import 'theme.dart';
@@ -29,8 +30,12 @@ class ChatMessage {
     this.itinerary,
     this.id,
     this.image,
+    this.raw,
   });
   final String text;
+
+  /// Toàn bộ output của máy chủ (dùng cho "Xem chi tiết" và khi gửi yêu cầu sửa).
+  final String? raw;
   final bool user;
   final Itinerary? itinerary;
   final String? id;
@@ -110,31 +115,18 @@ class ApiChatRepository extends ChatRepository {
             : 'Máy chủ trả về lỗi ${response.statusCode}.',
       );
     }
-    final data = body['itinerary'];
-    final days = <ItineraryDay>[];
-    const images = ['temple.jpg', 'quarter.jpg', 'lake.jpg'];
-    if (data is Map && data['days'] is List) {
-      for (final day in data['days'] as List) {
-        if (day is! Map || day['stops'] is! List) continue;
-        days.add(
-          ItineraryDay([
-            for (final stop in day['stops'] as List)
-              if (stop is Map) ('${stop['arrive']}', '${stop['name']}'),
-          ], images[days.length % images.length]),
-        );
-      }
-    }
-    final itinerary = days.isEmpty
-        ? null
-        : Itinerary(
-            'Hà Nội ${days.length} ngày${days.length > 1 ? ' ${days.length - 1} đêm' : ''}',
-            '',
-            days,
-          );
+    final output = body['output']?.toString() ?? '';
+    final itinerary = itineraryFromJson(body['itinerary']);
     return ChatMessage(
-      body['output']?.toString() ?? '',
+      itinerary == null
+          ? output
+          : itinerary.feasible
+          ? 'Đã có lộ trình cho bạn. Bấm "Chỉ đường" để mở Google Maps, '
+                '"Xem chi tiết" để đọc toàn bộ lưu ý.'
+          : 'Chưa xếp được trọn vẹn — xem phần lưu ý trong thẻ để biết nên bỏ điểm nào hoặc thêm ngày.',
       itinerary: itinerary,
       id: id,
+      raw: output,
     );
   }
 }
@@ -236,7 +228,7 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         messages.add(reply);
         previousRequest ??= content;
-        previousOutput = reply.text;
+        previousOutput = reply.raw ?? reply.text;
       });
     } on Exception catch (exception) {
       if (!mounted) return;
@@ -375,6 +367,7 @@ class _ChatPageState extends State<ChatPage> {
                           itinerary: message.itinerary!,
                           id: message.id!,
                           travel: widget.travel,
+                          detail: message.raw,
                         ),
                       ),
                   ],
@@ -683,10 +676,12 @@ class ItineraryCard extends StatelessWidget {
     required this.itinerary,
     required this.id,
     required this.travel,
+    this.detail,
   });
   final Itinerary itinerary;
   final String id;
   final TravelState travel;
+  final String? detail;
 
   @override
   Widget build(BuildContext context) => Panel(
@@ -712,10 +707,49 @@ class ItineraryCard extends StatelessWidget {
             ),
           ],
         ),
+        if (!itinerary.feasible)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: BadgeText(
+              'Chưa xếp được trọn vẹn — xem lưu ý',
+              background: Color(0xfff6d9cf),
+              foreground: Color(0xffa53522),
+            ),
+          ),
         for (var i = 0; i < itinerary.days.length; i++)
           Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: DayPreview(index: i + 1, day: itinerary.days[i]),
+            child: itinerary.days[i].details.isEmpty
+                ? DayPreview(index: i + 1, day: itinerary.days[i])
+                : DayPlan(index: i + 1, day: itinerary.days[i]),
+          ),
+        if (itinerary.totalVnd != null) ...[
+          const SizedBox(height: 8),
+          Meta(
+            Icons.payments_outlined,
+            'Tổng vé ${vnd(itinerary.totalVnd!)}'
+            '${itinerary.perPersonVnd == null ? '' : ' (${vnd(itinerary.perPersonVnd!)}/người)'}'
+            '${itinerary.taxiVnd == null ? '' : ' · taxi ước tính ${vnd(itinerary.taxiVnd!)}'}',
+          ),
+        ],
+        if (itinerary.days.any((day) => day.weather != null))
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: () => openLink(context, 'https://open-meteo.com/'),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(0, 32),
+                foregroundColor: muted,
+              ),
+              child: const Text(
+                'Weather data by Open-Meteo.com',
+                style: TextStyle(
+                  fontSize: 11,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
           ),
         const SizedBox(height: 9),
         ListenableBuilder(
@@ -729,7 +763,31 @@ class ItineraryCard extends StatelessWidget {
                     'Xem chi tiết',
                     icon: Icons.description_outlined,
                     compact: true,
-                    onTap: () => sheet<void>(context, itinerary.title),
+                    onTap: () => sheet<void>(
+                      context,
+                      itinerary.title,
+                      body: detail == null && itinerary.notes.isEmpty
+                          ? null
+                          : ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.sizeOf(context).height * .6,
+                              ),
+                              child: SingleChildScrollView(
+                                child: SelectableText(
+                                  detail ??
+                                      itinerary.notes
+                                          .map((note) => '- $note')
+                                          .join('\n'),
+                                  style: const TextStyle(
+                                    color: ink,
+                                    fontSize: 13,
+                                    height: 1.35,
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -815,6 +873,147 @@ class DayPreview extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Art(day.image, width: 77, height: 63, radius: 10),
+        ],
+      ),
+    ],
+  );
+}
+
+/// Mở link ngoài (Google Maps, Open-Meteo) ở tab / app mới.
+Future<void> openLink(BuildContext context, String url) async {
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  var ok = false;
+  try {
+    ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } on Exception {
+    ok = false;
+  }
+  if (!ok) {
+    messenger?.showSnackBar(
+      const SnackBar(content: Text('Không mở được liên kết.')),
+    );
+  }
+}
+
+/// Một ngày trong lịch do API trả: giờ đến, số phút, vé, lý do, nút chỉ đường.
+class DayPlan extends StatelessWidget {
+  const DayPlan({super.key, required this.index, required this.day});
+  final int index;
+  final ItineraryDay day;
+
+  static const _weekdays = [
+    'thứ Hai',
+    'thứ Ba',
+    'thứ Tư',
+    'thứ Năm',
+    'thứ Sáu',
+    'thứ Bảy',
+    'Chủ nhật',
+  ];
+
+  String get title {
+    final date = day.date;
+    if (date == null) return 'Ngày $index';
+    String two(int value) => value.toString().padLeft(2, '0');
+    return 'Ngày $index · ${_weekdays[date.weekday - 1]} '
+        '${two(date.day)}/${two(date.month)}';
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          BadgeText(title, background: brown, foreground: Colors.white),
+          if (day.weather != null)
+            Meta(
+              (day.weather!.rainChance ?? 0) >= 60
+                  ? Icons.umbrella_outlined
+                  : Icons.wb_cloudy_outlined,
+              day.weather!.label,
+            ),
+        ],
+      ),
+      const SizedBox(height: 6),
+      for (final stop in day.details)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 1, right: 7),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: tint,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  stop.arrive,
+                  style: const TextStyle(
+                    color: brown,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      stop.name,
+                      style: const TextStyle(
+                        color: ink,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    if (stop.facts.isNotEmpty)
+                      Text(stop.facts, style: caption.copyWith(fontSize: 11)),
+                    if (stop.reason.isNotEmpty)
+                      Text(
+                        stop.reason,
+                        style: caption.copyWith(
+                          fontSize: 11,
+                          color: ink,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (stop.mapsUrl != null)
+                IconButton(
+                  tooltip: 'Chỉ đường đến ${stop.name}',
+                  onPressed: () => openLink(context, stop.mapsUrl!),
+                  icon: const Icon(
+                    Icons.directions_outlined,
+                    color: brown,
+                    size: 20,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                ),
+            ],
+          ),
+        ),
+      Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          for (var i = 0; i < day.routeUrls.length; i++)
+            Pill(
+              day.routeUrls.length == 1
+                  ? 'Chỉ đường cả ngày'
+                  : 'Chỉ đường phần ${i + 1}',
+              icon: Icons.map_outlined,
+              compact: true,
+              onTap: () => openLink(context, day.routeUrls[i]),
+            ),
         ],
       ),
     ],

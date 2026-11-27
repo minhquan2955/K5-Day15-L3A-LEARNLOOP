@@ -24,6 +24,15 @@ assert [p["id"] for p in r["diem"]] == ["van_mieu"] and r["khong_tim_thay"] == [
 # tránh nhãn
 assert all("bao_tang" not in p["so_thich"] for p in tim_diem(["lich_su"], ["bao_tang"], [])["diem"])
 assert thoi_gian_di(["van_mieu"])["khach_san>van_mieu"] > 5
+# B15, B22: tên lồng nhau — "Phố đi bộ Hồ Gươm" không được khớp nhầm Hồ Gươm
+def ids_of(*ten):
+    return [p["id"] for p in tim_diem([], [], list(ten))["diem"]]
+
+
+assert ids_of("Phố đi bộ Hồ Gươm") == ["pho_di_bo"] and ids_of("Hồ Gươm") == ["ho_guom"]
+assert ids_of("Hồ Gươm", "Phố đi bộ Hồ Gươm") == ["ho_guom", "pho_di_bo"]
+assert ids_of("phố đi bộ") == ["pho_di_bo"] and ids_of("Hồ Gươm - Đền Ngọc Sơn") == ["ho_guom"]
+assert ids_of("Hồ Tây") == ["tran_quoc"] and ids_of("Chợ Đồng Xuân") == ["dong_xuan"] and ids_of("Lăng Bác") == ["lang_bac"]
 
 # Luồng agent với model giả trả JSON
 replies = []

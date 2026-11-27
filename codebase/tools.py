@@ -73,6 +73,28 @@ def link_google_maps(diem_den: list, tu: str = None, xp: dict = None) -> str:
     return "https://www.google.com/maps/dir/?" + urllib.parse.urlencode(q, quote_via=urllib.parse.quote, safe="")
 
 
+def _khop_ten(ten):
+    """Điểm khớp tên người dùng nêu nhất: trùng khít > tên dài nhất nằm trong chữ người dùng > tên ngắn nhất chứa chữ
+    người dùng. Tránh "Phố đi bộ Hồ Gươm" khớp nhầm Hồ Gươm chỉ vì đứng trước trong dữ liệu. Không khớp → None."""
+    f = _fold(ten or "")
+    if not f:
+        return None
+    tot, diem_tot = None, None
+    for p in DATA["diem"]:
+        for x in (_fold(x) for x in p["ten_khac"] + [p["ten"]]):
+            if x == f:
+                diem = (3, len(x))
+            elif x in f:
+                diem = (2, len(x))
+            elif f in x:
+                diem = (1, -len(x))
+            else:
+                continue
+            if diem_tot is None or diem > diem_tot:
+                tot, diem_tot = p, diem
+    return tot
+
+
 def _tom_tat(p):
     return {k: p.get(k) for k in ("id", "ten", "mo", "dong", "phut_tham_quan", "gia_ve", "tre_em_mien_phi_duoi", "so_thich")}
 
@@ -85,9 +107,7 @@ def tim_diem(so_thich: list, tranh: list, ten_diem: list) -> dict:
     tranh = set(tranh or [])
     chon, khong_thay = {}, []
     for ten in ten_diem or []:
-        f = _fold(ten)
-        hit = next((p for p in DATA["diem"]
-                    if any(_fold(x) in f or f in _fold(x) for x in p["ten_khac"] + [p["ten"]])), None)
+        hit = _khop_ten(ten)
         if hit:
             chon[hit["id"]] = dict(_tom_tat(hit), nguoi_dung_neu=True)
         else:
@@ -175,12 +195,13 @@ def tim_noi_o(mo_ta: str) -> dict:
     """tim_noi_o · Input: chỗ ở người dùng nêu (tên khách sạn, địa chỉ, khu vực) · Output: {"ten", "lat", "lon",
     "nguon": "du_lieu" | "openstreetmap"} hoặc {"loi": lý do} · Khớp tên điểm trong dữ liệu trước ("gần Hồ Gươm");
     không có thì tra Nominatim trong khung Hà Nội, chỉ gửi chuỗi chỗ ở · Không tác động ra ngoài."""
-    f = _fold(mo_ta or "")
-    if not f:
+    if not _fold(mo_ta or ""):
         return {"loi": "chưa có chỗ ở"}
-    for p in DATA["diem"]:
-        if any(_fold(x) in f for x in p["ten_khac"] + [p["ten"]]):
-            return {"ten": "gần " + p["ten"], "lat": p["lat"], "lon": p["lon"], "nguon": "du_lieu"}
+    p = _khop_ten(mo_ta)
+    if p and _fold(mo_ta) not in _fold(p["ten"]) and not any(_fold(x) in _fold(mo_ta) for x in p["ten_khac"] + [p["ten"]]):
+        p = None  # chỗ ở chỉ khớp khi tên điểm nằm trong chữ người dùng ("gần Hồ Tây"), không theo chiều ngược lại
+    if p:
+        return {"ten": "gần " + p["ten"], "lat": p["lat"], "lon": p["lon"], "nguon": "du_lieu"}
     try:
         kq = _tra_dia_chi(mo_ta)
         if not kq:

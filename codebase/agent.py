@@ -435,7 +435,8 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
                             f"{s['ticket_vnd']:,}", s["mo"], s["dong"], s["reason"]))
         lines.append("  Kết thúc %s, về %s khoảng %s" % (d["ket_thuc"], "chỗ ở" if xp else "khách sạn",
                                                        d["ve_khach_san"]))
-    lines.append("\nTổng vé %sđ (%sđ/người) · taxi ước tính %sđ"
+    lines.append("\nTổng vé %sđ (%sđ/người) · taxi ước tính %sđ (chỉ tham khảo: công thức dựng, chưa gồm giá mở cửa "
+                 "từng chặng, phụ phí, kẹt xe)"
                  % (f"{kq['total_vnd']:,}", f"{kq['per_person_vnd']:,}", f"{kq['xe_vnd']:,}"))
     lines += ["\nLưu ý:"] + ["- " + n for n in notes]
 

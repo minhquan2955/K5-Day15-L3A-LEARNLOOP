@@ -10,6 +10,8 @@
 |---|---|---|---|---|---|---|---|
 | 1 | `run-1@20261128-014438` | 17/24 | 71% | 5/6 (83%) | 9/14 (64%) | 3/4 (75%) | chưa |
 | 2 | `run-2@20261128-022833` | 22/24 | 92% | 5/6 (83%) | 13/14 (93%) | 4/4 (100%) | đạt |
+| 3 | `run-3@20261128-052811` | lỗi kỹ thuật 5/24 (429, timeout) — không chấm | | | | | |
+| 4 | `run-4@20261128-053502` | 21/24 | 88% | 5/6 (83%) | 12/14 (86%) | 4/4 (100%) | đạt |
 
 Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-1.jsonl`, `traces/run-2.jsonl`.
 
@@ -41,6 +43,13 @@ Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-
   5. Hạ `thinkingBudget` từ `1024 → 256` trong `codebase/ai.py` (giảm `tokens_out` TB từ `2.067 → 876`, `-57,6%`, giảm suy diễn thừa khi thiếu dữ kiện).
 - Kết quả: 6/7 câu trượt Lượt 1 đã qua (`B03, B05, B18, B20, B23, B24`: `0/6 → 6/6`; riêng `B15` đã sửa đúng `3` người nhưng lộ bug khớp chuỗi con ở `tim_diem`) · tổng **`71% (17/24) → 92% (22/24)`**, `kho` `64% → 93%`, `tu_choi` `75% → 100% (4/4)` → **đạt chuẩn §7**.
 - Câu nào **tệ đi** sau khi sửa: **`B22`** (`1 → 0`) — khi tắt việc tự sinh sở thích thừa ở bước 1 lúc người dùng nêu sẵn tên điểm, `tim_diem` trong `codebase/tools.py` bị khớp chuỗi con (`"hồ gươm"` nằm trong `"phố đi bộ hồ gươm"` nên khớp nhầm `ho_guom` trước `pho_di_bo`), làm cả `B15` và `B22` thiếu `Phố đi bộ Hồ Gươm` sau `19:00`.
+
+### Lượt 3 → 4 (sau lượt 2, trước CP4)
+
+- Thay đổi so với lượt 2: thêm thời tiết + link Google Maps, kiểm lý do bằng code, gợi ý lấp khoảng trống, làm tròn taxi (`spec.md` §10). **Đổi cả model** từ `gemini-2.5-flash` sang `gemini-3.1-flash-lite` vì key mới không còn được dùng model cũ, nên **không tách được** phần chênh do code hay do model.
+- Lượt 3 bị lỗi kỹ thuật 5/24 (4 câu HTTP 429 vượt hạn mức gói miễn phí, 1 câu timeout) → giữ nguyên file, chạy lại thành lượt 4 với `--wait 5`.
+- Lượt 4: `21/24 (88%)`, vẫn đạt chuẩn §7. So với lượt 2 (`22/24`): `B05` **tệ đi** (`1 → 0`) — báo đúng vượt `20.000đ/người` nhưng không đưa phương án vừa ngân sách; `B15, B22` vẫn trượt vì lỗi khớp tên trong `tim_diem`. Các câu còn lại giữ nguyên đạt.
+- Chấm lượt 4: Claude (coding agent) chấm theo `pass_criterion` + `metric_spec.yaml`, ghi lý do câu trượt trong `ghi_chu`; **cần người trong nhóm duyệt lại** (xem `docs/ai-usage.md`).
 
 ## 4. Còn lại
 

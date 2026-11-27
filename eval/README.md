@@ -44,6 +44,8 @@
 |---|---|---|---|---|---|---|
 | 1 | `run-1@20261128-014438` | `gemini-2.5-flash` | workflow 5 bước + 3 công cụ bản gốc sau merge `base` | 17/24 | 71% | chưa (tổng < 80%, `tu_choi` 3/4) |
 | 2 | `run-2@20261128-022833` | `gemini-2.5-flash` | LEARNLOOP v2: JSON extraction-first, feedback đầu prompt, Code Policy Gates, `thinkingBudget=256` (-57,6% `tokens_out`) | 22/24 | 92% | đạt |
+| 3 | `run-3@20261128-052811` | `gemini-3.1-flash-lite` | lõi v2 + thời tiết Open-Meteo, link Google Maps, kiểm lý do bằng code, gợi ý lấp khoảng trống, taxi làm tròn nghìn. **Đổi cả model** (key mới không dùng được `gemini-2.5-flash`) · **lỗi kỹ thuật 5/24** (4 câu HTTP 429 vượt hạn mức gói miễn phí, 1 câu hết thời gian chờ) → không chấm, chạy lại thành lượt 4 | — | — | — |
+| 4 | `run-4@20261128-053502` | `gemini-3.1-flash-lite` | Như lượt 3, chạy với `--wait 5`; 0 lỗi. Chấm bởi Claude (coding agent), ghi `[Claude chấm, cần người duyệt]` trong `ghi_chu` | 21/24 | 88% | đạt |
 
 Lượt chạy lại vì lỗi kỹ thuật, lượt sau CP4: ghi thêm dòng, không sửa dòng cũ.
 

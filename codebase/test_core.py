@@ -191,4 +191,17 @@ replies[:] = [{"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 2,
               {"ngay": TRON, "ly_do": {}}, {"ngay": TRON, "ly_do": {}}, {"ngay": TRON, "ly_do": {}}]
 r = agent.answer("x")  # lịch lộn xộn có vi phạm → lõi gọi lại model, không tự tối ưu ở chế độ mặc định
 assert "đi lại ít nhất" not in r["output"] and [s["id"] for s in r["itinerary"]["days"][0]["stops"]] == TRON[0]
+
+# --- B05: model sửa hết lượt vẫn vượt ngân sách → code tự bỏ điểm có vé cho vừa, nói rõ vượt bao nhiêu ---
+B05V = {"trang_thai": "ok", "so_ngay": 1, "nguoi_lon": 4, "ngan_sach_moi_nguoi": 150000,
+        "diem_muon_di": ["Hoàng thành", "Văn Miếu", "Hồ Gươm", "Hỏa Lò", "Bảo tàng Dân tộc học"]}
+VUOT = {"ngay": [["ho_guom", "hoa_lo", "van_mieu"]],
+        "ly_do": {"van_mieu": "Nằm trong ngân sách sau khi đã điều chỉnh."},
+        "bo": [{"id": "hoang_thanh", "ly_do": "vượt ngân sách"}, {"id": "bt_dan_toc_hoc", "ly_do": "vượt ngân sách"}]}
+replies[:] = [B05V, VUOT, VUOT, VUOT]
+r = agent.answer("x")
+assert r["itinerary"]["feasible"] and r["itinerary"]["per_person_vnd"] <= 150000, r["output"]
+assert "Đi đủ các điểm bạn nêu thì tiền vé 280,000đ/người, vượt ngân sách 150,000đ/người 130,000đ" in r["output"]
+assert "Để vừa ngân sách, lịch dưới đã bỏ" in r["output"] and "trong ngân sách" not in r["output"]
+assert [s["id"] for s in r["itinerary"]["days"][0]["stops"]].count("van_mieu") == 1  # giữ Văn Miếu (bỏ điểm rẻ hơn)
 print("OK: test_core")

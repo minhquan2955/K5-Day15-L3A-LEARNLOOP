@@ -27,7 +27,8 @@ _DELIM = re.compile(r"(?:<\|[^|>]{1,40}\|>|#{3,}|\r)")
 _THOI_TIET = re.compile(r"thời tiết|trời mưa|\bmưa\b|nắng|nóng|lạnh|rét", re.I)
 _THU = ["thứ Hai", "thứ Ba", "thứ Tư", "thứ Năm", "thứ Sáu", "thứ Bảy", "Chủ nhật"]
 # Lý do nhắc thông tin dữ liệu không có → không tin được
-_KHONG_CAN_CU = re.compile(r"đông đúc|đông người|chỗ đông|tránh đông|bớt đông|\bvắng\b|chen chúc|kẹt xe|tắc đường|"
+_KHONG_CAN_CU = re.compile(r"trong ngân sách|vừa ngân sách|không vượt (?:quá )?ngân sách|đông đúc|đông người|chỗ đông|"
+                           r"tránh đông|bớt đông|\bvắng\b|chen chúc|kẹt xe|tắc đường|"
                            r"giờ cao điểm|quán ngon|nhà hàng", re.I)
 # Buổi trong ngày nhắc trong lý do phải khớp giờ đến do công cụ tính (phút từ 0:00)
 _BUOI = [(re.compile(r"buổi sáng|sáng sớm", re.I), 5 * 60, 12 * 60),
@@ -268,7 +269,40 @@ def answer(text: str) -> dict:
 
     if kq is None:
         return {"output": "Xin lỗi, lần này chưa xếp được lộ trình. Bạn thử gửi lại giúp mình.", "itinerary": None}
+    if ngan_sach and kq["per_person_vnd"] > ngan_sach:  # model sửa hết lượt vẫn vượt → code tự bỏ điểm có vé cho vừa
+        kq = _cat_cho_vua_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes)
     return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao, so_thich, opt, xp)
+
+
+def _cat_cho_vua_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes):
+    """Bỏ ít điểm có vé nhất cho tiền vé mỗi người <= ngân sách: ưu tiên bỏ điểm AI tự thêm trước điểm người dùng nêu;
+    trong các cách bỏ vừa ngân sách, giữ cách tổng vé cao nhất (giữ được điểm giá trị hơn). Số tiền lấy từ kiem_lich_trinh.
+    Không cắt được (không còn điểm có vé) → giữ nguyên, để dòng KHÔNG XẾP ĐƯỢC báo vượt."""
+    neu = {p["id"] for p in ung_vien if p.get("nguoi_dung_neu")}
+    ngay = [[s["id"] for s in d["stops"]] for d in kq["days"]]
+    da_bo, hien = [], kq
+    while hien["per_person_vnd"] > ngan_sach:
+        tot = None
+        for pid in [i for d in ngay for i in d if POI[i]["gia_ve"] > 0]:
+            thu = [[i for i in d if i != pid] for d in ngay]
+            k = kiem_lich_trinh(thu, gio, nguoi_lon, tuoi, ngan_sach, xp=xp)
+            vua = k["per_person_vnd"] <= ngan_sach and not [v for v in k["vi_pham"] if "ngân sách" not in v]
+            khoa = (pid in neu, not vua, -k["per_person_vnd"] if vua else k["per_person_vnd"])
+            if tot is None or khoa < tot[0]:
+                tot = (khoa, pid, thu, k)
+        if tot is None:
+            return hien
+        _, pid, ngay, hien = tot
+        da_bo.append(pid)
+    if da_bo:
+        if neu:
+            du = kiem_lich_trinh([[i for i in POI if i in neu]], gio, nguoi_lon, tuoi, ngan_sach, xp=xp)
+            if du["per_person_vnd"] > ngan_sach:
+                notes.append("Đi đủ các điểm bạn nêu thì tiền vé %sđ/người, vượt ngân sách %sđ/người %sđ."
+                             % (f"{du['per_person_vnd']:,}", f"{ngan_sach:,}", f"{du['per_person_vnd'] - ngan_sach:,}"))
+        notes.append("Để vừa ngân sách, lịch dưới đã bỏ %s; tiền vé còn %sđ/người. Tăng ngân sách thì có thể thêm lại."
+                     % (", ".join(POI[i]["ten"] for i in da_bo), f"{hien['per_person_vnd']:,}"))
+    return hien
 
 
 def _ngay(v):

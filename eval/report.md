@@ -9,7 +9,7 @@
 | Lượt | Run ID | Đạt / tổng | % | thuong | kho | tu_choi | So với chuẩn "đạt" |
 |---|---|---|---|---|---|---|---|
 | 1 | `run-1@20261128-014438` | 17/24 | 71% | 5/6 (83%) | 9/14 (64%) | 3/4 (75%) | chưa |
-| 2 | | __/__ | | __/__ | __/__ | __/__ | đạt / chưa |
+| 2 | `run-2@20261128-022833` | 22/24 | 92% | 5/6 (83%) | 13/14 (93%) | 4/4 (100%) | đạt |
 
 Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-1.jsonl`, `traces/run-2.jsonl`.
 
@@ -32,12 +32,17 @@ Kết quả từng câu: `eval/run-1.csv`, `eval/run-2.csv`. Trace: `traces/run-
 
 ## 3. Một lần cải tiến
 
-- Nhắm vào nhóm lỗi: __ — vì sao là nhóm **đau nhất với người dùng**: __
-- Đã sửa gì (có thể vài thay đổi cùng nhắm nhóm lỗi đó): __
-- Kết quả: nhóm lỗi đó __/__ → __/__ · tổng __% → __%
-- Câu nào **tệ đi** sau khi sửa: __
+- Nhắm vào nhóm lỗi: 3 nhóm lỗi ở Lượt 1 (`SYSTEM_DOC` đọc sai số người / dừng sớm / thiếu từ chối kép `B15, B20, B24`; `SYSTEM_XEP` thiếu hoặc rỗng ngày và chưa cắt điểm vượt ngân sách `B05, B18, B23`; tự ước số phút bỏ điểm `B03`) — vì sao là nhóm **đau nhất với người dùng**: tính sai tiền vé cả nhóm, không đưa ra được phương án vừa ngân sách/đủ ngày, tự ước phút đi, hoặc bỏ sót từ chối ngoài phạm vi (đặt phòng).
+- Đã sửa gì (nâng cấp **LEARNLOOP v2** ở `codebase/agent.py` và `codebase/ai.py`, tham khảo bộ 26 paper):
+  1. Đảo thứ tự key JSON (*Reason-before-Answer/Plan*): đưa các trường bóc tách/phân tích lên trước `"trang_thai"` và `"ngay"`.
+  2. Tách thuần *Distillation* ở bước 1 + 3 ví dụ *mini-TTS* (`1 + N` người, ngoài phạm vi + đặt phòng, tránh chỗ đông) và liệt kê rõ danh mục `thieu_du_lieu` (*AbstentionBench* Appendix D.5).
+  3. Đặt `VI_PHAM_CAN_SUA_NGAY` ở **ĐẦU** prompt vòng sửa (*Theorem R.1* của *ReActXen*) kèm hướng cắt điểm `gia_ve > 0` khi vượt ngân sách.
+  4. Bổ sung **Code Policy Gates** trong `answer()`: cấm dừng `hoi_lai` khi đã có `so_ngay` + `diem_muon_di`, vẫn in đủ `tu_choi_them` ở nhánh `ngoai_pham_vi`, kiểm đủ `so_ngay` không để ngày trống, cảnh báo khi `tranh` lọc hết 1 sở thích, lọc delimiter giả kiểu *StruQ*, và gắn số phút/giờ thật từ `thoi_gian_di` cho điểm bị bỏ trong `_dung_output`.
+  5. Hạ `thinkingBudget` từ `1024 → 256` trong `codebase/ai.py` (giảm `tokens_out` TB từ `2.067 → 876`, `-57,6%`, giảm suy diễn thừa khi thiếu dữ kiện).
+- Kết quả: 6/7 câu trượt Lượt 1 đã qua (`B03, B05, B18, B20, B23, B24`: `0/6 → 6/6`; riêng `B15` đã sửa đúng `3` người nhưng lộ bug khớp chuỗi con ở `tim_diem`) · tổng **`71% (17/24) → 92% (22/24)`**, `kho` `64% → 93%`, `tu_choi` `75% → 100% (4/4)` → **đạt chuẩn §7**.
+- Câu nào **tệ đi** sau khi sửa: **`B22`** (`1 → 0`) — khi tắt việc tự sinh sở thích thừa ở bước 1 lúc người dùng nêu sẵn tên điểm, `tim_diem` trong `codebase/tools.py` bị khớp chuỗi con (`"hồ gươm"` nằm trong `"phố đi bộ hồ gươm"` nên khớp nhầm `ho_guom` trước `pho_di_bo`), làm cả `B15` và `B22` thiếu `Phố đi bộ Hồ Gươm` sau `19:00`.
 
 ## 4. Còn lại
 
-- Lỗi chưa sửa + nguy hiểm thế nào: __
-- Nếu có thêm 1 tuần: __
+- Lỗi chưa sửa + nguy hiểm thế nào: bug khớp chuỗi con tên điểm lồng nhau trong `tim_diem` (`B15, B22`, mức độ vừa — người dùng đọc thấy ngay điểm bị đổi tên và có thể sửa lại, không có số liệu bịa); ở `B21`, lưu ý báo chung thiếu dữ liệu quán ăn cụ thể thay vì lặp lại tên riêng hai quán.
+- Nếu có thêm 1 tuần: sửa `tim_diem` ưu tiên khớp chính xác hoặc chuỗi dài nhất để dứt điểm `B15, B22`; mở rộng dữ liệu điểm Hà Nội và lịch nghỉ theo thứ; đo độ ổn định nhiều lượt (`pass^k`) và nối lưu lịch trình vào PostgreSQL (`db/`).

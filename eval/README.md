@@ -43,10 +43,12 @@
 | Lượt | Run ID | Model | Cấu hình (prompt / công cụ / thay đổi) | Đạt / tổng | % | Đạt chuẩn? |
 |---|---|---|---|---|---|---|
 | 1 | `run-1@20261128-014438` | `gemini-2.5-flash` | workflow 5 bước + 3 công cụ bản gốc sau merge `base` | 17/24 | 71% | chưa (tổng < 80%, `tu_choi` 3/4) |
-| 2 | | | | __/__ | | |
+| 2 | `run-2@20261128-022833` | `gemini-2.5-flash` | LEARNLOOP v2: JSON extraction-first, feedback đầu prompt, Code Policy Gates, `thinkingBudget=256` (-57,6% `tokens_out`) | 22/24 | 92% | đạt |
 
 Lượt chạy lại vì lỗi kỹ thuật, lượt sau CP4: ghi thêm dòng, không sửa dòng cũ.
 
 ## 6. Lỗi chính
 
-Tóm 2–3 dòng từ `eval/report.md`: nhóm lỗi lớn nhất · đã sửa gì · còn lại gì.
+- Nhóm lỗi lớn nhất ở Lượt 1: bước đọc yêu cầu suy diễn/đếm sai số người hoặc dừng sớm (`B15, B20, B24`), bước xếp thiếu ngày hoặc chưa cắt điểm vượt ngân sách (`B05, B18, B23`), và tự ước phút bỏ điểm (`B03`).
+- Đã sửa trước Lượt 2: áp dụng JSON extraction-first, phản hồi vi phạm ở đầu prompt vòng sửa, Code Policy Gates, liệt kê `thieu_du_lieu`, gắn số phút thật từ công cụ và hạ `thinkingBudget` (`1024 → 256`), đưa kết quả từ `71% → 92%` (`kho` `64% → 93%`, `tu_choi` `75% → 100%`).
+- Còn lại: bug khớp chuỗi con tên điểm lồng nhau trong `tim_diem` (`"hồ gươm"` nằm trong `"phố đi bộ hồ gươm"`, làm thiếu Phố đi bộ ở `B15, B22`).

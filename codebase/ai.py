@@ -65,9 +65,9 @@ def _gemini(system, user):
     body = {
         "systemInstruction": {"parts": [{"text": system}]},
         "contents": [{"role": "user", "parts": [{"text": user}]}],
-        # thinkingBudget: giới hạn suy nghĩ để mỗi lượt vài giây thay vì >90 s; code đã kiểm lịch nên không cần nghĩ sâu
+        # thinkingBudget: giảm thinking để tránh tự suy diễn/đoán bừa khi thiếu dữ kiện (AbstentionBench) và tiết kiệm tokens_out
         "generationConfig": {"temperature": 0.2, "responseMimeType": "application/json",
-                             "thinkingConfig": {"thinkingBudget": 1024}},
+                             "thinkingConfig": {"thinkingBudget": 256}},
     }
     req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"),
                                  headers={"Content-Type": "application/json", "x-goog-api-key": API_KEY})

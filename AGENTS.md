@@ -40,6 +40,6 @@ Khung chỉ dùng thư viện chuẩn của Python. Thêm thư viện thì ghi v
 
 ## Quy ước của nhóm
 
-- Ngôn ngữ trả lời người dùng: __
-- Phong cách code / đặt tên: __
-- Ai duyệt thay đổi do agent tạo trước khi commit: __
+- Ngôn ngữ trả lời người dùng: Tiếng Việt
+- Phong cách code / đặt tên: Python chuẩn (chỉ dùng thư viện chuẩn trong khung), đặt tên hàm và khoá JSON tiếng Việt không dấu khớp `spec.md` §4 (`tim_diem`, `thoi_gian_di`, `kiem_lich_trinh`)
+- Ai duyệt thay đổi do agent tạo trước khi commit: Phạm Trường Chinh / Nguyễn Minh Quân (và thành viên phụ trách phần việc tương ứng)

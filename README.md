@@ -84,14 +84,16 @@ Nhóm dùng stack khác (Node, Streamlit, notebook…): sửa hàm `run_app()` t
 
 | Thành phần | Thật / Giả | Ghi chú |
 |---|---|---|
-| Lời gọi AI ở quyết định trung tâm | **Thật** (bắt buộc từ CP3) | Model: ____ |
-|  |  |  |
+| Lời gọi AI ở quyết định trung tâm | **Giả ở CP2** (bắt buộc **Thật** từ CP3) | Model: đang chạy chế độ `fake` ở CP2; sẽ nối model thật trước CP3 |
+| 3 công cụ tính toán (`tim_diem`, `thoi_gian_di`, `kiem_lich_trinh`) | **Thật** (chỉ đọc) | Đọc và tính trực tiếp trên `data/hanoi_poi.json` |
+| Dữ liệu điểm tham quan (`data/hanoi_poi.json`) | **Giả** (`synthetic`) | 14 điểm Hà Nội dựng sẵn cho bản chạy thử (`data/DATA_CARD.md`) |
+| Đặt vé, đặt phòng, thanh toán | **Không làm** | Ngoài phạm vi; người dùng tự thực hiện |
 
 ## Dùng AI vào việc gì
 
 2–3 dòng (bắt buộc): nhóm dùng công cụ AI nào để làm gì, người kiểm lại phần nào. Chi tiết: [docs/ai-usage.md](docs/ai-usage.md). Coding agent đọc [AGENTS.md](AGENTS.md).
 
-____
+Nhóm dùng trợ lý coding AI hỗ trợ dựng khung code `codebase/tools.py`, `codebase/agent.py`, rà câu hỏi phỏng vấn/khảo sát tránh câu dẫn dắt và hoàn thiện hồ sơ CP2. Thành viên nhóm tự viết dữ liệu, bộ câu thử, tiêu chí chấm và kiểm lại toàn bộ code, tài liệu trước khi commit.
 
 ## File mẫu — điền ở bước nào
 

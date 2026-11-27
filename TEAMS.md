@@ -11,7 +11,7 @@
 
 | STT | Họ và tên | Mã học viên | Vai trò | Phần việc chính |
 |---|---|---|---|---|
-| 1 | Nguyễn Minh Quân | 2A202603510 | Đội trưởng | THiết kế giao diện, BA |
+| 1 | Nguyễn Minh Quân | 2A202603510 | Đội trưởng | Thiết kế giao diện, BA |
 | 2 | Đỗ Duy Bộ | 2A202603591 | Thành viên | Backend, Deploy |
 | 3 | Phạm Trường Chinh | 2A202603426 | Thành viên | Phát triển AI feature |
 | 4 | Nguyễn Văn Ba | 2A202603489 | Thành viên | Phát triển AI feature |

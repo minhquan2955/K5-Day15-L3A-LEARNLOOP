@@ -1,4 +1,4 @@
-# AI SPEC — Tìm điểm và lên lộ trình Hà Nội cho người lần đầu đến · Nhóm LEARNLOOP · Phòng ____ · Zone ____
+# AI SPEC — Tìm điểm và lên lộ trình Hà Nội cho người lần đầu đến · Nhóm LEARNLOOP · Phòng H210 · Zone 5
 
 > Mốc nộp: §7 chốt chuẩn "đạt" tại **CP2 19:30 Thứ Sáu 27/11** · §0–§7 nộp **CP3 10:00 Thứ Bảy 28/11** · đủ §0–§10 **CP4 14:30 Thứ Bảy 28/11** · §10 changelog ghi tiếp đến **23:59 Thứ Bảy 28/11**.
 
@@ -12,7 +12,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không (Tr
   3. Mở bản đồ xem từng điểm ở đâu, thử ghép thành từng ngày.
   4. Tra giờ mở cửa từng chỗ, hoặc không tra.
   5. Đến nơi thì đi theo cảm tính, sửa lịch tại chỗ.
-- Công cụ đang dùng: Google Maps, TikTok / review, ghi chú, app lên lịch du lịch, ChatGPT. *Chưa kiểm, sẽ hỏi trong phỏng vấn (câu 2, câu 7).*
+- Công cụ đang dùng *(khảo sát n=14 ban đầu, `evidence/survey/results.csv`)*: xem review / TikTok (8/14), hỏi bạn (5/14), Google Maps (5/14), ChatGPT / AI (5/14), không lên lịch (4/14), chép lịch có sẵn (1/14), app lên lịch du lịch (0/14). *Tiếp tục kiểm sâu trong phỏng vấn P1–P3.*
 
 ## §1. Người dùng & bằng chứng *(guide 1.1, 1.2)*
 - **Người dùng chính:** người 20–30 tuổi lần đầu đến Hà Nội, đi chơi tự túc 2–3 ngày (một mình hoặc với 1–4 bạn).
@@ -24,7 +24,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không (Tr
   - ChatGPT gợi ý được nhưng hay sai giờ mở cửa và thời gian đi.
   - Chưa bỏ vì miễn phí, quen tay.
 - **Pain:** người lần đầu đi Hà Nội 2–3 ngày không biết nên đi đâu cho hợp sở thích và số ngày, và không sắp được lộ trình (đi thứ tự nào, chỗ nào mở giờ nào, đi giữa các chỗ mất bao lâu). Hậu quả: mất hàng giờ chuẩn bị mà vẫn chưa chốt được; đến nơi thì chạy vòng, đã đóng cửa (vd lăng Bác chỉ mở buổi sáng), hoặc bỏ lỡ chỗ đáng đi.
-- **Bằng chứng:** đang làm. Phỏng vấn trực tiếp ≥3 người, bộ câu ở `evidence/interviews/cau-hoi.md`, tổng hợp ở `evidence/summary.md`. Số chính: __/__ *(điền sau phỏng vấn)*.
+- **Bằng chứng:** đã thu **14 phiếu khảo sát ban đầu** (bản ẩn danh ở `evidence/survey/results.csv`, tổng hợp ở `evidence/summary.md`): trong 11 người đi 12 tháng qua có **9/11** gặp trục trặc lộ trình, **9/11** chưa chốt được lịch từng ngày, **6/11** mất ≥1 giờ (`2/2` người đi Hà Nội mất ≥1 giờ và gặp trục trặc). Đang tiếp tục gom ≥20 phiếu sạch và hoàn tất phỏng vấn trực tiếp ≥3 người (`evidence/interviews/cau-hoi.md`) trước CP3.
 
 ## §2. Impact & quyết định chọn *(guide 1.3)*
 
@@ -113,7 +113,8 @@ flowchart TD
   | G8 / G9 — dễ bỏ qua, dễ sửa | Ô "Người dùng đọc": gửi lại "bỏ X, thêm Y" để xếp lại, không phải nhập từ đầu |
 
 - **Phần còn giả:**
-  - `codebase/` vẫn là khung mẫu với model giả: `python run.py` chạy hết luồng nhưng trả câu giả. Ba công cụ trên chưa code (CP3).
+  - `codebase/ai.py` vẫn ở chế độ model giả (`MODEL_PROVIDER=fake`): `python run.py` đi hết luồng nhưng trả câu giả. Sẽ nối model thật trước CP3.
+  - `codebase/tools.py` đã cài 3 công cụ (`tim_diem`, `thoi_gian_di`, `kiem_lich_trinh`) và `codebase/agent.py` đã có khung workflow cố định 5 bước; prompt JSON chi tiết sẽ tinh chỉnh khi nối model thật ở CP3.
   - `data/hanoi_poi.json` là dữ liệu dựng (`synthetic`), nhãn sở thích do nhóm tự gắn.
 
 ## §5. Chỗ khó — 4 lớp + ≥6 kịch bản + 2 tấn công *(guide 2.3)*
@@ -160,8 +161,10 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 - Ai có thể bị hại nếu AI sai, và nhóm chặn thế nào:
 
 ## §10. Phân công & changelog
-- Phân công có tên (theo chặng, chia cặp — guide "Cách chia việc"): __
-- Dùng AI vào việc gì (2–3 dòng; chi tiết `docs/ai-usage.md`):
+- Phân công có tên (theo chặng, chia cặp — guide "Cách chia việc"):
+  - **Cặp 1 — Bằng chứng, spec, giao diện & slide:** Nguyễn Minh Quân (Đội trưởng: BA, `spec.md`, phỏng vấn/khảo sát, slide) + Đỗ Duy Bộ (backend khung, `cost/`, deploy, phỏng vấn/khảo sát).
+  - **Cặp 2 — AI, công cụ & đánh giá:** Phạm Trường Chinh (`codebase/agent.py`, `codebase/tools.py`, `codebase/ai.py`, `eval/`) + Nguyễn Văn Ba (`codebase/agent.py`, prompt, `eval/benchmark.csv`, chấm chéo).
+- Dùng AI vào việc gì (2–3 dòng; chi tiết `docs/ai-usage.md`): Nhóm dùng trợ lý coding AI để rà cấu trúc khung `codebase/` (3 công cụ đọc JSON và luồng workflow), rà câu hỏi phỏng vấn/khảo sát tránh câu dẫn dắt và kiểm chéo tài liệu CP2. Mọi nội dung phỏng vấn, tiêu chí chấm và dữ liệu `hanoi_poi.json` do thành viên nhóm tự viết và kiểm tra lại.
 - Nhật ký thay đổi — **mọi thay đổi sau CP2 19:30 Thứ Sáu 27/11 phải có dòng ở đây**:
 
 **CP2 → CP4** (vd thu hẹp lát cắt, hỏi thêm người dùng, lần cải tiến trước lượt 2)

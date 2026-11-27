@@ -35,3 +35,8 @@ evidence/**/raw-*
 # Nguyên file data BTC cấp (data/preclass, data/training-ops… của repo đề): để ở đây, không commit
 data-btc
 data-btc/
+# Export khảo sát gốc (chứa SĐT / dấu thời gian) và file phụ Windows: chỉ commit bản đã ẩn danh evidence/survey/results.csv
+*.xlsx
+*:Zone.Identifier
+# Kế hoạch TODO nội bộ của nhóm
+TODO.md

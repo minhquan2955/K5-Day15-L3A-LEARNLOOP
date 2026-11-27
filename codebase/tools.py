@@ -1,11 +1,15 @@
-"""Công cụ của bài toán — thiết kế ở spec.md §4. Cả ba đều chỉ đọc data/hanoi_poi.json, không tác động ra ngoài.
+"""Công cụ của bài toán — thiết kế ở spec.md §4. Ba công cụ chính chỉ đọc data/hanoi_poi.json; thoi_tiet chỉ đọc
+API Open-Meteo (khi biết ngày đi). Không công cụ nào tác động ra ngoài.
 
 Mọi con số người dùng thấy (giờ, phút đi, tiền) đến từ đây, không từ model.
 """
+import datetime
 import json
 import math
 import os
 import unicodedata
+import urllib.parse
+import urllib.request
 
 from tracing import tool, TOOLS  # noqa: F401
 
@@ -50,6 +54,19 @@ def _phut_di(a, b):
     if a == b:
         return 0
     return round(_km(a, b) / DATA["toc_do_kmh"] * 60) + DATA["phut_cong_them"]
+
+
+def link_google_maps(diem_den: list, tu: str = None) -> str:
+    """Link chỉ đường Google Maps (Maps URLs, không cần API key) qua các id theo thứ tự.
+    tu = id điểm xuất phát; None = vị trí hiện tại của máy người dùng. Đi ô tô (khớp tiền taxi)."""
+    q = [("api", "1")]
+    if tu:
+        q.append(("origin", "%s,%s" % _toa_do(tu)))
+    q.append(("destination", "%s,%s" % _toa_do(diem_den[-1])))
+    if len(diem_den) > 1:
+        q.append(("waypoints", "|".join("%s,%s" % _toa_do(i) for i in diem_den[:-1])))
+    q.append(("travelmode", "driving"))
+    return "https://www.google.com/maps/dir/?" + urllib.parse.urlencode(q, quote_via=urllib.parse.quote, safe="")
 
 
 def _tom_tat(p):
@@ -130,3 +147,62 @@ def kiem_lich_trinh(ngay: list, gio_bat_dau: str, nguoi_lon: int, tuoi_tre_em: l
                        % (ve_moi_nguoi, ngan_sach_moi_nguoi, ve_moi_nguoi - ngan_sach_moi_nguoi))
     return {"days": out_ngay, "vi_pham": vi_pham, "total_vnd": tong_ve, "per_person_vnd": ve_moi_nguoi,
             "xe_vnd": tong_xe, "so_nguoi": so_nguoi}
+
+
+# ---------- Thời tiết (Open-Meteo, miễn phí phi thương mại, không cần key, dữ liệu CC BY 4.0) ----------
+GIO_VN = datetime.timezone(datetime.timedelta(hours=7))
+DU_BAO_SO_NGAY = 16  # Open-Meteo dự báo tối đa 16 ngày
+MUA_NHIEU = 60       # % khả năng mưa từ mức này coi là ngày mưa
+_URL_DU_BAO = ("https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&timezone=auto"
+               "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum"
+               "&start_date=%s&end_date=%s")
+_THOI_TIET = {0: "Trời quang", 1: "Ít mây", 2: "Mây rải rác", 3: "Nhiều mây", 45: "Sương mù", 48: "Sương mù",
+              51: "Mưa phùn nhẹ", 53: "Mưa phùn", 55: "Mưa phùn dày", 56: "Mưa phùn lạnh", 57: "Mưa phùn lạnh",
+              61: "Mưa nhẹ", 63: "Mưa vừa", 65: "Mưa to", 66: "Mưa lạnh", 67: "Mưa lạnh to",
+              71: "Tuyết", 73: "Tuyết", 75: "Tuyết", 77: "Tuyết", 80: "Mưa rào nhẹ", 81: "Mưa rào", 82: "Mưa rào rất to",
+              85: "Mưa tuyết", 86: "Mưa tuyết", 95: "Dông", 96: "Dông kèm mưa đá", 97: "Dông mạnh", 99: "Dông kèm mưa đá"}
+
+
+def hom_nay():
+    return datetime.datetime.now(GIO_VN).date()
+
+
+def _tai_du_bao(url):
+    """Gọi Open-Meteo. Tách riêng để test thay bằng dữ liệu giả, không gọi mạng."""
+    req = urllib.request.Request(url, headers={"User-Agent": "hanoi-itinerary-weather/1.0 (python-urllib)"})
+    with urllib.request.urlopen(req, timeout=8) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+@tool
+def thoi_tiet(ngay_bat_dau: str, so_ngay: int) -> dict:
+    """thoi_tiet · Input: ngày bắt đầu "YYYY-MM-DD", số ngày · Output: {"ngay": [{ngay, mo_ta, nhiet_do_thap,
+    nhiet_do_cao, kha_nang_mua, luong_mua_mm}], "nguon"} — chỉ các ngày nằm trong 16 ngày tới — hoặc {"loi": lý do} ·
+    Chỉ đọc API Open-Meteo cho toạ độ trung tâm Hà Nội; không gửi dữ liệu người dùng · Không tác động ra ngoài."""
+    try:
+        d0 = datetime.date.fromisoformat(ngay_bat_dau)
+    except (TypeError, ValueError):
+        return {"loi": "ngày đi không hợp lệ"}
+    nay = hom_nay()
+    cuoi_du_bao = nay + datetime.timedelta(days=DU_BAO_SO_NGAY - 1)
+    d1 = d0 + datetime.timedelta(days=max(1, so_ngay) - 1)
+    if d1 < nay:
+        return {"loi": "ngày đi đã qua"}
+    if d0 > cuoi_du_bao:
+        return {"loi": "dự báo chỉ có đến %s (16 ngày tới)" % cuoi_du_bao.strftime("%d/%m")}
+    try:
+        data = _tai_du_bao(_URL_DU_BAO % (HOTEL["lat"], HOTEL["lon"], max(d0, nay).isoformat(),
+                                          min(d1, cuoi_du_bao).isoformat()))
+        daily = data["daily"]
+        out = []
+        for i, ngay in enumerate(daily["time"]):
+            ma, mua, ml = (daily["weather_code"][i], daily["precipitation_probability_max"][i],
+                           daily["precipitation_sum"][i])
+            out.append({"ngay": ngay, "mo_ta": _THOI_TIET.get(int(ma), "Không rõ") if ma is not None else "Không rõ",
+                        "nhiet_do_thap": round(daily["temperature_2m_min"][i]),
+                        "nhiet_do_cao": round(daily["temperature_2m_max"][i]),
+                        "kha_nang_mua": None if mua is None else round(mua),
+                        "luong_mua_mm": None if ml is None else round(ml, 1)})
+    except (OSError, ValueError, KeyError, TypeError, IndexError) as e:  # mất mạng, HTTP lỗi, JSON lạ → không chặn lịch
+        return {"loi": "chưa lấy được dự báo (%s)" % type(e).__name__}
+    return {"ngay": out, "nguon": "Open-Meteo.com (CC BY 4.0)"}

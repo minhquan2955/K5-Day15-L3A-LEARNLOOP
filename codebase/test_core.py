@@ -45,4 +45,54 @@ replies[:] = [{"trang_thai": "ok", "so_ngay": 1, "nguoi_lon": 2, "diem_muon_di":
               {"ngay": [["hoang_thanh", "id_bia"]], "ly_do": {}}]
 r = agent.answer("Hoàng thành, đặt vé giúp, thẻ 4111 1111 1111 1111")
 assert "4111" not in r["output"] and "id_bia" not in r["output"] and r["itinerary"]["feasible"]
+
+# --- Thời tiết (Open-Meteo) + link Google Maps — thay lời gọi mạng bằng dữ liệu giả ---
+import datetime  # noqa: E402
+import tools  # noqa: E402
+
+DOC2 = {"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 2, "diem_muon_di": ["lăng bác", "văn miếu", "hồ gươm"]}
+PLAN2 = {"ngay": [["lang_bac", "van_mieu"], ["ho_guom"]], "ly_do": {}}
+goi = []
+
+
+def du_bao_gia(url):
+    goi.append(url)
+    return {"daily": {"time": [(tools.hom_nay() + datetime.timedelta(days=k)).isoformat() for k in (1, 2)],
+                      "weather_code": [63, 1], "temperature_2m_min": [19.6, 18.2], "temperature_2m_max": [24.8, 26.1],
+                      "precipitation_probability_max": [80, 10], "precipitation_sum": [12.34, 0.0]}}
+
+
+tools._tai_du_bao = du_bao_gia
+mai = (tools.hom_nay() + datetime.timedelta(days=1)).isoformat()
+replies[:] = [dict(DOC2, ngay_bat_dau=mai), PLAN2]
+r = agent.answer("x")
+assert len(goi) == 1 and "start_date=" + mai in goi[0]
+assert "Mưa vừa, 20–25°C, khả năng mưa 80%" in r["output"] and "Ngày 1 khả năng mưa cao" in r["output"]
+assert "Open-Meteo.com" in r["output"] and r["itinerary"]["days"][1]["weather"]["mo_ta"] == "Ít mây"
+assert r["itinerary"]["days"][0]["date"] == mai
+# Link Google Maps: có trong itinerary, không có trong output chữ
+d1 = r["itinerary"]["days"][0]
+assert d1["maps_urls"][0].startswith("https://www.google.com/maps/dir/?api=1&destination=21.0287%2C105.8355")
+assert "origin" not in d1["stops"][0]["maps_url"] and "origin=21.0368%2C105.8346" in d1["stops"][1]["maps_url"]
+assert "google.com" not in r["output"]
+# Không nói ngày đi → không gọi mạng; hỏi thời tiết thì nhắc cho biết ngày, không báo "thiếu dữ liệu thời tiết"
+goi.clear()
+replies[:] = [dict(DOC2, thieu_du_lieu=["thời tiết"]), PLAN2]
+r = agent.answer("Hà Nội có mưa không?")
+assert not goi and "Cho mình biết ngày đi" in r["output"] and "thông tin về thời tiết" not in r["output"]
+assert r["itinerary"]["days"][0]["weather"] is None
+# Ngày quá 16 ngày tới → nói rõ, vẫn có lịch
+replies[:] = [dict(DOC2, ngay_bat_dau=(tools.hom_nay() + datetime.timedelta(days=30)).isoformat()), PLAN2]
+r = agent.answer("x")
+assert not goi and "dự báo chỉ có đến" in r["output"] and r["itinerary"]["feasible"]
+
+
+def mat_mang(url):
+    raise OSError("mất mạng")
+
+
+tools._tai_du_bao = mat_mang  # API lỗi → chỉ ghi chú, lịch vẫn ra
+replies[:] = [dict(DOC2, ngay_bat_dau=mai), PLAN2]
+r = agent.answer("x")
+assert "chưa lấy được dự báo" in r["output"] and r["itinerary"]["feasible"]
 print("OK: test_core")

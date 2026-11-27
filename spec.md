@@ -63,7 +63,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không (Tr
 - **Không làm:**
   - Đặt vé, đặt phòng, thanh toán.
   - Thành phố khác Hà Nội, chuyến nước ngoài.
-  - Thời tiết, giờ cao điểm, độ đông theo thời gian thực.
+  - Giờ cao điểm, độ đông theo thời gian thực. (Thời tiết: chỉ dự báo Open-Meteo khi người dùng nói ngày đi, trong 16 ngày tới — thêm sau lượt 2, xem §10.)
   - Quán ăn cụ thể (dữ liệu chỉ có khu ẩm thực).
   - Giờ mở cửa / giá vé chính thức (dữ liệu là dựng).
 - **Sơ đồ:**
@@ -75,7 +75,7 @@ flowchart TD
     A1 -->|"thành phố khác · đòi đặt vé / thanh toán"| R["CHẶN RỦI RO: nói rõ ngoài phạm vi,<br/>không bịa điểm, giờ, giá"]
     A1 -->|"đủ thông tin"| S["2. AI TÌM ĐIỂM: gọi tim_diem(sở thích, tên điểm)<br/>→ điểm khớp nhãn trong dữ liệu + điểm không tìm thấy"]
     S -->|"không có điểm khớp"| R2["Nói rõ dữ liệu không có điểm hợp sở thích,<br/>đưa lựa chọn gần nhất, hỏi lại (G10)"]
-    S --> T["3. Công cụ chỉ đọc tính sẵn<br/>thoi_gian_di(a, b) cho mọi cặp điểm"]
+    S --> T["3. Công cụ chỉ đọc tính sẵn<br/>thoi_gian_di(a, b) cho mọi cặp điểm<br/>+ thoi_tiet nếu biết ngày đi"]
     T --> M["4. AI LÊN LỘ TRÌNH: chia điểm theo ngày + thứ tự<br/>+ 1 câu lý do mỗi điểm → JSON"]
     M --> K["5. CODE kiểm: kiem_lich_trinh<br/>giờ đến, giờ mở / đóng, quá 22:00, ngân sách, tiền vé"]
     K -->|"có vi phạm, còn lượt (tối đa 2 vòng)"| M
@@ -94,6 +94,7 @@ flowchart TD
   |---|---|---|---|
   | `tim_diem` | danh sách nhãn sở thích, nhãn cần tránh, tên điểm người dùng nêu | điểm khớp (id, nhãn, giờ mở / đóng, phút tham quan, giá vé) + tên điểm không tìm thấy | Không (chỉ đọc) |
   | `thoi_gian_di` | id điểm a, id điểm b | km, số phút đi (công thức trong `data/DATA_CARD.md`) | Không (chỉ đọc) |
+  | `thoi_tiet` | ngày bắt đầu, số ngày | dự báo từng ngày (mô tả, nhiệt độ thấp / cao, % khả năng mưa, mm mưa) từ Open-Meteo, chỉ trong 16 ngày tới; lỗi thì trả lý do | Không (chỉ đọc API, không gửi dữ liệu người dùng) |
   | `kiem_lich_trinh` | lộ trình (mỗi ngày một dãy id), giờ bắt đầu, số người lớn / trẻ em, ngân sách | giờ đến từng điểm, danh sách vi phạm, tiền vé, tổng, tiền mỗi người | Không (chỉ tính) |
 
 - **Mức tự động:** [ ] AI gợi ý, người quyết · [ ] AI tự làm khi chắc, chuyển người khi không · [x] AI tự làm
@@ -178,6 +179,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 | 28/11 02:06 | Điền bảng impact ở §2 | Quy đổi thời gian chuẩn bị từ hai phiếu Hà Nội `S02`, `S14` và ghi rõ giới hạn của mẫu khảo sát |
 | 28/11 02:11 | Chạy đánh giá Lượt 1 (`run-1@20261128-014438`, `gemini-2.5-flash`) và chấm thủ công 24/24 câu | Đạt `17/24` (71%): `thuong` 5/6, `kho` 9/14, `tu_choi` 3/4; ghi nhận 7 câu trượt (`B03, B05, B15, B18, B20, B23, B24`) để làm vòng cải tiến trước Lượt 2 |
 | 28/11 02:35 | Nâng cấp `codebase/agent.py` & `codebase/ai.py` (**LEARNLOOP v2**: đảo thứ tự key JSON, feedback đầu prompt, Code Policy Gates, `thieu_du_lieu`, `thinkingBudget=256`) và chạy đánh giá Lượt 2 (`run-2@20261128-022833`) | Khắc phục 6/7 câu trượt Lượt 1 (`B03, B05, B18, B20, B23, B24`) và giảm `-57,6%` `tokens_out` (`2.067 → 876`); Lượt 2 đạt **`22/24` (92%)**, `tu_choi` `4/4` (100%), đạt chuẩn §7 (`eval/report.md`) |
+| 28/11 03:30 | **Mở phạm vi, thêm vào lõi v2 (không đổi logic đang có):** công cụ `thoi_tiet` (Open-Meteo, chỉ đọc, không cần key); bước đọc yêu cầu lấy thêm `ngay_bat_dau`, bỏ "thời tiết" khỏi `thieu_du_lieu`; có ngày đi thì mỗi ngày có ngày, thứ và dự báo, ngày mưa ưu tiên điểm trong nhà; mỗi điểm / ngày có link chỉ đường Google Maps trong `itinerary` (không đưa vào output chữ) | Người dùng cần bấm để được chỉ đường và muốn biết thời tiết. Không câu thử nào có ngày đi nên phần thời tiết không gọi API khi eval; cần **lượt 3** để code nộp khớp kết quả |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

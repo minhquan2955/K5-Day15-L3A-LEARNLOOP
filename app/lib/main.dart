@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import 'chat.dart';
 import 'pages.dart';
 import 'theme.dart';
+import 'sync.dart';
 import 'travel_data.dart';
 
 void main() {
@@ -53,13 +56,23 @@ class HanoiApp extends StatefulWidget {
 }
 
 class _HanoiAppState extends State<HanoiApp> {
-  final travel = TravelState();
+  final travel = TravelState()..sync = Sync(base: apiBase);
+
+  @override
+  void initState() {
+    super.initState();
+    if (travel.sync.enabled) {
+      travel.sync.init().then((_) => travel.loadServerTrips());
+    }
+  }
+
   final homeSearch = TextEditingController();
   late final router = GoRouter(
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => TravelShell(
           shell: shell,
+          travel: travel,
           onChat: () {
             FocusManager.instance.primaryFocus?.unfocus();
             context.push(
@@ -118,6 +131,7 @@ class _HanoiAppState extends State<HanoiApp> {
   void dispose() {
     router.dispose();
     homeSearch.dispose();
+    unawaited(travel.sync.flush());
     travel.dispose();
     super.dispose();
   }
@@ -156,8 +170,14 @@ class _HanoiAppState extends State<HanoiApp> {
 }
 
 class TravelShell extends StatelessWidget {
-  const TravelShell({super.key, required this.shell, required this.onChat});
+  const TravelShell({
+    super.key,
+    required this.shell,
+    required this.onChat,
+    this.travel,
+  });
   final StatefulNavigationShell shell;
+  final TravelState? travel;
   final VoidCallback onChat;
 
   @override
@@ -272,7 +292,10 @@ class TravelShell extends StatelessWidget {
         child: Semantics(
           selected: selected,
           child: TextButton(
-            onPressed: () => shell.goBranch(index),
+            onPressed: () {
+              travel?.sync.log('mo_man_hinh', {'man': label});
+              shell.goBranch(index);
+            },
             style: TextButton.styleFrom(
               backgroundColor: selected ? tint : Colors.transparent,
               foregroundColor: selected ? brown : ink,

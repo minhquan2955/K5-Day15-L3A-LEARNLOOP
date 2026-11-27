@@ -159,6 +159,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 
 ## §9. Rủi ro & an toàn
 - Dữ liệu: đã ẩn danh gì, không thu gì, không đưa gì vào model gói miễn phí:
+  - Thu thập cách dùng app (P0): chỉ khi người dùng bấm **Đồng ý**; người dùng ẩn danh bằng UUID app tự sinh (không tên, không email); **không** lưu nội dung câu hỏi, **không** lưu toạ độ GPS (chỉ "đã xong điểm X lúc Y"); sự kiện giữ tối đa 90 ngày (`xoa_su_kien_cu`); Profile → "Dữ liệu & quyền riêng tư" để tắt hoặc **xoá dữ liệu của tôi** (xoá hết trên máy chủ). Cần đối chiếu quy định bảo vệ dữ liệu cá nhân hiện hành trước khi đưa ra dùng thật.
 - AI **không được** làm gì kể cả khi người dùng yêu cầu:
 - Ai có thể bị hại nếu AI sai, và nhóm chặn thế nào:
 
@@ -178,6 +179,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 | 28/11 02:06 | Điền bảng impact ở §2 | Quy đổi thời gian chuẩn bị từ hai phiếu Hà Nội `S02`, `S14` và ghi rõ giới hạn của mẫu khảo sát |
 | 28/11 02:11 | Chạy đánh giá Lượt 1 (`run-1@20261128-014438`, `gemini-2.5-flash`) và chấm thủ công 24/24 câu | Đạt `17/24` (71%): `thuong` 5/6, `kho` 9/14, `tu_choi` 3/4; ghi nhận 7 câu trượt (`B03, B05, B15, B18, B20, B23, B24`) để làm vòng cải tiến trước Lượt 2 |
 | 28/11 02:35 | Nâng cấp `codebase/agent.py` & `codebase/ai.py` (**LEARNLOOP v2**: đảo thứ tự key JSON, feedback đầu prompt, Code Policy Gates, `thieu_du_lieu`, `thinkingBudget=256`) và chạy đánh giá Lượt 2 (`run-2@20261128-022833`) | Khắc phục 6/7 câu trượt Lượt 1 (`B03, B05, B18, B20, B23, B24`) và giảm `-57,6%` `tokens_out` (`2.067 → 876`); Lượt 2 đạt **`22/24` (92%)**, `tu_choi` `4/4` (100%), đạt chuẩn §7 (`eval/report.md`) |
+| 28/11 08:40 | **P0 thu thập dữ liệu dùng thật** (nhánh riêng): migration `db/migrations/003_hanh_vi.sql` (người dùng ẩn danh + đồng ý, check-in `xong_luc`, bảng `su_kien`, hàm xoá sau 90 ngày, view tỉ lệ hoàn thành); `server/luu_tru.py` (pg8000) + API `/api/nguoi-dung`, `/api/su-kien`, `/api/chuyen-di`, check-in; app: mã ẩn danh, hộp hỏi đồng ý, ghi sự kiện thao tác, nút "Đã xong", Lưu trip lên máy chủ, mục quyền riêng tư trong Profile | Người dùng muốn biết lộ trình nào đi được thật / được hoàn thành nhiều để gợi ý. Không đổi lõi AI, không ảnh hưởng eval |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

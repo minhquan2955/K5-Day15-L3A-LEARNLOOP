@@ -17,6 +17,8 @@ Chat mặc định dùng lịch trình mẫu. Ảnh đính kèm được xem tro
 
 Khi gọi API thật, thẻ lịch trình hiện từng điểm với giờ đến, số phút đi, thời gian tham quan, tiền vé, giờ mở cửa và lý do chọn; mọi số do công cụ phía máy chủ tính. Nút **Chỉ đường** mở Google Maps (Maps URLs, không cần key): từng điểm đi từ điểm trước, điểm đầu ngày đi từ vị trí của máy; nút cả ngày gộp tối đa 4 điểm mỗi link vì trình duyệt di động chỉ nhận 3 điểm dừng giữa đường. Máy chủ gửi `maps_url` / `maps_urls` thì app dùng link đó, không thì tự tạo từ tên điểm. Nếu máy chủ trả `weather` cho từng ngày, app hiện dự báo cạnh tiêu đề ngày kèm link "Weather data by Open-Meteo.com" theo giấy phép CC BY 4.0.
 
+Khi gọi máy chủ, lần đầu mở chat app hỏi **đồng ý thu thập cách dùng (ẩn danh)**. Đồng ý thì app gửi sự kiện thao tác theo lô (không gửi nội dung câu hỏi, không gửi vị trí); "Lưu trip" lưu chuyến lên máy chủ và My Trip tải lại khi mở app; mỗi điểm có nút **Đã xong** (check-in). Profile → "Dữ liệu & quyền riêng tư" để tắt hoặc xoá dữ liệu. Máy chủ chưa bật PostgreSQL thì các phần này tự tắt.
+
 Để dùng FastAPI đang chạy local, khởi động Flutter với `--dart-define=API=http://127.0.0.1:8000`. Nếu máy chủ yêu cầu `ACCESS_CODE`, nhập mã qua menu ba chấm trong chat.
 
 ## Build cho FastAPI và Docker

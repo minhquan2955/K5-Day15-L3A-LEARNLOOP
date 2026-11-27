@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+
+import 'sync.dart';
 
 class Place {
   const Place(
@@ -214,7 +218,97 @@ class TravelState extends ChangeNotifier {
   final savedPlaces = <Place>{};
   final favorites = <String>{'weekend'};
   final trips = [...demoTrips];
-  String accessCode = '';
+
+  /// P0: đồng bộ với máy chủ (tắt ở chế độ mock). main.dart gắn bản thật.
+  Sync sync = Sync(base: 'mock');
+
+  /// Chuyến trong app → mã chuyến trên máy chủ (khi đã lưu được).
+  final serverTrips = <String, String>{};
+
+  /// Điểm đã check-in "Đã xong": '$tripId|$ngày|$thứ tự'.
+  final done = <String>{};
+  String _accessCode = '';
+  String get accessCode => _accessCode;
+  set accessCode(String value) {
+    _accessCode = value;
+    sync.accessCode = value;
+  }
+
+  void changed() => notifyListeners();
+
+  bool isDone(String tripId, int day, int order) =>
+      done.contains('$tripId|$day|$order');
+
+  /// Check-in / bỏ check-in một điểm; đồng bộ lên máy chủ nếu chuyến đã lưu, ghi sự kiện nếu người dùng đồng ý.
+  void toggleDone(String tripId, int day, int order, {String? placeId}) {
+    final key = '$tripId|$day|$order';
+    final now = done.add(key);
+    if (!now) done.remove(key);
+    notifyListeners();
+    final serverId = serverTrips[tripId];
+    if (serverId != null) unawaited(sync.checkIn(serverId, day, order, now));
+    sync.log('xong_diem', {
+      'dia_diem_id': ?placeId,
+      'ngay_thu': day,
+      'thu_tu': order,
+      'xong': now,
+    }, serverId);
+  }
+
+  /// Tải các chuyến đã lưu trên máy chủ (mã ẩn danh của máy này) vào My Trip.
+  Future<void> loadServerTrips() async {
+    for (final data in await sync.loadTrips()) {
+      final serverId = data['chuyen_di'] as String?;
+      final itinerary = itineraryFromJson(data['itinerary']);
+      if (serverId == null || itinerary == null) continue;
+      final id = 'srv-$serverId';
+      if (isSaved(id)) continue;
+      serverTrips[id] = serverId;
+      _addTrip(id, itinerary, name: data['ten'] as String?);
+      final days = (data['itinerary'] as Map)['days'] as List;
+      for (var d = 0; d < days.length; d++) {
+        final stops = (days[d] as Map)['stops'] as List;
+        for (var k = 0; k < stops.length; k++) {
+          if ((stops[k] as Map)['xong_luc'] != null) {
+            done.add('$id|${d + 1}|${k + 1}');
+          }
+        }
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Quên các chuyến của máy chủ (sau khi "Xoá dữ liệu của tôi").
+  void forgetServerTrips() {
+    trips.removeWhere((trip) => serverTrips.containsKey(trip.id));
+    for (final id in serverTrips.keys) {
+      done.removeWhere((key) => key.startsWith('$id|'));
+    }
+    serverTrips.clear();
+    notifyListeners();
+  }
+
+  void _addTrip(String id, Itinerary itinerary, {String? name}) {
+    final now = DateTime.now();
+    final start = itinerary.start ?? DateTime(now.year, now.month, now.day);
+    final end = DateTime(
+      start.year,
+      start.month,
+      start.day + itinerary.days.length - 1,
+    );
+    trips.insert(
+      0,
+      Trip(
+        id: id,
+        name: name ?? itinerary.title,
+        start: start,
+        end: end,
+        stops: itinerary.days.fold(0, (count, day) => count + day.stops.length),
+        image: 'lake.jpg',
+        preview: itinerary,
+      ),
+    );
+  }
 
   bool togglePlace(Place place) {
     final saved = savedPlaces.add(place);
@@ -234,29 +328,28 @@ class TravelState extends ChangeNotifier {
     if (isSaved(id)) {
       trips.removeWhere((trip) => trip.id == id);
       favorites.remove(id);
+      final serverId = serverTrips.remove(id);
+      if (serverId != null) unawaited(sync.deleteTrip(serverId));
+      sync.log('bo_luu_trip', const {}, serverId);
     } else {
-      final now = DateTime.now();
-      final start = itinerary.start ?? DateTime(now.year, now.month, now.day);
-      final end = DateTime(
-        start.year,
-        start.month,
-        start.day + itinerary.days.length - 1,
-      );
-      trips.insert(
-        0,
-        Trip(
-          id: id,
-          name: itinerary.title,
-          start: start,
-          end: end,
-          stops: itinerary.days.fold(
-            0,
-            (count, day) => count + day.stops.length,
-          ),
-          image: 'lake.jpg',
-          preview: itinerary,
-        ),
-      );
+      _addTrip(id, itinerary);
+      final source = itinerary.source;
+      if (sync.enabled && source != null) {
+        unawaited(
+          sync.saveTrip(itinerary.title, source).then((serverId) {
+            if (serverId == null || !isSaved(id)) return;
+            serverTrips[id] = serverId;
+            sync.log('luu_trip', {
+              'so_ngay': itinerary.days.length,
+              'so_diem': itinerary.days.fold<int>(
+                0,
+                (n, d) => n + d.stops.length,
+              ),
+            }, serverId);
+            notifyListeners();
+          }),
+        );
+      }
     }
     notifyListeners();
   }
@@ -269,6 +362,8 @@ class TravelState extends ChangeNotifier {
     trips
       ..clear()
       ..addAll(demoTrips);
+    serverTrips.clear();
+    done.clear();
     accessCode = '';
     notifyListeners();
   }
@@ -288,8 +383,10 @@ class StopDetail {
     this.close,
     this.reason = '',
     this.mapsUrl,
+    this.placeId,
   });
   final String name, arrive, reason;
+  final String? placeId;
   final int? travelMin, visitMin, ticketVnd;
   final String? open, close, mapsUrl;
 
@@ -340,7 +437,11 @@ class Itinerary {
     this.totalVnd,
     this.perPersonVnd,
     this.taxiVnd,
+    this.source,
   });
+
+  /// JSON `itinerary` gốc từ máy chủ (để lưu chuyến lên máy chủ đúng như đã nhận).
+  final Map<String, Object?>? source;
   final String title, tags;
   final List<ItineraryDay> days;
   final DateTime? start;
@@ -417,6 +518,7 @@ Itinerary? itineraryFromJson(
       details.add(
         StopDetail(
           name: name,
+          placeId: _text(stop['id']),
           arrive: '${stop['arrive'] ?? ''}',
           travelMin: _int(stop['travel_min_from_prev']),
           visitMin: _int(stop['visit_min']),
@@ -466,6 +568,7 @@ Itinerary? itineraryFromJson(
     totalVnd: _int(data['total_vnd']),
     perPersonVnd: _int(data['per_person_vnd']),
     taxiVnd: _int(data['taxi_vnd']),
+    source: Map<String, Object?>.from(data),
   );
 }
 

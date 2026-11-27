@@ -903,6 +903,86 @@ class ProfilePage extends StatelessWidget {
     context.go('/');
   }
 
+  Future<void> openPrivacy(BuildContext context) => sheet<void>(
+    context,
+    'Dữ liệu & quyền riêng tư',
+    body: ListenableBuilder(
+      listenable: travel,
+      builder: (context, _) {
+        final sync = travel.sync;
+        if (!sync.enabled) {
+          return const Text(
+            'Bản chạy thử (lịch mẫu) không lưu dữ liệu nào lên máy chủ.',
+            style: caption,
+          );
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: sync.consent == true,
+              title: const Text('Cho phép ghi lại cách dùng app'),
+              subtitle: const Text(
+                'Ẩn danh. Không lưu nội dung câu hỏi, không lưu vị trí GPS.',
+                style: caption,
+              ),
+              onChanged: (value) async {
+                await sync.setConsent(value);
+                travel.changed();
+              },
+            ),
+            Text(
+              'Chuyến đã lưu: ${travel.serverTrips.length} trên máy chủ. '
+              'Mã ẩn danh của máy này: ${(sync.userId ?? '').split('-').first}…',
+              style: caption,
+            ),
+            const SizedBox(height: 12),
+            Pill(
+              'Xoá dữ liệu của tôi',
+              icon: Icons.delete_outline,
+              onTap: () async {
+                final ok = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Xoá dữ liệu của bạn?'),
+                    content: const Text(
+                      'Xoá mọi chuyến đã lưu, check-in và lịch sử thao tác trên '
+                      'máy chủ. Không hoàn tác được.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Huỷ'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Xoá'),
+                      ),
+                    ],
+                  ),
+                );
+                if (ok != true) return;
+                final deleted = await sync.deleteMyData();
+                travel.forgetServerTrips();
+                if (context.mounted) {
+                  ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        deleted ? 'Đã xoá dữ liệu của bạn.' : 'Chưa kết nối được máy chủ; mã ẩn danh đã được đổi.',
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    ),
+  );
+
   Future<void> openSaved(BuildContext context) => sheet<void>(
     context,
     'Saved Places',
@@ -943,6 +1023,11 @@ class ProfilePage extends StatelessWidget {
       (Icons.history, 'Travel History', 'Past trips and experiences'),
       (Icons.settings_outlined, 'Settings', 'App, notification, language'),
       (Icons.help_outline, 'Help & Support', 'FAQs, contact us'),
+      (
+        Icons.shield_outlined,
+        'Dữ liệu & quyền riêng tư',
+        'Thu thập ẩn danh, xoá dữ liệu của bạn',
+      ),
     ];
     return ListView(
       padding: const EdgeInsets.only(bottom: 12),
@@ -1087,6 +1172,8 @@ class ProfilePage extends StatelessWidget {
                         ),
                         onTap: () => i == 1
                             ? openSaved(context)
+                            : i == 5
+                            ? openPrivacy(context)
                             : sheet<void>(context, rows[i].$2),
                       ),
                     ],

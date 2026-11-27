@@ -163,6 +163,13 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    final sync = widget.travel.sync;
+    sync.log('mo_man_hinh', {'man': 'chat'});
+    if (repo is ApiChatRepository && sync.enabled && sync.consent == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) askConsent(context, widget.travel);
+      });
+    }
     if (widget.firstMessage.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) send(widget.firstMessage);
@@ -216,6 +223,12 @@ class _ChatPageState extends State<ChatPage> {
     });
     if (!retry) compose.clear();
     latest();
+    final sync = widget.travel.sync;
+    final started = DateTime.now();
+    sync.log('gui_yeu_cau', {
+      'so_ky_tu': content.runes.length,
+      'la_sua': previousRequest != null,
+    });
     try {
       final reply = await repo.reply(
         content,
@@ -224,6 +237,15 @@ class _ChatPageState extends State<ChatPage> {
         previousRequest: previousRequest,
         previousOutput: previousOutput,
       );
+      final plan = reply.itinerary;
+      sync.log('nhan_lich', {
+        'ok': plan != null,
+        'so_ngay': plan?.days.length ?? 0,
+        'so_diem': plan?.days.fold<int>(0, (n, d) => n + d.stops.length) ?? 0,
+        'kha_thi': plan?.feasible ?? false,
+        'ms': DateTime.now().difference(started).inMilliseconds,
+        'co_thoi_tiet': plan?.days.any((d) => d.weather != null) ?? false,
+      });
       if (!mounted) return;
       setState(() {
         messages.add(reply);
@@ -231,6 +253,9 @@ class _ChatPageState extends State<ChatPage> {
         previousOutput = reply.raw ?? reply.text;
       });
     } on Exception catch (exception) {
+      sync.log('loi_yeu_cau', {
+        'ma': exception is FormatException ? 'may_chu' : 'mang',
+      });
       if (!mounted) return;
       setState(() {
         error = exception is FormatException
@@ -721,7 +746,12 @@ class ItineraryCard extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             child: itinerary.days[i].details.isEmpty
                 ? DayPreview(index: i + 1, day: itinerary.days[i])
-                : DayPlan(index: i + 1, day: itinerary.days[i]),
+                : DayPlan(
+                    index: i + 1,
+                    day: itinerary.days[i],
+                    tripId: id,
+                    travel: travel,
+                  ),
           ),
         if (itinerary.totalVnd != null) ...[
           const SizedBox(height: 8),
@@ -767,31 +797,34 @@ class ItineraryCard extends StatelessWidget {
                     'Xem chi tiết',
                     icon: Icons.description_outlined,
                     compact: true,
-                    onTap: () => sheet<void>(
-                      context,
-                      itinerary.title,
-                      body: detail == null && itinerary.notes.isEmpty
-                          ? null
-                          : ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxHeight:
-                                    MediaQuery.sizeOf(context).height * .6,
-                              ),
-                              child: SingleChildScrollView(
-                                child: SelectableText(
-                                  detail ??
-                                      itinerary.notes
-                                          .map((note) => '- $note')
-                                          .join('\n'),
-                                  style: const TextStyle(
-                                    color: ink,
-                                    fontSize: 13,
-                                    height: 1.35,
+                    onTap: () {
+                      travel.sync.log('xem_chi_tiet');
+                      sheet<void>(
+                        context,
+                        itinerary.title,
+                        body: detail == null && itinerary.notes.isEmpty
+                            ? null
+                            : ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.sizeOf(context).height * .6,
+                                ),
+                                child: SingleChildScrollView(
+                                  child: SelectableText(
+                                    detail ??
+                                        itinerary.notes
+                                            .map((note) => '- $note')
+                                            .join('\n'),
+                                    style: const TextStyle(
+                                      color: ink,
+                                      fontSize: 13,
+                                      height: 1.35,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                    ),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -901,9 +934,19 @@ Future<void> openLink(BuildContext context, String url) async {
 
 /// Một ngày trong lịch do API trả: giờ đến, số phút, vé, lý do, nút chỉ đường.
 class DayPlan extends StatelessWidget {
-  const DayPlan({super.key, required this.index, required this.day});
+  const DayPlan({
+    super.key,
+    required this.index,
+    required this.day,
+    this.tripId,
+    this.travel,
+  });
   final int index;
   final ItineraryDay day;
+
+  /// Có [tripId] + [travel] thì hiện nút check-in "Đã xong" cho từng điểm.
+  final String? tripId;
+  final TravelState? travel;
 
   static const _weekdays = [
     'thứ Hai',
@@ -943,12 +986,20 @@ class DayPlan extends StatelessWidget {
         ],
       ),
       const SizedBox(height: 6),
-      for (final stop in day.details)
+      for (var k = 0; k < day.details.length; k++)
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (tripId != null && travel != null)
+                CheckInButton(
+                  travel: travel!,
+                  tripId: tripId!,
+                  day: index,
+                  order: k + 1,
+                  stop: day.details[k],
+                ),
               Container(
                 margin: const EdgeInsets.only(top: 1, right: 7),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -957,7 +1008,7 @@ class DayPlan extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  stop.arrive,
+                  day.details[k].arrive,
                   style: const TextStyle(
                     color: brown,
                     fontSize: 11,
@@ -970,18 +1021,21 @@ class DayPlan extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      stop.name,
+                      day.details[k].name,
                       style: const TextStyle(
                         color: ink,
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    if (stop.facts.isNotEmpty)
-                      Text(stop.facts, style: caption.copyWith(fontSize: 11)),
-                    if (stop.reason.isNotEmpty)
+                    if (day.details[k].facts.isNotEmpty)
                       Text(
-                        stop.reason,
+                        day.details[k].facts,
+                        style: caption.copyWith(fontSize: 11),
+                      ),
+                    if (day.details[k].reason.isNotEmpty)
+                      Text(
+                        day.details[k].reason,
                         style: caption.copyWith(
                           fontSize: 11,
                           color: ink,
@@ -991,10 +1045,16 @@ class DayPlan extends StatelessWidget {
                   ],
                 ),
               ),
-              if (stop.mapsUrl != null)
+              if (day.details[k].mapsUrl != null)
                 IconButton(
-                  tooltip: 'Chỉ đường đến ${stop.name}',
-                  onPressed: () => openLink(context, stop.mapsUrl!),
+                  tooltip: 'Chỉ đường đến ${day.details[k].name}',
+                  onPressed: () {
+                    travel?.sync.log('bam_chi_duong', {
+                      'cap': 'diem',
+                      'dia_diem_id': ?day.details[k].placeId,
+                    });
+                    openLink(context, day.details[k].mapsUrl!);
+                  },
                   icon: const Icon(
                     Icons.directions_outlined,
                     color: brown,
@@ -1016,7 +1076,10 @@ class DayPlan extends StatelessWidget {
                   : 'Chỉ đường phần ${i + 1}',
               icon: Icons.map_outlined,
               compact: true,
-              onTap: () => openLink(context, day.routeUrls[i]),
+              onTap: () {
+                travel?.sync.log('bam_chi_duong', {'cap': 'ngay'});
+                openLink(context, day.routeUrls[i]);
+              },
             ),
         ],
       ),
@@ -1084,4 +1147,71 @@ class KeyNotes extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Nút check-in "Đã xong" cho một điểm (lưu lên máy chủ nếu chuyến đã lưu).
+class CheckInButton extends StatelessWidget {
+  const CheckInButton({
+    super.key,
+    required this.travel,
+    required this.tripId,
+    required this.day,
+    required this.order,
+    required this.stop,
+  });
+  final TravelState travel;
+  final String tripId;
+  final int day, order;
+  final StopDetail stop;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: travel,
+    builder: (context, _) {
+      final done = travel.isDone(tripId, day, order);
+      return IconButton(
+        tooltip: done
+            ? 'Bỏ đánh dấu đã xong ${stop.name}'
+            : 'Đánh dấu đã xong ${stop.name}',
+        onPressed: () =>
+            travel.toggleDone(tripId, day, order, placeId: stop.placeId),
+        icon: Icon(
+          done ? Icons.check_circle : Icons.radio_button_unchecked,
+          color: done ? const Color(0xff5b7330) : brown,
+          size: 20,
+        ),
+        visualDensity: VisualDensity.compact,
+      );
+    },
+  );
+}
+
+/// Hỏi đồng ý thu thập cách dùng app (ẩn danh) — hiện một lần khi mở chat ở chế độ gọi máy chủ.
+Future<void> askConsent(BuildContext context, TravelState travel) async {
+  final yes = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      title: const Text('Giúp cải thiện gợi ý?'),
+      content: const Text(
+        'Cho phép ghi lại cách bạn dùng app — bấm nút nào, lịch có được lưu, '
+        'điểm nào đánh dấu "Đã xong" — để biết lộ trình nào đi được thật.\n\n'
+        '• Ẩn danh: mã ngẫu nhiên theo máy, không tên, không email.\n'
+        '• Không lưu nội dung câu hỏi, không lưu vị trí GPS.\n'
+        '• Tắt hoặc xoá dữ liệu bất cứ lúc nào trong Profile.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Không, cảm ơn'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Đồng ý'),
+        ),
+      ],
+    ),
+  );
+  await travel.sync.setConsent(yes ?? false);
+  travel.changed();
 }

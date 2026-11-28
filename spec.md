@@ -156,10 +156,10 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 - Kết quả: lượt 1 17/24 (71%) · lượt 2 22/24 (92%) · lượt 4 21/24 (88%, đổi model `gemini-3.1-flash-lite`; lượt 3 lỗi kỹ thuật, không chấm) · lượt 6 23/24 (96%, sửa `tim_diem` + chế độ đi lại ít nhất; lượt 5 lỗi kỹ thuật) · lượt 7 22/24 (92%, sửa `B05` chưa đủ, `B07` dao động) · lượt 8 24/24 (100%) — run ID: `run-1@20261128-014438` / `run-2@20261128-022833` / `run-4@20261128-053502` / `run-6@20261128-060034` / `run-7@20261128-061509` / `run-8@20261128-062529` → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
-- Persona + giá: `cost/personas.yaml` · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên)
-- Chi phí / task thành công: __ (model __) · __ (model __)
-- Chi phí / tháng ở quy mô thật: thấp __ · cơ sở __ · cao __ → chi tiết `cost/cost-estimate.md`
-- So với impact / người / tháng (§2): đáng làm không, vì sao:
+- Persona + giá: `cost/personas.yaml` · lượt mô phỏng: `cost/simulate-1.csv` (`50` phiên, `0/50` lỗi, `simulate-1@20261128-111040`, `--rate-from eval/run-2.csv` `22/24 = 92%`)
+- Chi phí / task thành công: **$0.0083 (≈ 211 ₫)** (model `gemini-2.5-flash`) · **$0.0056 (≈ 143 ₫)** (đo trên `gemini-2.5-flash`, quy đổi giá `gemini-3.1-flash-lite`)
+- Chi phí / tháng ở quy mô thật (`gemini-2.5-flash`): thấp **$15.47 (≈ 394.498 ₫)** (1.000 người) · cơ sở **$77.35 (≈ 1.972.488 ₫)** (5.000 người) · cao **$232.06 (≈ 5.917.464 ₫)** (15.000 người) → chi tiết `cost/cost-estimate.md`
+- So với impact / người / tháng (§2): đáng làm không, vì sao: **Đáng làm** — chi phí cơ sở chỉ **$0.0155 (≈ 394 ₫)/người/tháng** để giải quyết ít nhất `12,5 phút/người/tháng` thời gian chuẩn bị và giảm lỗi sai giờ đóng cửa/vượt ngân sách.
 
 ## §9. Rủi ro & an toàn
 - Dữ liệu: đã ẩn danh gì, không thu gì, không đưa gì vào model gói miễn phí:
@@ -195,6 +195,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 | 28/11 10:10 | (Nhánh `feat/rag-search-tools`) Thêm công cụ chỉ đọc `tra_cuu_rag` (`pgvector` trên `learnloop.rag_doan` + fallback BM25 cục bộ từ `data/hanoi_rag.json`, kèm `db/nap_rag.py`) | Bổ sung mẹo tham quan có nguồn theo hạ tầng `db/README.md`, không làm thay đổi logic tính giờ/giá của `kiem_lich_trinh` |
 | 28/11 10:35 | (Nhánh `feat/rag-search-tools`) Mở rộng `data/hanoi_poi.json` từ `14 → 24` điểm (chọn 10 điểm nội thành từ `data/ung_vien_poi.csv`, né `Bảo tàng Mỹ thuật Việt Nam` của `B08` và không gắn `trai_nghiem` nội thành của `B23`) và mở rộng `data/hanoi_rag.json` từ `17 → 38` đoạn; cập nhật `len(POI)` trong `codebase/agent.py` và `data/DATA_CARD.md` | Tăng độ phủ địa điểm và tri thức RAG cho bản mở rộng nhánh riêng; vẫn giữ nguyên nhánh `main` đã eval 24/24 để so sánh và chuẩn bị chạy lại eval riêng nếu gộp |
 | 28/11 11:00 | (Nhánh `feat/rag-search-tools`) Mở rộng `data/hanoi_rag.json` (`hanoi-rag-v3`) lên `84` đoạn bằng script `data/lay_rag_wikipedia.py` (lấy `22` đoạn từ API Wikipedia tiếng Việt CC BY-SA 4.0) và `24` đoạn tổng hợp từ báo chí/cổng thông tin chính thống (`VnExpress`, `VietnamPlus`, `Báo Chính phủ`, `Cục Du lịch Quốc gia Việt Nam`), lọc sạch giờ/giá/phút và từ cấm | Tăng độ sâu ngữ cảnh lịch sử-văn hoá cho RAG mà vẫn giữ `data/hanoi_poi.json` + `kiem_lich_trinh` là nguồn sự thật duy nhất cho số liệu giờ và giá |
+| 28/11 11:22 | Hoàn thiện `cost/personas.yaml` (Track C: 3 persona, 3 kịch bản 1.000/5.000/15.000 người/tháng, 2 bảng giá `gemini-3.1-flash-lite` và `gemini-2.5-flash`), chạy mô phỏng `cost/simulate-1.csv` (`50` phiên, `0/50` lỗi, `--rate-from eval/run-2.csv`), điền `cost/cost-estimate.md` và `spec.md` §8 | Hoàn tất định lượng chi phí/task thành công và bài toán hiệu quả chi phí cho CP4 |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

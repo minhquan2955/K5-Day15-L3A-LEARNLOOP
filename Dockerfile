@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 COPY codebase/agent.py codebase/ai.py codebase/tools.py codebase/tracing.py ./codebase/
-COPY data/hanoi_poi.json ./data/
+COPY data/hanoi_poi.json data/hanoi_rag.json ./data/
 COPY server/main.py server/crud.py server/auth.py server/database.py server/luu_tru.py ./server/
 COPY server/static/ ./server/static/
 

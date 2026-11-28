@@ -7,6 +7,7 @@
 !codebase/tracing.py
 !data/
 !data/hanoi_poi.json
+!data/hanoi_rag.json
 !server/
 !server/main.py
 !server/crud.py

@@ -3,12 +3,15 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
+import 'chat.dart';
 import 'theme.dart';
 import 'travel_data.dart';
+import 'trip_tools.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.search});
+  const HomePage({super.key, required this.search, required this.travel});
   final TextEditingController search;
+  final TravelState travel;
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -17,205 +20,433 @@ class _HomePageState extends State<HomePage> {
   int day = 0;
   int tab = 0;
 
+  TravelState get travel => widget.travel;
+
   void openChat() {
     FocusManager.instance.primaryFocus?.unfocus();
     context.push('/ai', extra: widget.search.text.trim());
   }
 
+  /// Sửa chuyến thật (bảng Đổi kế hoạch → chat soạn sẵn); chưa có chuyến thật thì mở chat.
+  void edit(Itinerary? plan) =>
+      plan == null ? openChat() : replanSavedTrip(context, plan, travel);
+
+  /// Tên các điểm của từng ngày (chuyến thật, hoặc lịch mẫu khi chưa có).
+  List<List<String>> dayNames(Itinerary? plan) => plan == null
+      ? [
+          for (final stops in homeDays) [for (final (_, p) in stops) p.name],
+        ]
+      : [
+          for (final d in plan.days)
+            d.details.isNotEmpty
+                ? [for (final s in d.details) s.name]
+                : [for (final s in d.stops) s.$2],
+        ];
+
+  List<String> routesOf(Itinerary? plan, int index) {
+    final urls = plan?.days[index].routeUrls ?? const <String>[];
+    return urls.isNotEmpty
+        ? urls
+        : dayRoutes(dayNames(plan)[index].map(mapsPlace).toList());
+  }
+
   @override
-  Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.only(bottom: 10),
-    children: [
-      const PageHeader(
-        title: 'Hanoi\nTravel Planner',
-        subtitle: 'Plan · Explore · Travel with AI',
-        home: true,
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: travel,
+    builder: (context, _) {
+      final trip = travel.latestRealTrip;
+      final plan = trip?.preview;
+      final dayCount = plan?.days.length ?? homeDays.length;
+      final d = day.clamp(0, dayCount - 1);
+      return ListView(
+        padding: const EdgeInsets.only(bottom: 10),
+        children: [
+          const PageHeader(
+            title: 'Hanoi\nTravel Planner',
+            subtitle: 'Plan · Explore · Travel with AI',
+            home: true,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SearchPill(
+                  controller: widget.search,
+                  hint: 'Plan a trip in Hanoi... (e.g., 2 days, culture, food)',
+                  onSubmitted: (_) => openChat(),
+                  action: Pill(
+                    'AI',
+                    icon: Icons.auto_awesome,
+                    filled: true,
+                    compact: true,
+                    onTap: openChat,
+                  ),
+                ),
+                const SizedBox(height: 11),
+                Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(right: 6),
+                      child: Art(
+                        'mascot.png',
+                        width: 81,
+                        height: 99,
+                        radius: 23,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    Expanded(
+                      child: Panel(
+                        padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              "👋 Hi! I'm your Hanoi Travel AI",
+                              style: display(15),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              "Tell me your travel dates, interests, or time, and I'll create a personalized itinerary for you!",
+                              style: caption,
+                            ),
+                            const SizedBox(height: 5),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Pill(
+                                'Generate My Itinerary',
+                                icon: Icons.auto_awesome,
+                                trailing: Icons.arrow_forward,
+                                filled: true,
+                                compact: true,
+                                onTap: openChat,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Panel(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 9, 8),
+                  onTap: trip == null
+                      ? null
+                      : () => context.push('/trip', extra: trip),
+                  child: Row(
+                    children: [
+                      Transform.rotate(
+                        angle: -.10,
+                        child: DecoratedBox(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: shadow,
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.fromLTRB(3, 3, 3, 6),
+                            child: Art(
+                              'quarter.jpg',
+                              width: 48,
+                              height: 47,
+                              radius: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Icon(
+                        Icons.calendar_month_outlined,
+                        color: brown,
+                        size: 19,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              trip?.name ?? 'Your Trip to Hanoi',
+                              style: display(16),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              plan == null
+                                  ? 'Lịch mẫu · tạo lịch thật với AI rồi bấm Lưu trip'
+                                  : '${plan.duration} · ${trip!.dates}',
+                              style: caption,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Pill(
+                        plan == null ? 'Tạo lịch' : 'Đổi kế hoạch',
+                        icon: plan == null
+                            ? Icons.auto_awesome
+                            : Icons.edit_calendar_outlined,
+                        compact: true,
+                        onTap: () => edit(plan),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 7),
+                TabStrip(
+                  items: const [
+                    ('Itinerary', null),
+                    ('Map', Icons.map_outlined),
+                    ('Trip Details', Icons.info_outline),
+                    ('Saved', Icons.bookmark_outline),
+                  ],
+                  selected: tab,
+                  onSelect: (index) => setState(() => tab = index),
+                ),
+                const Divider(height: 9, color: line),
+                ...switch (tab) {
+                  1 => mapTab(plan),
+                  2 => detailsTab(trip, plan),
+                  3 => savedTab(),
+                  _ => itineraryTab(trip, plan, dayCount, d),
+                },
+              ],
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  List<Widget> itineraryTab(Trip? trip, Itinerary? plan, int dayCount, int d) =>
+      [
+        Row(
           children: [
-            SearchPill(
-              controller: widget.search,
-              hint: 'Plan a trip in Hanoi... (e.g., 2 days, culture, food)',
-              onSubmitted: (_) => openChat(),
-              action: Pill(
-                'AI',
+            for (var i = 0; i < dayCount; i++)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: Pill(
+                    'Day ${i + 1}',
+                    filled: d == i,
+                    compact: true,
+                    onTap: () => setState(() => day = i),
+                  ),
+                ),
+              ),
+            Pill(
+              'View on Map',
+              icon: Icons.place_outlined,
+              compact: true,
+              onTap: () {
+                travel.sync.log('bam_chi_duong', {'cap': 'ngay', 'tu': 'home'});
+                openLink(context, routesOf(plan, d).first);
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          child: plan != null && plan.days[d].details.isNotEmpty
+              ? DayPlan(
+                  key: ValueKey('real-$d'),
+                  index: d + 1,
+                  day: plan.days[d],
+                  tripId: trip!.id,
+                  travel: travel,
+                )
+              : Column(
+                  key: ValueKey(d),
+                  children: [
+                    if (plan == null)
+                      for (var i = 0; i < homeDays[d].length; i++)
+                        TimelineStop(
+                          stop: homeDays[d][i],
+                          isLast: i == homeDays[d].length - 1,
+                          travel: travel,
+                        )
+                    else
+                      DayPreview(index: d + 1, day: plan.days[d]),
+                  ],
+                ),
+        ),
+        const SizedBox(height: 6),
+        CustomPaint(
+          painter: const DashedOutline(),
+          child: TextButton.icon(
+            onPressed: () => edit(plan),
+            icon: const Icon(Icons.add_circle_outline, size: 17),
+            label: Text(
+              plan == null ? 'Add a stop (tạo lịch với AI)' : 'Add a stop',
+            ),
+          ),
+        ),
+      ];
+
+  List<Widget> mapTab(Itinerary? plan) {
+    final names = dayNames(plan);
+    return [
+      if (plan == null)
+        const Padding(
+          padding: EdgeInsets.only(bottom: 6),
+          child: Text(
+            'Lịch mẫu — đường đi dưới đây theo lịch mẫu.',
+            style: caption,
+          ),
+        ),
+      for (var i = 0; i < names.length; i++)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Ngày ${i + 1}', style: display(15)),
+                const SizedBox(height: 3),
+                Text(names[i].join(' → '), style: caption),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final (k, url) in routesOf(plan, i).indexed)
+                      Pill(
+                        routesOf(plan, i).length == 1
+                            ? 'Chỉ đường cả ngày'
+                            : 'Chỉ đường phần ${k + 1}',
+                        icon: Icons.directions_outlined,
+                        compact: true,
+                        onTap: () {
+                          travel.sync.log('bam_chi_duong', {
+                            'cap': 'ngay',
+                            'tu': 'home_map',
+                          });
+                          openLink(context, url);
+                        },
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      const Text(
+        'Mở Google Maps để xem bản đồ và thời gian đi thực tế.',
+        style: caption,
+      ),
+    ];
+  }
+
+  List<Widget> detailsTab(Trip? trip, Itinerary? plan) {
+    if (trip == null || plan == null) {
+      return [
+        Panel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Chưa có chuyến thật. Nhờ AI xếp lịch rồi bấm "Lưu trip" — '
+                'chuyến mới nhất sẽ hiện ở đây.',
+              ),
+              const SizedBox(height: 8),
+              Pill(
+                'Tạo lịch với AI',
                 icon: Icons.auto_awesome,
                 filled: true,
                 compact: true,
                 onTap: openChat,
               ),
+            ],
+          ),
+        ),
+      ];
+    }
+    final stops = plan.days.fold<int>(0, (n, d) => n + d.details.length);
+    final checked = travel.done
+        .where((key) => key.startsWith('${trip.id}|'))
+        .length;
+    return [
+      Panel(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(plan.title, style: display(16)),
+            const SizedBox(height: 5),
+            Meta(
+              Icons.calendar_month_outlined,
+              '${plan.duration} · ${trip.dates}',
             ),
-            const SizedBox(height: 11),
-            Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 6),
-                  child: Art(
-                    'mascot.png',
-                    width: 81,
-                    height: 99,
-                    radius: 23,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                Expanded(
-                  child: Panel(
-                    padding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          "👋 Hi! I'm your Hanoi Travel AI",
-                          style: display(15),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          "Tell me your travel dates, interests, or time, and I'll create a personalized itinerary for you!",
-                          style: caption,
-                        ),
-                        const SizedBox(height: 5),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Pill(
-                            'Generate My Itinerary',
-                            icon: Icons.auto_awesome,
-                            trailing: Icons.arrow_forward,
-                            filled: true,
-                            compact: true,
-                            onTap: openChat,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Panel(
-              padding: const EdgeInsets.fromLTRB(10, 8, 9, 8),
-              child: Row(
-                children: [
-                  Transform.rotate(
-                    angle: -.10,
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: shadow,
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.fromLTRB(3, 3, 3, 6),
-                        child: Art(
-                          'quarter.jpg',
-                          width: 48,
-                          height: 47,
-                          radius: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Icon(
-                    Icons.calendar_month_outlined,
-                    color: brown,
-                    size: 19,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Your Trip to Hanoi', style: display(16)),
-                        const Text(
-                          '3 Days · Culture · Sightseeing · Food',
-                          style: caption,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Pill(
-                    'Edit',
-                    icon: Icons.edit_outlined,
-                    compact: true,
-                    onTap: () => sheet<void>(context, 'Edit'),
-                  ),
-                ],
+            Meta(Icons.place_outlined, '$stops điểm · đã xong $checked'),
+            if (plan.tags.isNotEmpty) Meta(Icons.people_outline, plan.tags),
+            if (plan.totalVnd != null)
+              Meta(
+                Icons.payments_outlined,
+                'Tổng vé ${vnd(plan.totalVnd!)}'
+                '${plan.perPersonVnd == null ? '' : ' (${vnd(plan.perPersonVnd!)}/người)'}'
+                '${plan.taxiVnd == null ? '' : ' · taxi ước tính ${vnd(plan.taxiVnd!)} (chỉ tham khảo)'}',
               ),
-            ),
-            const SizedBox(height: 7),
-            TabStrip(
-              items: const [
-                ('Itinerary', null),
-                ('Map', Icons.map_outlined),
-                ('Trip Details', Icons.info_outline),
-                ('Saved', Icons.bookmark_outline),
-              ],
-              selected: tab,
-              onSelect: (index) => setState(() => tab = index),
-            ),
-            const Divider(height: 9, color: line),
-            if (tab == 0) ...[
-              Row(
-                children: [
-                  for (var i = 0; i < homeDays.length; i++)
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 5),
-                        child: Pill(
-                          'Day ${i + 1}',
-                          filled: day == i,
-                          compact: true,
-                          onTap: () => setState(() => day = i),
-                        ),
-                      ),
-                    ),
-                  Pill(
-                    'View on Map',
-                    icon: Icons.place_outlined,
-                    compact: true,
-                    onTap: () => setState(() => tab = 1),
-                  ),
-                ],
-              ),
+            if (plan.notes.isNotEmpty) ...[
               const SizedBox(height: 8),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
-                child: Column(
-                  key: ValueKey(day),
-                  children: [
-                    for (var i = 0; i < homeDays[day].length; i++)
-                      TimelineStop(
-                        stop: homeDays[day][i],
-                        isLast: i == homeDays[day].length - 1,
-                      ),
-                  ],
-                ),
-              ),
-              CustomPaint(
-                painter: const DashedOutline(),
-                child: TextButton.icon(
-                  onPressed: () => sheet<void>(context, 'Add a stop'),
-                  icon: const Icon(Icons.add_circle_outline, size: 17),
-                  label: const Text('Add a stop'),
-                ),
-              ),
-            ] else
-              Panel(
-                child: ListTile(
-                  title: Text(
-                    ['Itinerary', 'Map', 'Trip Details', 'Saved'][tab],
-                  ),
-                  subtitle: const Text('Coming soon'),
-                ),
-              ),
+              KeyNotes(notes: plan.notes, max: 12),
+            ],
+            const SizedBox(height: 8),
+            Pill(
+              'Mở chuyến',
+              icon: Icons.open_in_new,
+              compact: true,
+              onTap: () => context.push('/trip', extra: trip),
+            ),
           ],
         ),
       ),
-    ],
-  );
+    ];
+  }
+
+  List<Widget> savedTab() => [
+    if (travel.savedPlaces.isEmpty)
+      Panel(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Chưa lưu điểm nào. Vào Explore, bấm ♥ ở điểm bạn thích.',
+            ),
+            const SizedBox(height: 8),
+            Pill(
+              'Mở Explore',
+              icon: Icons.explore_outlined,
+              compact: true,
+              onTap: () => context.go('/explore'),
+            ),
+          ],
+        ),
+      ),
+    for (final place in travel.savedPlaces)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 7),
+        child: Panel(
+          padding: const EdgeInsets.all(5),
+          onTap: () => openPlace(context, place, travel),
+          child: Row(
+            children: [
+              Art(place.image, width: 64, height: 52, radius: 10),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(place.name, style: display(14)),
+                    Text(place.district, style: caption),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: brown, size: 16),
+            ],
+          ),
+        ),
+      ),
+  ];
 }
 
 class TabStrip extends StatelessWidget {
@@ -287,9 +518,15 @@ class TabStrip extends StatelessWidget {
 }
 
 class TimelineStop extends StatelessWidget {
-  const TimelineStop({super.key, required this.stop, required this.isLast});
+  const TimelineStop({
+    super.key,
+    required this.stop,
+    required this.isLast,
+    this.travel,
+  });
   final Stop stop;
   final bool isLast;
+  final TravelState? travel;
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +561,9 @@ class TimelineStop extends StatelessWidget {
               ),
               Expanded(
                 child: Panel(
-                  onTap: () => sheet<void>(context, place.name),
+                  onTap: () => travel == null
+                      ? sheet<void>(context, place.name)
+                      : openPlace(context, place, travel!),
                   padding: const EdgeInsets.all(5),
                   child: Row(
                     children: [
@@ -446,6 +685,65 @@ class _ExplorePageState extends State<ExplorePage> {
   final search = TextEditingController();
   String category = 'All';
 
+  /// Lọc theo nhãn sở thích (bảng Filters) — chỉ có với điểm thật từ máy chủ.
+  final tags = <String>{};
+
+  Future<void> openFilters(List<Place> all) async {
+    final available = {for (final place in all) ...place.tags};
+    await sheet<void>(
+      context,
+      'Filters',
+      body: available.isEmpty
+          ? const Text(
+              'Bản chạy thử không có nhãn điểm; chạy kèm máy chủ để lọc theo sở thích.',
+              style: caption,
+            )
+          : StatefulBuilder(
+              builder: (context, setSheet) => Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final tag in tagLabels.keys)
+                        if (available.contains(tag))
+                          FilterChip(
+                            label: Text(tagLabels[tag]!),
+                            selected: tags.contains(tag),
+                            onSelected: (on) {
+                              setSheet(
+                                () => on ? tags.add(tag) : tags.remove(tag),
+                              );
+                              setState(() {});
+                            },
+                          ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setSheet(tags.clear);
+                          setState(() {});
+                        },
+                        child: const Text('Bỏ lọc'),
+                      ),
+                      const Spacer(),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Xem kết quả'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
   @override
   void dispose() {
     search.dispose();
@@ -457,11 +755,15 @@ class _ExplorePageState extends State<ExplorePage> {
     listenable: widget.travel,
     builder: (context, _) {
       final query = searchable(search.text);
-      final showPopular = category == 'All' && query.isEmpty;
-      final items = [...places, ...extraPlaces]
+      final showPopular = category == 'All' && query.isEmpty && tags.isEmpty;
+      final all = widget.travel.places.isNotEmpty
+          ? widget.travel.places
+          : [...places, ...extraPlaces];
+      final items = all
           .where(
             (place) =>
                 (category == 'All' || place.category == category) &&
+                tags.every(place.tags.contains) &&
                 (searchable(place.name).contains(query) ||
                     searchable(place.localName).contains(query)),
           )
@@ -496,11 +798,15 @@ class _ExplorePageState extends State<ExplorePage> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      RoundAction(
-                        Icons.tune,
-                        'Filters',
-                        filled: true,
-                        onTap: () => sheet<void>(context, 'Filters'),
+                      Badge(
+                        isLabelVisible: tags.isNotEmpty,
+                        label: Text('${tags.length}'),
+                        child: RoundAction(
+                          Icons.tune,
+                          'Filters',
+                          filled: true,
+                          onTap: () => openFilters(all),
+                        ),
                       ),
                     ],
                   ),
@@ -573,7 +879,11 @@ class _ExplorePageState extends State<ExplorePage> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () => sheet<void>(context, 'See All'),
+                        onPressed: () => setState(() {
+                          category = 'All';
+                          tags.clear();
+                          search.clear();
+                        }),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                         ),
@@ -630,7 +940,7 @@ class PlaceCard extends StatelessWidget {
         Positioned.fill(
           child: Panel(
             padding: EdgeInsets.zero,
-            onTap: () => sheet<void>(context, place.name),
+            onTap: () => openPlace(context, place, travel),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -649,7 +959,12 @@ class PlaceCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 3),
-                        Meta(Icons.place_outlined, place.district),
+                        Meta(
+                          place.real
+                              ? Icons.schedule_outlined
+                              : Icons.place_outlined,
+                          place.district,
+                        ),
                         const Spacer(),
                         Row(
                           children: [
@@ -789,12 +1104,56 @@ class TripCard extends StatelessWidget {
   final TravelState travel;
   final bool completed;
 
+  Future<void> options(BuildContext context) => sheet<void>(
+    context,
+    trip.name,
+    body: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListTile(
+          leading: const Icon(Icons.event_note_outlined, color: brown),
+          title: const Text('Xem lịch'),
+          onTap: () {
+            Navigator.of(context).pop();
+            context.push('/trip', extra: trip);
+          },
+        ),
+        if (trip.preview?.detailed ?? false) ...[
+          ListTile(
+            leading: const Icon(Icons.edit_calendar_outlined, color: brown),
+            title: const Text('Đổi kế hoạch'),
+            onTap: () {
+              Navigator.of(context).pop();
+              replanSavedTrip(context, trip.preview!, travel);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete_outline, color: brown),
+            title: const Text('Bỏ lưu chuyến'),
+            onTap: () {
+              Navigator.of(context).pop();
+              travel.toggleTrip(trip.id, trip.preview!);
+            },
+          ),
+        ] else
+          const Padding(
+            padding: EdgeInsets.all(8),
+            child: Text(
+              'Chuyến mẫu trong thiết kế — tạo chuyến thật với AI để đổi kế hoạch.',
+              style: caption,
+            ),
+          ),
+      ],
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final favorite = travel.favorites.contains(trip.id);
     return Panel(
       padding: const EdgeInsets.fromLTRB(8, 7, 5, 7),
-      onTap: () => sheet<void>(context, trip.name),
+      onTap: () => context.push('/trip', extra: trip),
       child: Row(
         children: [
           Art(trip.image, width: 95, height: 91, radius: 13),
@@ -831,7 +1190,7 @@ class TripCard extends StatelessWidget {
                     ),
                     IconButton(
                       tooltip: 'Trip options',
-                      onPressed: () => sheet<void>(context, trip.name),
+                      onPressed: () => options(context),
                       icon: const Icon(Icons.more_vert, color: brown, size: 17),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints.tightFor(
@@ -983,6 +1342,149 @@ class ProfilePage extends StatelessWidget {
     ),
   );
 
+  List<Trip> get realTrips => [
+    for (final trip in travel.trips)
+      if (trip.preview?.detailed ?? false) trip,
+  ];
+
+  Future<void> noAccount(BuildContext context) => sheet<void>(
+    context,
+    'Tài khoản',
+    body: const Text(
+      'Chưa có đăng nhập. App dùng mã ẩn danh theo máy: chuyến đã lưu và '
+      'check-in gắn với mã này. Đăng nhập (Google) sẽ làm ở bước sau.',
+      style: caption,
+    ),
+  );
+
+  Future<void> preferences(BuildContext context) => sheet<void>(
+    context,
+    'Travel Preferences',
+    body: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Chưa lưu sở thích theo tài khoản. Hiện bạn ghi sở thích, ngân sách, '
+          'nhịp đi ngay trong câu gửi AI (vd: "2 ngày, thích lịch sử, đi chậm, '
+          'dưới 500k/người").',
+          style: caption,
+        ),
+        const SizedBox(height: 10),
+        Pill(
+          'Mở chat AI',
+          icon: Icons.auto_awesome,
+          filled: true,
+          compact: true,
+          onTap: () {
+            Navigator.of(context).pop();
+            context.push('/ai');
+          },
+        ),
+      ],
+    ),
+  );
+
+  Future<void> openHistory(BuildContext context) => sheet<void>(
+    context,
+    'Travel History',
+    body: ListenableBuilder(
+      listenable: travel,
+      builder: (context, _) {
+        final trips = realTrips;
+        if (trips.isEmpty) {
+          return const Text(
+            'Chưa có chuyến nào. Nhờ AI xếp lịch rồi bấm "Lưu trip".',
+            style: caption,
+          );
+        }
+        return ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 360),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final trip in trips)
+                ListTile(
+                  leading: Art(trip.image, width: 48, height: 42),
+                  title: Text(trip.name),
+                  subtitle: Text(
+                    '${trip.dates} · ${trip.stops} điểm · đã xong '
+                    '${travel.done.where((k) => k.startsWith('${trip.id}|')).length}',
+                    style: caption,
+                  ),
+                  trailing: const Icon(Icons.chevron_right, color: brown),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.push('/trip', extra: trip);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+
+  Future<void> openSettings(BuildContext context) {
+    var code = travel.accessCode;
+    return sheet<void>(
+      context,
+      'Settings',
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            initialValue: code,
+            obscureText: true,
+            decoration: const InputDecoration(
+              labelText: 'Mã truy cập API (nếu máy chủ yêu cầu)',
+            ),
+            onChanged: (value) => code = value,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Ngôn ngữ: Tiếng Việt. Chưa có thông báo đẩy.',
+            style: caption,
+          ),
+          const SizedBox(height: 10),
+          FilledButton(
+            onPressed: () {
+              travel.accessCode = code.trim();
+              Navigator.of(context).pop();
+            },
+            child: const Text('Lưu'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> openHelp(BuildContext context) => sheet<void>(
+    context,
+    'Help & Support',
+    body: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * .6,
+      ),
+      child: const SingleChildScrollView(
+        child: Text(
+          '1. Bấm AI, gõ: số ngày, ngày đi, số người, điểm muốn đi '
+          '(vd "Đi Hà Nội 2 ngày từ 20/12, 2 người, thích lịch sử").\n'
+          '2. Lịch hiện từng điểm: giờ đến, phút đi, vé, lý do. Giờ, phút và '
+          'tiền do công cụ tính; giá taxi chỉ tham khảo.\n'
+          '3. "Chỉ đường" mở Google Maps cho một điểm hoặc cả ngày.\n'
+          '4. "Đổi kế hoạch": bỏ / thêm điểm, đổi giờ bắt đầu, thêm bớt ngày, '
+          'xếp cho đỡ đi lòng vòng, nhập chỗ ở — AI xếp lại.\n'
+          '5. "Lưu trip" để xem lại ở My Trip; khi đi, bấm "Đã xong" ở mỗi điểm.\n'
+          '6. Giờ mở cửa và giá vé là dữ liệu mẫu của nhóm — kiểm lại trước khi đi.\n'
+          '7. Profile → Dữ liệu & quyền riêng tư để tắt thu thập hoặc xoá dữ liệu.',
+          style: TextStyle(color: ink, fontSize: 13, height: 1.4),
+        ),
+      ),
+    ),
+  );
+
   Future<void> openSaved(BuildContext context) => sheet<void>(
     context,
     'Saved Places',
@@ -999,6 +1501,7 @@ class ProfilePage extends StatelessWidget {
                     ListTile(
                       leading: Art(place.image, width: 48, height: 42),
                       title: Text(place.name),
+                      onTap: () => openPlace(context, place, travel),
                       trailing: IconButton(
                         icon: const Icon(Icons.favorite, color: brown),
                         tooltip: 'Unsave ${place.name}',
@@ -1065,8 +1568,7 @@ class ProfilePage extends StatelessWidget {
                                 shape: const CircleBorder(),
                                 child: IconButton(
                                   tooltip: 'Edit avatar',
-                                  onPressed: () =>
-                                      sheet<void>(context, 'Edit avatar'),
+                                  onPressed: () => noAccount(context),
                                   icon: const Icon(
                                     Icons.edit_outlined,
                                     size: 14,
@@ -1091,7 +1593,7 @@ class ProfilePage extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Quan Nguyen',
+                                      'Khách ẩn danh',
                                       style: display(19),
                                     ),
                                   ),
@@ -1099,19 +1601,13 @@ class ProfilePage extends StatelessWidget {
                                     'Edit',
                                     icon: Icons.edit_outlined,
                                     compact: true,
-                                    onTap: () =>
-                                        sheet<void>(context, 'Edit profile'),
+                                    onTap: () => noAccount(context),
                                   ),
                                 ],
                               ),
                               const Meta(
-                                Icons.mail_outline,
-                                'quan.nguyen@example.com',
-                              ),
-                              const SizedBox(height: 5),
-                              const Meta(
-                                Icons.call_outlined,
-                                '+84 987 654 321',
+                                Icons.lock_outline,
+                                'Chưa đăng nhập — dữ liệu gắn với mã ẩn danh của máy này',
                               ),
                             ],
                           ),
@@ -1125,15 +1621,30 @@ class ProfilePage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: line),
                       ),
-                      child: IntrinsicHeight(
-                        child: Row(
-                          children: [
-                            stat(Icons.flight_takeoff, '5', 'Trips'),
-                            const VerticalDivider(width: 1, color: outline),
-                            stat(Icons.place_outlined, '42', 'Places Visited'),
-                            const VerticalDivider(width: 1, color: outline),
-                            stat(Icons.star_border, '4.8', 'Avg. Rating'),
-                          ],
+                      child: ListenableBuilder(
+                        listenable: travel,
+                        builder: (context, _) => IntrinsicHeight(
+                          child: Row(
+                            children: [
+                              stat(
+                                Icons.flight_takeoff,
+                                '${realTrips.length}',
+                                'Chuyến đã lưu',
+                              ),
+                              const VerticalDivider(width: 1, color: outline),
+                              stat(
+                                Icons.check_circle_outline,
+                                '${travel.done.length}',
+                                'Điểm đã xong',
+                              ),
+                              const VerticalDivider(width: 1, color: outline),
+                              stat(
+                                Icons.favorite_border,
+                                '${travel.savedPlaces.length}',
+                                'Điểm đã lưu',
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -1170,11 +1681,14 @@ class ProfilePage extends StatelessWidget {
                           color: brown,
                           size: 19,
                         ),
-                        onTap: () => i == 1
-                            ? openSaved(context)
-                            : i == 5
-                            ? openPrivacy(context)
-                            : sheet<void>(context, rows[i].$2),
+                        onTap: () => switch (i) {
+                          0 => preferences(context),
+                          1 => openSaved(context),
+                          2 => openHistory(context),
+                          3 => openSettings(context),
+                          4 => openHelp(context),
+                          _ => openPrivacy(context),
+                        },
                       ),
                     ],
                   ],

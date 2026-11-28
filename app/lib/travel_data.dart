@@ -15,8 +15,22 @@ class Place {
     this.rating,
     this.reviews,
     this.duration,
-    this.description,
-  );
+    this.description, {
+    this.id,
+    this.open,
+    this.close,
+    this.ticketVnd,
+    this.kidsFreeUnder,
+    this.visitMin,
+    this.tags = const [],
+    this.mapsUrl,
+  });
+
+  /// Có khi lấy từ máy chủ (/api/diem): mã điểm, giờ mở cửa, vé, nhãn, link chỉ đường — dữ liệu mẫu.
+  final String? id, open, close, mapsUrl;
+  final int? ticketVnd, kidsFreeUnder, visitMin;
+  final List<String> tags;
+  bool get real => id != null;
 
   final String name,
       localName,
@@ -104,6 +118,94 @@ const pagoda = Place(
 );
 const places = [lake, temple, quarter, mausoleum];
 const extraPlaces = [food, pagoda];
+
+/// Tên tiếng Việt của nhãn sở thích (khớp data/hanoi_poi.json).
+const tagLabels = {
+  'di_tich': 'Di tích',
+  'lich_su': 'Lịch sử',
+  'van_hoa': 'Văn hoá',
+  'am_thuc': 'Ẩm thực',
+  'pho_co': 'Phố cổ',
+  'dao_pho': 'Dạo phố',
+  'bao_tang': 'Bảo tàng',
+  'kien_truc': 'Kiến trúc',
+  'tam_linh': 'Tâm linh',
+  'thien_nhien': 'Thiên nhiên',
+  'chup_anh': 'Chụp ảnh',
+  'mua_sam': 'Mua sắm',
+  'buoi_toi': 'Buổi tối',
+  'trai_nghiem': 'Trải nghiệm',
+  'tre_em': 'Hợp trẻ em',
+  'ngoai_thanh': 'Ngoại thành',
+};
+
+/// Nhóm Explore (Historical / Nature / Culture / Food) theo nhãn.
+String categoryOfTags(List<String> tags) {
+  if (tags.contains('am_thuc')) return 'Food';
+  if (tags.any((t) => t == 'di_tich' || t == 'lich_su')) return 'Historical';
+  if (tags.any((t) => t == 'thien_nhien' || t == 'dao_pho')) return 'Nature';
+  return 'Culture';
+}
+
+String imageForPlace(String id) => switch (id) {
+  'lang_bac' => 'mausoleum.jpg',
+  'chua_mot_cot' || 'tran_quoc' || 'chua_huong' => 'pavilion.jpg',
+  'van_mieu' || 'hoang_thanh' || 'hoa_lo' => 'temple.jpg',
+  'ho_guom' || 'pho_di_bo' => 'lake.jpg',
+  'dong_xuan' || 'pho_duong_tau' => 'quarter.jpg',
+  _ => 'avenue.jpg',
+};
+
+/// Một điểm từ /api/diem → Place (mọi số là dữ liệu mẫu của nhóm, không phải rating / review).
+Place placeFromJson(Map<String, Object?> j) {
+  final id = '${j['id']}';
+  final tags = [for (final t in (j['so_thich'] as List? ?? const [])) '$t'];
+  final ticket = (j['gia_ve'] as num?)?.round();
+  final visit = (j['phut_tham_quan'] as num?)?.round();
+  return Place(
+    '${j['ten']}',
+    [for (final x in (j['ten_khac'] as List? ?? const [])) '$x'].join(' '),
+    'mở ${j['mo']}–${j['dong']}',
+    categoryOfTags(tags),
+    tags.isEmpty ? '' : (tagLabels[tags.first] ?? tags.first),
+    imageForPlace(id),
+    '',
+    '',
+    visit == null ? '' : '~ $visit phút',
+    [
+      if (ticket != null)
+        ticket == 0 ? 'Miễn phí vé' : 'Vé ${vnd(ticket)}/người lớn',
+      if (visit != null) 'tham quan khoảng $visit phút',
+    ].join(' · '),
+    id: id,
+    open: '${j['mo']}',
+    close: '${j['dong']}',
+    ticketVnd: ticket,
+    kidsFreeUnder: (j['tre_em_mien_phi_duoi'] as num?)?.round(),
+    visitMin: visit,
+    tags: tags,
+    mapsUrl: j['maps_url'] as String?,
+  );
+}
+
+/// Câu yêu cầu dựng lại từ một chuyến đã lưu (dùng cho "Đổi kế hoạch" ngoài chat): số ngày, ngày đi, số người, các điểm.
+String requestFromItinerary(Itinerary itinerary) {
+  final names = [
+    for (final day in itinerary.days)
+      for (final stop in day.details) stop.name,
+  ];
+  final start = itinerary.start;
+  final people =
+      (itinerary.totalVnd ?? 0) > 0 && (itinerary.perPersonVnd ?? 0) > 0
+      ? (itinerary.totalVnd! / itinerary.perPersonVnd!).round()
+      : null;
+  return [
+        'Đi Hà Nội ${itinerary.days.length} ngày',
+        if (start != null) 'từ ${start.day}/${start.month}/${start.year}',
+        if (people != null) '$people người',
+      ].join(', ') +
+      (names.isEmpty ? '.' : '. Muốn đi: ${names.join(', ')}.');
+}
 
 typedef Stop = (String time, Place place);
 const homeDays = <List<Stop>>[
@@ -221,6 +323,26 @@ class TravelState extends ChangeNotifier {
 
   /// P0: đồng bộ với máy chủ (tắt ở chế độ mock). main.dart gắn bản thật.
   Sync sync = Sync(base: 'mock');
+
+  /// 14 điểm thật từ máy chủ (/api/diem); rỗng ở chế độ mock → Explore dùng ảnh mẫu.
+  final places = <Place>[];
+
+  Future<void> loadPlaces() async {
+    final list = await sync.loadPlaces();
+    if (list.isEmpty) return;
+    places
+      ..clear()
+      ..addAll(list.map(placeFromJson));
+    notifyListeners();
+  }
+
+  /// Chuyến đã lưu gần nhất có lịch chi tiết (dùng cho Home).
+  Trip? get latestRealTrip {
+    for (final trip in trips) {
+      if (trip.preview?.detailed ?? false) return trip;
+    }
+    return null;
+  }
 
   /// Chuyến trong app → mã chuyến trên máy chủ (khi đã lưu được).
   final serverTrips = <String, String>{};

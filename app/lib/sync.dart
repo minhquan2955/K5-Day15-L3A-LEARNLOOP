@@ -177,6 +177,18 @@ class Sync {
         : const [];
   }
 
+  /// Danh sách điểm thật (dữ liệu mẫu của nhóm) cho Explore / "Thêm điểm".
+  Future<List<Map<String, Object?>>> loadPlaces() async {
+    final res = await _send('GET', '/api/diem');
+    final list = res is Map ? res['diem'] : null;
+    return list is List
+        ? [
+            for (final place in list)
+              if (place is Map) place.cast<String, Object?>(),
+          ]
+        : const [];
+  }
+
   /// Xoá mọi dữ liệu của người dùng trên máy chủ, rồi tạo mã ẩn danh mới và hỏi lại đồng ý.
   Future<bool> deleteMyData() async {
     final ok = await _send('DELETE', '/api/nguoi-dung/$userId') != null;

@@ -8,30 +8,14 @@ import 'pages.dart';
 import 'theme.dart';
 import 'sync.dart';
 import 'travel_data.dart';
+import 'trip_tools.dart';
 
 void main() {
   GoRouter.optionURLReflectsImperativeAPIs = true;
   runApp(const HanoiApp());
 }
 
-const interests = {
-  'di_tich': 'Di tích',
-  'lich_su': 'Lịch sử',
-  'van_hoa': 'Văn hoá',
-  'am_thuc': 'Ẩm thực',
-  'pho_co': 'Phố cổ',
-  'dao_pho': 'Dạo phố',
-  'bao_tang': 'Bảo tàng',
-  'kien_truc': 'Kiến trúc',
-  'tam_linh': 'Tâm linh',
-  'thien_nhien': 'Thiên nhiên',
-  'chup_anh': 'Chụp ảnh',
-  'mua_sam': 'Mua sắm',
-  'buoi_toi': 'Buổi tối',
-  'trai_nghiem': 'Trải nghiệm',
-  'tre_em': 'Hợp trẻ em',
-  'ngoai_thanh': 'Ngoại thành',
-};
+const interests = tagLabels;
 
 String composeRequest({
   required int days,
@@ -62,7 +46,10 @@ class _HanoiAppState extends State<HanoiApp> {
   void initState() {
     super.initState();
     if (travel.sync.enabled) {
-      travel.sync.init().then((_) => travel.loadServerTrips());
+      travel.sync.init().then((_) {
+        travel.loadServerTrips();
+        travel.loadPlaces();
+      });
     }
   }
 
@@ -86,7 +73,8 @@ class _HanoiAppState extends State<HanoiApp> {
             routes: [
               GoRoute(
                 path: '/',
-                builder: (context, state) => HomePage(search: homeSearch),
+                builder: (context, state) =>
+                    HomePage(search: homeSearch, travel: travel),
               ),
             ],
           ),
@@ -119,10 +107,23 @@ class _HanoiAppState extends State<HanoiApp> {
       ),
       GoRoute(
         path: '/ai',
-        builder: (context, state) => ChatPage(
-          travel: travel,
-          firstMessage: state.extra as String? ?? '',
-        ),
+        builder: (context, state) {
+          final extra = state.extra;
+          return ChatPage(
+            travel: travel,
+            firstMessage: extra is String ? extra : '',
+            draft: extra is Map ? '${extra['draft'] ?? ''}' : '',
+          );
+        },
+      ),
+      GoRoute(
+        path: '/trip',
+        builder: (context, state) {
+          final trip = state.extra;
+          return trip is Trip
+              ? TripDetailPage(trip: trip, travel: travel)
+              : TripsPage(travel: travel);
+        },
       ),
     ],
   );

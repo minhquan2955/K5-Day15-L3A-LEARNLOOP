@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.join(ROOT, "codebase"))
 
 import tracing  # noqa: E402
 from agent import answer  # noqa: E402
+from tools import POI, link_google_maps  # noqa: E402
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import luu_tru  # noqa: E402
@@ -102,6 +103,15 @@ class CheckInIn(BaseModel):
     ngay_thu: int
     thu_tu: int
     xong: bool = True
+
+
+@app.get("/api/diem")
+def danh_sach_diem():
+    """14 điểm trong data/hanoi_poi.json (dữ liệu mẫu) cho Explore và "Thêm điểm" — chỉ đọc."""
+    keys = ("id", "ten", "ten_khac", "so_thich", "mo", "dong", "phut_tham_quan", "gia_ve", "tre_em_mien_phi_duoi",
+            "lat", "lon")
+    return {"du_lieu_mau": True,
+            "diem": [dict({k: p.get(k) for k in keys}, maps_url=link_google_maps([p["id"]])) for p in POI.values()]}
 
 
 @app.get("/api/luu-tru")

@@ -164,4 +164,76 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  test('điểm từ /api/diem: giờ mở, vé, nhãn, không có rating', () {
+    final place = placeFromJson({
+      'id': 'van_mieu',
+      'ten': 'Văn Miếu – Quốc Tử Giám',
+      'ten_khac': ['Văn Miếu'],
+      'so_thich': ['di_tich', 'lich_su'],
+      'mo': '08:00',
+      'dong': '17:00',
+      'phut_tham_quan': 75,
+      'gia_ve': 70000,
+      'tre_em_mien_phi_duoi': 15,
+      'maps_url': 'https://www.google.com/maps/search/?api=1&query=x',
+    });
+    expect(place.real, isTrue);
+    expect(place.category, 'Historical');
+    expect(place.tag, 'Di tích');
+    expect(place.district, 'mở 08:00–17:00');
+    expect(place.rating, isEmpty);
+    expect(
+      place.description,
+      'Vé 70.000đ/người lớn · tham quan khoảng 75 phút',
+    );
+    expect(place.image, 'temple.jpg');
+  });
+
+  test('dựng lại yêu cầu từ chuyến đã lưu', () {
+    expect(
+      requestFromItinerary(itineraryFromJson(apiItinerary())!),
+      'Đi Hà Nội 1 ngày, 2 người. '
+      'Muốn đi: Lăng Chủ tịch Hồ Chí Minh, Văn Miếu – Quốc Tử Giám.',
+    );
+    expect(
+      requestFromItinerary(itineraryFromJson(apiItinerary(weather: true))!),
+      startsWith('Đi Hà Nội 1 ngày, từ 1/12/2026, 2 người.'),
+    );
+  });
+
+  testWidgets('Đổi kế hoạch: chọn bỏ điểm + giờ bắt đầu → ghép câu sửa', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    String? sent;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ItineraryCard(
+              itinerary: itineraryFromJson(apiItinerary())!,
+              id: 'test',
+              travel: TravelState(),
+              onReplan: (change) => sent = change,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Đổi kế hoạch'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(FilterChip, 'Văn Miếu – Quốc Tử Giám'),
+    );
+    await tester.tap(find.widgetWithText(ChoiceChip, '09:00'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Xếp lại'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Xếp lại'));
+    await tester.pumpAndSettle();
+    expect(sent, 'Bỏ Văn Miếu – Quốc Tử Giám. Ngày đầu bắt đầu từ 09:00.');
+    expect(tester.takeException(), isNull);
+  });
 }

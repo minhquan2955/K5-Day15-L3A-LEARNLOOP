@@ -52,7 +52,7 @@ Future<T?> sheet<T>(BuildContext context, String title, {Widget? body}) =>
           children: [
             Text(title, style: display(25, italic: true)),
             const SizedBox(height: 12),
-            body ?? const Text('Coming soon', style: caption),
+            ?body,
           ],
         ),
       ),

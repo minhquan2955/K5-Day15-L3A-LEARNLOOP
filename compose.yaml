@@ -7,11 +7,12 @@ services:
       - path: .env
         required: false
     environment:
-      # Lưu trữ P0: chạy kèm DB bằng `docker compose --profile database up`; không có DB thì API lưu trữ trả 503
       DATABASE_URL: ${DATABASE_URL:-postgresql://learnloop:${POSTGRES_PASSWORD:-learnloop-dev}@db:5432/learnloop}
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: pgvector/pgvector:0.8.7-pg18-trixie
-    profiles: [database]
     environment:
       POSTGRES_DB: learnloop
       POSTGRES_USER: learnloop
@@ -21,8 +22,13 @@ services:
       - ./db/migrations/001_initial.sql:/docker-entrypoint-initdb.d/001_initial.sql:ro
       - ./db/migrations/002_pgvector.sql:/docker-entrypoint-initdb.d/002_pgvector.sql:ro
       - ./db/seed/001_hanoi_poi.sql:/docker-entrypoint-initdb.d/003_hanoi_poi.sql:ro
-      - ./db/migrations/003_hanh_vi.sql:/docker-entrypoint-initdb.d/004_hanh_vi.sql:ro
+      - ./db/migrations/003_anh_quan.sql:/docker-entrypoint-initdb.d/004_anh_quan.sql:ro
+      - ./db/migrations/004_auth_nguon.sql:/docker-entrypoint-initdb.d/005_auth_nguon.sql:ro
+      - ./db/migrations/005_so_ngay_toi_da.sql:/docker-entrypoint-initdb.d/006_so_ngay_toi_da.sql:ro
+      - ./db/seed/002_dia_diem_nguon.sql:/docker-entrypoint-initdb.d/007_dia_diem_nguon.sql:ro
+      - ./db/migrations/003_hanh_vi.sql:/docker-entrypoint-initdb.d/008_hanh_vi.sql:ro
       - ./data/hanoi_poi.json:/seed/hanoi_poi.json:ro
+      - ./data/dia_diem_nguon.json:/seed/dia_diem_nguon.json:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U learnloop -d learnloop"]
       interval: 5s

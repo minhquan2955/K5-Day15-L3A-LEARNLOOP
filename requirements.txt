@@ -4,4 +4,5 @@
 # và ghi lệnh cài vào README: python -m pip install -r requirements.txt
 fastapi>=0.115
 uvicorn[standard]>=0.30
+psycopg[binary]>=3.2
 pg8000>=1.31

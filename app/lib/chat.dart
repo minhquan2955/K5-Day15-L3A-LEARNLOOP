@@ -10,8 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'pages.dart' show BadgeText;
 import 'theme.dart';
 import 'travel_data.dart';
+import 'trip_tools.dart';
 
-const apiBase = String.fromEnvironment('API', defaultValue: 'mock');
 const demoPrompt =
     'Hãy tạo cho tôi lịch trình du lịch Hà Nội 2 ngày 1 đêm, yêu thích văn hóa, ẩm thực và chụp ảnh đẹp.';
 const demoReply =
@@ -136,10 +136,14 @@ class ChatPage extends StatefulWidget {
     super.key,
     required this.travel,
     this.firstMessage = '',
+    this.draft = '',
     this.repository,
   });
   final TravelState travel;
   final String firstMessage;
+
+  /// Câu soạn sẵn đặt vào ô nhập (không tự gửi) — từ "Đổi kế hoạch" của chuyến đã lưu, Explore.
+  final String draft;
   final ChatRepository? repository;
 
   @override
@@ -170,7 +174,14 @@ class _ChatPageState extends State<ChatPage> {
         if (mounted) askConsent(context, widget.travel);
       });
     }
-    if (widget.firstMessage.isNotEmpty) {
+    if (widget.draft.isNotEmpty) {
+      compose.text = widget.draft;
+      messages.add(
+        const ChatMessage(
+          'Mình đã soạn sẵn yêu cầu bên dưới — xem lại, sửa nếu cần rồi bấm Gửi.',
+        ),
+      );
+    } else if (widget.firstMessage.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) send(widget.firstMessage);
       });
@@ -293,7 +304,15 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> options() async {
     if (repo is! ApiChatRepository) {
-      await sheet<void>(context, 'Tùy chọn');
+      await sheet<void>(
+        context,
+        'Tùy chọn',
+        body: const Text(
+          'Đây là bản chạy thử (lịch mẫu, không gọi AI). Chạy kèm máy chủ '
+          '(docker compose, cổng 8080) để AI xếp lịch thật.',
+          style: caption,
+        ),
+      );
       return;
     }
     var accessCode = widget.travel.accessCode;
@@ -393,6 +412,7 @@ class _ChatPageState extends State<ChatPage> {
                           id: message.id!,
                           travel: widget.travel,
                           detail: message.raw,
+                          onReplan: loading ? null : send,
                         ),
                       ),
                   ],
@@ -702,11 +722,15 @@ class ItineraryCard extends StatelessWidget {
     required this.id,
     required this.travel,
     this.detail,
+    this.onReplan,
   });
   final Itinerary itinerary;
   final String id;
   final TravelState travel;
   final String? detail;
+
+  /// Nhận câu sửa từ bảng "Đổi kế hoạch" (chat: gửi như lượt sửa; chuyến đã lưu: mở chat soạn sẵn).
+  final void Function(String change)? onReplan;
 
   @override
   Widget build(BuildContext context) => Panel(
@@ -830,10 +854,19 @@ class ItineraryCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Pill(
-                    'Tùy chỉnh',
-                    icon: Icons.edit_outlined,
+                    'Đổi kế hoạch',
+                    icon: Icons.edit_calendar_outlined,
                     compact: true,
-                    onTap: () => sheet<void>(context, 'Tùy chỉnh'),
+                    onTap: onReplan == null
+                        ? null
+                        : () async {
+                            final change = await askReplan(
+                              context,
+                              itinerary,
+                              travel,
+                            );
+                            if (change != null) onReplan!(change);
+                          },
                   ),
                 ),
                 const SizedBox(width: 4),

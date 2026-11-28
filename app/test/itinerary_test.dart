@@ -164,4 +164,51 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  test('dựng lại yêu cầu từ chuyến đã lưu', () {
+    expect(
+      requestFromItinerary(itineraryFromJson(apiItinerary())!),
+      'Đi Hà Nội 1 ngày, 2 người. '
+      'Muốn đi: Lăng Chủ tịch Hồ Chí Minh, Văn Miếu – Quốc Tử Giám.',
+    );
+    expect(
+      requestFromItinerary(itineraryFromJson(apiItinerary(weather: true))!),
+      startsWith('Đi Hà Nội 1 ngày, từ 1/12/2026, 2 người.'),
+    );
+  });
+
+  testWidgets('Đổi kế hoạch: chọn bỏ điểm + giờ bắt đầu → ghép câu sửa', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    String? sent;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ItineraryCard(
+              itinerary: itineraryFromJson(apiItinerary())!,
+              id: 'test',
+              travel: TravelState(),
+              onReplan: (change) => sent = change,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Đổi kế hoạch'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(FilterChip, 'Văn Miếu – Quốc Tử Giám'),
+    );
+    await tester.tap(find.widgetWithText(ChoiceChip, '09:00'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Xếp lại'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Xếp lại'));
+    await tester.pumpAndSettle();
+    expect(sent, 'Bỏ Văn Miếu – Quốc Tử Giám. Ngày đầu bắt đầu từ 09:00.');
+    expect(tester.takeException(), isNull);
+  });
 }

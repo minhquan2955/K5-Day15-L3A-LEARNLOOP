@@ -9,6 +9,9 @@
 !data/hanoi_poi.json
 !server/
 !server/main.py
+!server/crud.py
+!server/auth.py
+!server/database.py
 !server/luu_tru.py
 !server/static/
 !server/static/**

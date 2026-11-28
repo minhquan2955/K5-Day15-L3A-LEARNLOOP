@@ -59,6 +59,37 @@ API (đều nhận header `X-Access-Code` nếu máy chủ đặt `ACCESS_CODE`)
 
 Test tích hợp với PostgreSQL thật: `DATABASE_URL=… python server/test_luu_tru.py` (cần `pip install pg8000`).
 
+### Repo nằm trên Google Drive / ổ mạng: Docker không gắn được file
+
+Docker Desktop (Windows) không gắn được file từ thư mục Google Drive (`G:\My Drive\…`), ổ mạng hoặc ổ chưa chia sẻ cho Docker. Khi đó lần khởi tạo đầu, container `db` dừng với lỗi:
+
+```
+psql:/docker-entrypoint-initdb.d/001_initial.sql: error: could not read from input file: Is a directory
+```
+
+Database `learnloop` đã được tạo nhưng **chưa có bảng nào**, nên `/api/luu-tru` trả `{"bat": false}`. Có hai cách xử lý:
+
+1. **Đưa repo ra ổ cục bộ** (vd `C:\code\K5-Day15-L3A-LEARNLOOP`), xoá volume hỏng rồi chạy lại — compose tự áp đủ 001, 002, seed, 003:
+
+   ```sh
+   docker compose --profile database down -v   # -v xoá volume postgres_data (mất dữ liệu trong DB này)
+   docker compose --profile database up --build -d --wait
+   ```
+
+2. **Giữ repo trên Google Drive, áp schema qua stdin** (không cần gắn file). Chạy từ gốc repo, sau khi `db` đã chạy được (`docker compose --profile database up -d --wait`; lần đầu lỗi thì chạy `up` thêm một lần):
+
+   ```sh
+   P="docker compose --profile database exec -T db"
+   $P sh -c 'mkdir -p /tmp/seed && cat > /tmp/seed/hanoi_poi.json' < data/hanoi_poi.json
+   $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/001_initial.sql
+   $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/002_pgvector.sql
+   sed "s#/seed/hanoi_poi.json#/tmp/seed/hanoi_poi.json#" db/seed/001_hanoi_poi.sql      | $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop
+   $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/003_hanh_vi.sql
+   curl -s http://127.0.0.1:8080/api/luu-tru   # {"bat":true}
+   ```
+
+   Lệnh viết cho Git Bash / macOS / Linux. PowerShell không nhận `<` để chuyển file vào lệnh: dùng `Get-Content -Raw -Encoding UTF8 <file> | docker compose --profile database exec -T db psql …` như mục "Kiểm tra schema" dưới đây.
+
 ## Kiểm tra schema
 
 Với container đang chạy và đã nhập dữ liệu mẫu, thử khóa ngoại, thứ tự ngày, trạng thái chuyến đi và xóa dữ liệu liên quan:

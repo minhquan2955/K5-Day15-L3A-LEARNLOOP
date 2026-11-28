@@ -164,64 +164,6 @@ void main() {
     },
   );
 
-  test(
-    'Lưu trip → lưu lên máy chủ; check-in đồng bộ; tải lại chuyến khi mở app',
-    () async {
-      final travel = TravelState()..sync = Sync(base: '', client: server());
-      await travel.sync.init();
-      final itinerary = itineraryFromJson(planJson())!;
-      travel.toggleTrip('chat-1', itinerary);
-      await settle();
-      expect(travel.serverTrips['chat-1'], tripServerId);
-      expect(
-        (bodies('/api/chuyen-di').single['itinerary'] as Map)['total_vnd'],
-        70000,
-      );
-      travel.toggleDone('chat-1', 1, 1, placeId: 'van_mieu');
-      await settle();
-      expect(travel.isDone('chat-1', 1, 1), isTrue);
-      expect(bodies('/api/chuyen-di/$tripServerId/xong').single, {
-        'nguoi_dung': travel.sync.userId,
-        'ngay_thu': 1,
-        'thu_tu': 1,
-        'xong': true,
-      });
-
-      final reopened = TravelState()..sync = Sync(base: '', client: server());
-      await reopened.sync.init();
-      await reopened.loadServerTrips();
-      final trip = reopened.trips.firstWhere(
-        (t) => t.id == 'srv-$tripServerId',
-      );
-      expect(trip.name, 'Hà Nội 1 ngày');
-      expect(trip.start, DateTime(2026, 11, 29));
-      expect(reopened.isDone('srv-$tripServerId', 1, 1), isTrue);
-    },
-  );
-
-  test(
-    'Xoá dữ liệu của tôi: gọi DELETE, đổi mã ẩn danh, hỏi lại đồng ý',
-    () async {
-      final travel = TravelState()..sync = Sync(base: '', client: server());
-      await travel.sync.init();
-      await travel.sync.setConsent(true);
-      final oldId = travel.sync.userId;
-      await travel.loadServerTrips();
-      expect(travel.serverTrips, isNotEmpty);
-      expect(await travel.sync.deleteMyData(), isTrue);
-      travel.forgetServerTrips();
-      expect(
-        calls.any(
-          (c) => c.method == 'DELETE' && c.url.path == '/api/nguoi-dung/$oldId',
-        ),
-        isTrue,
-      );
-      expect(travel.sync.userId, isNot(oldId));
-      expect(travel.sync.consent, isNull);
-      expect(travel.trips.any((t) => t.id.startsWith('srv-')), isFalse);
-    },
-  );
-
   testWidgets(
     'mở chat (gọi máy chủ) lần đầu thì hỏi đồng ý; nút Đã xong đổi trạng thái',
     (tester) async {

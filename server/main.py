@@ -34,6 +34,10 @@ app.add_middleware(CORSMiddleware, allow_origin_regex=r"http://(localhost|127\.0
                    allow_methods=["*"], allow_headers=["*"])
 
 
+# /api/chuyen-di: crud.py (có đăng nhập) thắng route P0 cùng đường dẫn; app dùng bản có đăng nhập.
+crud.install(app)
+
+
 class PlanIn(BaseModel):
     text: str
 
@@ -151,9 +155,6 @@ def xoa_chuyen(chuyen_di: str, nguoi_dung: str, x_access_code: str = Header(defa
     _kiem_ma(x_access_code)
     return _goi(luu_tru.xoa_chuyen, nguoi_dung, chuyen_di)
 
-
-# Cài sau route P0: /api/chuyen-di của luu_tru (main) thắng crud.py cùng đường dẫn.
-crud.install(app)
 
 _static = os.path.join(ROOT, "server", "static")
 if os.path.isdir(_static):  # bản build Flutter Web (Q16); mount sau cùng để không đè /api

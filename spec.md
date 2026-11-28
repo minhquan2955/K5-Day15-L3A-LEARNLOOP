@@ -63,7 +63,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không (Tr
 - **Không làm:**
   - Đặt vé, đặt phòng, thanh toán.
   - Thành phố khác Hà Nội, chuyến nước ngoài.
-  - Thời tiết, giờ cao điểm, độ đông theo thời gian thực.
+  - Giờ cao điểm, độ đông theo thời gian thực. (Thời tiết: chỉ dự báo Open-Meteo khi người dùng nói ngày đi, trong 16 ngày tới — thêm sau lượt 2, xem §10.)
   - Quán ăn cụ thể (dữ liệu chỉ có khu ẩm thực).
   - Giờ mở cửa / giá vé chính thức (dữ liệu là dựng).
 - **Sơ đồ:**
@@ -75,7 +75,7 @@ flowchart TD
     A1 -->|"thành phố khác · đòi đặt vé / thanh toán"| R["CHẶN RỦI RO: nói rõ ngoài phạm vi,<br/>không bịa điểm, giờ, giá"]
     A1 -->|"đủ thông tin"| S["2. AI TÌM ĐIỂM: gọi tim_diem(sở thích, tên điểm)<br/>→ điểm khớp nhãn trong dữ liệu + điểm không tìm thấy"]
     S -->|"không có điểm khớp"| R2["Nói rõ dữ liệu không có điểm hợp sở thích,<br/>đưa lựa chọn gần nhất, hỏi lại (G10)"]
-    S --> T["3. Công cụ chỉ đọc tính sẵn<br/>thoi_gian_di(a, b) cho mọi cặp điểm"]
+    S --> T["3. Công cụ chỉ đọc tính sẵn<br/>thoi_gian_di(a, b) cho mọi cặp điểm<br/>+ thoi_tiet nếu biết ngày đi"]
     T --> M["4. AI LÊN LỘ TRÌNH: chia điểm theo ngày + thứ tự<br/>+ 1 câu lý do mỗi điểm → JSON"]
     M --> K["5. CODE kiểm: kiem_lich_trinh<br/>giờ đến, giờ mở / đóng, quá 22:00, ngân sách, tiền vé"]
     K -->|"có vi phạm, còn lượt (tối đa 2 vòng)"| M
@@ -94,6 +94,9 @@ flowchart TD
   |---|---|---|---|
   | `tim_diem` | danh sách nhãn sở thích, nhãn cần tránh, tên điểm người dùng nêu | điểm khớp (id, nhãn, giờ mở / đóng, phút tham quan, giá vé) + tên điểm không tìm thấy | Không (chỉ đọc) |
   | `thoi_gian_di` | id điểm a, id điểm b | km, số phút đi (công thức trong `data/DATA_CARD.md`) | Không (chỉ đọc) |
+  | `thoi_tiet` | ngày bắt đầu, số ngày | dự báo từng ngày (mô tả, nhiệt độ thấp / cao, % khả năng mưa, mm mưa) từ Open-Meteo, chỉ trong 16 ngày tới; lỗi thì trả lý do | Không (chỉ đọc API, không gửi dữ liệu người dùng) |
+  | `tim_noi_o` | chỗ ở người dùng nêu (tên khách sạn, địa chỉ, khu vực) | toạ độ chỗ ở: khớp tên điểm trong dữ liệu trước, không có thì tra Nominatim (OpenStreetMap) trong khung Hà Nội; không tìm được thì báo lỗi, dùng khách sạn mặc định | Không (chỉ đọc API; gửi đúng chuỗi chỗ ở) |
+  | `toi_uu_lo_trinh` | các ngày AI đã chia, giờ bắt đầu, chỗ ở | thứ tự mới ít phút đi nhất + hướng từng ngày + phút đi trước / sau: thử mọi thứ tự trong ngày (DFS cắt nhánh, ≤8 điểm), chuyển / đổi điểm giữa các ngày; chỉ nhận khi kịp giờ mở cửa, không ngày trống, không ngày nào vượt max(420 phút tham quan, ngày dày nhất AI chia) | Không (chỉ tính) |
   | `kiem_lich_trinh` | lộ trình (mỗi ngày một dãy id), giờ bắt đầu, số người lớn / trẻ em, ngân sách | giờ đến từng điểm, danh sách vi phạm, tiền vé, tổng, tiền mỗi người | Không (chỉ tính) |
 
 - **Mức tự động:** [ ] AI gợi ý, người quyết · [ ] AI tự làm khi chắc, chuyển người khi không · [x] AI tự làm
@@ -149,7 +152,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 ## §7. Đánh giá & chuẩn "đạt" *(guide 2.4, 4.1)*
 - Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 24 câu (thuong 6 · kho 14 · tu_choi 4) · metric: `eval/metric_spec.yaml` (5 metric)
 - **Chuẩn "đạt"** (chốt **trước 19:30 Thứ Sáu 27/11**, giữ nguyên đến 23:59 Thứ Bảy 28/11): "Đạt khi ≥ 80% câu qua, và 100% câu `tu_choi` qua, và 0 câu có số liệu (phút đi, giờ, tiền) khác kết quả công cụ, và 0 câu đưa lộ trình có vi phạm mà nói là xếp được."
-- Kết quả: lượt 1 17/24 (71%) · lượt 2 22/24 (92%) — run ID: `run-1@20261128-014438` / `run-2@20261128-022833` → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
+- Kết quả: lượt 1 17/24 (71%) · lượt 2 22/24 (92%) · lượt 4 21/24 (88%, đổi model `gemini-3.1-flash-lite`; lượt 3 lỗi kỹ thuật, không chấm) · lượt 6 23/24 (96%, sửa `tim_diem` + chế độ đi lại ít nhất; lượt 5 lỗi kỹ thuật) · lượt 7 22/24 (92%, sửa `B05` chưa đủ, `B07` dao động) · lượt 8 24/24 (100%) — run ID: `run-1@20261128-014438` / `run-2@20261128-022833` / `run-4@20261128-053502` / `run-6@20261128-060034` / `run-7@20261128-061509` / `run-8@20261128-062529` → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
 - Persona + giá: `cost/personas.yaml` · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên)
@@ -159,6 +162,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 
 ## §9. Rủi ro & an toàn
 - Dữ liệu: đã ẩn danh gì, không thu gì, không đưa gì vào model gói miễn phí:
+  - Chỗ ở người dùng nêu (chế độ "đi lại ít nhất") được gửi tới Nominatim (OpenStreetMap) để lấy toạ độ, chỉ đúng chuỗi đó, không lưu. Người dùng có thể chỉ nêu khu vực ("gần Hồ Tây") thay vì số nhà.
 - AI **không được** làm gì kể cả khi người dùng yêu cầu:
 - Ai có thể bị hại nếu AI sai, và nhóm chặn thế nào:
 
@@ -178,6 +182,13 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 | 28/11 02:06 | Điền bảng impact ở §2 | Quy đổi thời gian chuẩn bị từ hai phiếu Hà Nội `S02`, `S14` và ghi rõ giới hạn của mẫu khảo sát |
 | 28/11 02:11 | Chạy đánh giá Lượt 1 (`run-1@20261128-014438`, `gemini-2.5-flash`) và chấm thủ công 24/24 câu | Đạt `17/24` (71%): `thuong` 5/6, `kho` 9/14, `tu_choi` 3/4; ghi nhận 7 câu trượt (`B03, B05, B15, B18, B20, B23, B24`) để làm vòng cải tiến trước Lượt 2 |
 | 28/11 02:35 | Nâng cấp `codebase/agent.py` & `codebase/ai.py` (**LEARNLOOP v2**: đảo thứ tự key JSON, feedback đầu prompt, Code Policy Gates, `thieu_du_lieu`, `thinkingBudget=256`) và chạy đánh giá Lượt 2 (`run-2@20261128-022833`) | Khắc phục 6/7 câu trượt Lượt 1 (`B03, B05, B18, B20, B23, B24`) và giảm `-57,6%` `tokens_out` (`2.067 → 876`); Lượt 2 đạt **`22/24` (92%)**, `tu_choi` `4/4` (100%), đạt chuẩn §7 (`eval/report.md`) |
+| 28/11 03:30 | **Mở phạm vi, thêm vào lõi v2 (không đổi logic đang có):** công cụ `thoi_tiet` (Open-Meteo, chỉ đọc, không cần key); bước đọc yêu cầu lấy thêm `ngay_bat_dau`, bỏ "thời tiết" khỏi `thieu_du_lieu`; có ngày đi thì mỗi ngày có ngày, thứ và dự báo, ngày mưa ưu tiên điểm trong nhà; mỗi điểm / ngày có link chỉ đường Google Maps trong `itinerary` (không đưa vào output chữ) | Người dùng cần bấm để được chỉ đường và muốn biết thời tiết. Không câu thử nào có ngày đi nên phần thời tiết không gọi API khi eval; cần **lượt 3** để code nộp khớp kết quả |
+| 28/11 05:00 | Sửa 3 lỗi thấy khi chạy thật với Gemini trước lượt 3: (1) lý do model viết nhắc thứ dữ liệu không có ("tránh đông đúc") hoặc buổi trái giờ đến ("buổi chiều" lúc 10:53) → luật mới trong `SYSTEM_XEP` + code kiểm, không tin được thì thay bằng lý do do code viết từ dữ liệu; (2) ngày trống từ 3 giờ trở lên giữa hai điểm → luật chia đều thời lượng + code nêu khung trống và gợi ý điểm mở cửa vừa khung (phút đi từ `thoi_gian_di`); (3) tiền taxi làm tròn nghìn trong `kiem_lich_trinh` | Chạy thật `/api/plan` lúc 04:30: lý do Lăng Bác "tránh đông đúc", Văn Miếu "xếp vào buổi chiều" nhưng đến 10:53, ngày 2 trống 10:15–18:51, taxi "153,903đ". Có test hồi quy trong `codebase/test_core.py` |
+| 28/11 06:30 | **Chế độ "đi lại ít nhất"** (nhánh riêng, sau lượt 4): bước đọc yêu cầu lấy thêm `che_do`, `noi_o`; `tim_noi_o` → toạ độ chỗ ở; sau khi AI chia ngày, `toi_uu_lo_trinh` thử mọi thứ tự trong ngày và chuyển / đổi điểm giữa các ngày cho tổng phút đi ít nhất (có trần tải mỗi ngày); output ghi hướng từng ngày và phút đi trước / sau. Chế độ mặc định không đổi | Người dùng hỏi cách xếp khi chỗ ở nằm giữa các cụm điểm (mỗi ngày / mỗi buổi một hướng). Thử: lịch trộn hướng 194 → 164 phút đi, ngày 1 phía Tây, ngày 2 phía Đông Nam. Chưa chạy eval cho chế độ này |
+| 28/11 06:50 | Sửa `tim_diem`: chọn điểm khớp tên nhất (trùng khít > tên dài nhất nằm trong chữ người dùng > tên ngắn nhất chứa chữ người dùng) thay vì điểm đầu tiên khớp; `tim_noi_o` dùng chung. Chạy lượt 5 trên nhánh chế độ "đi lại ít nhất" | `B15, B22` trượt ở lượt 2 và 4 vì "Phố đi bộ Hồ Gươm" khớp nhầm Hồ Gươm (`eval/report.md` §4) |
+| 28/11 07:10 | Câu trả lời ghi tiền taxi là "chỉ tham khảo" kèm lý do (công thức dựng 15.000đ/km × km ước tính, chưa gồm giá mở cửa từng chặng, phụ phí, kẹt xe); app ghi "(chỉ tham khảo)" và hiện thẳng các lưu ý quan trọng trên thẻ lịch | Người dùng hỏi giá taxi có chuẩn không. Chỉ đổi câu chữ hiển thị, không đổi số, sau lượt 6 |
+| 28/11 07:30 | Sửa `B05`: model sửa hết lượt mà vẫn vượt ngân sách → code tự bỏ ít điểm có vé nhất (ưu tiên bỏ điểm AI tự thêm, giữ cách tổng vé cao nhất mà vừa ngân sách), ghi "Đi đủ các điểm bạn nêu thì … vượt …" và điểm đã bỏ (số từ `kiem_lich_trinh`); lý do nhắc "trong / vừa ngân sách" bị thay bằng lý do do code viết. Chạy lượt 7 | `B05` trượt ở lượt 4 và 6: lịch vẫn 170.000đ/người > 150.000đ, lý do Văn Miếu viết "nằm trong ngân sách" (`eval/report.md` §4) |
+| 28/11 07:55 | Sửa tiếp `B05`: tách bước "đi đủ các điểm bạn nêu thì vượt … đ" ra chạy **mỗi khi** điểm người dùng nêu bị bỏ vì ngân sách (dù model hay code cắt); lý do bỏ điểm do model viết mà tự nhận "trong / vừa ngân sách" hoặc có chữ số → câu chuẩn. Sửa `B07`: nhóm có trẻ em mà model đưa `tre_em` vào `tranh` → code chuyển sang `so_thich` (+ luật prompt). Chạy lượt 8 | Lượt 7: `B05` model tự cắt nên không nói số vượt; `B07` model đưa `tre_em` vào `tranh` nên không có lịch |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

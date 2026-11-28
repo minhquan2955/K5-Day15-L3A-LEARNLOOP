@@ -12,7 +12,7 @@ README của nhóm có mục "Dùng AI vào việc gì" (2–3 dòng, bắt bu�
 | Rà câu hỏi phỏng vấn / khảo sát | Antigravity (coding agent) | Chỉ rà câu dẫn dắt và gợi ý bộ câu hỏi hành vi | Nhóm tự chốt câu hỏi, tự thực hiện phỏng vấn và phát hành form | Nguyễn Minh Quân |
 | Viết câu thử (benchmark) | Nhóm tự viết (AI rà format) | Rà chính tả CSV và khớp `spec.md` §5 | Nhóm tự thiết kế 14 câu thử và `metric_spec.yaml`, tự bổ sung câu từ người dùng ở CP3 | Nguyễn Văn Ba, Nguyễn Minh Quân |
 | Sinh data `synthetic` (nếu có) | Không dùng AI sinh tự động | — | Nhóm tự dựng 14 điểm `data/hanoi_poi.json` bằng tay, kiểm tay 14/14 dòng | Nguyễn Minh Quân, Đỗ Duy Bộ |
-| Chấm cột `pass` bằng LLM (nếu có) | Không dùng | — | Chấm bằng code kiểm trace + người chấm độc lập | Nguyễn Văn Ba, Phạm Trường Chinh |
+| Chấm cột `pass` bằng LLM (nếu có) | Lượt 1, 2: không dùng · **Lượt 4: Claude (coding agent)** | Lượt 4: đọc output từng câu, đối chiếu `pass_criterion` + `eval/metric_spec.yaml`, điền `pass` và lý do câu trượt vào `ghi_chu` (đánh dấu `[Claude chấm, cần người duyệt]`) | Người trong nhóm duyệt lại từng câu lượt 4, sửa `pass` nếu không đồng ý | Nguyễn Văn Ba, Phạm Trường Chinh |
 | Slide, văn bản | Antigravity (coding agent) | Hỗ trợ tổng hợp bảng `eval/README.md` mục 1–4, `spec.md`, `canvas.md` từ file có sẵn | Nhóm kiểm lại từng số liệu, không bịa số phỏng vấn | Nguyễn Minh Quân |
 
 **Không dùng AI để:** tạo người được phỏng vấn, trích dẫn, câu trả lời khảo sát; sửa kết quả các lượt đã chạy (`eval/run-*.csv`, `cost/simulate-*.csv`, `traces/`).

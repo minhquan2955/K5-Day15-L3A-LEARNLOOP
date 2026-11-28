@@ -4,9 +4,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import 'chat.dart';
-import 'login.dart';
 import 'pages.dart';
 import 'theme.dart';
+import 'sync.dart';
 import 'travel_data.dart';
 
 void main() {
@@ -49,37 +49,30 @@ String composeRequest({
 ].join(' ');
 
 class HanoiApp extends StatefulWidget {
-  const HanoiApp({super.key, this.travel});
-  final TravelState? travel; // test truyền vào state có client giả
+  const HanoiApp({super.key});
 
   @override
   State<HanoiApp> createState() => _HanoiAppState();
 }
 
 class _HanoiAppState extends State<HanoiApp> {
-  late final travel = (widget.travel ?? TravelState())..restore();
-  final messenger = GlobalKey<ScaffoldMessengerState>();
-  late final StreamSubscription<String> errors = travel.errors.listen(
-    (message) =>
-        messenger.currentState?.showSnackBar(SnackBar(content: Text(message))),
-  );
+  final travel = TravelState()..sync = Sync(base: apiBase);
+
+  @override
+  void initState() {
+    super.initState();
+    if (travel.sync.enabled) {
+      travel.sync.init().then((_) => travel.loadServerTrips());
+    }
+  }
+
   final homeSearch = TextEditingController();
   late final router = GoRouter(
-    refreshListenable: travel,
-    redirect: (context, state) {
-      if (travel.restoring) return null;
-      final atLogin = state.matchedLocation == '/login';
-      if (!travel.loggedIn) return atLogin ? null : '/login';
-      return atLogin ? '/' : null;
-    },
     routes: [
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => LoginPage(travel: travel),
-      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => TravelShell(
           shell: shell,
+          travel: travel,
           onChat: () {
             FocusManager.instance.primaryFocus?.unfocus();
             context.push(
@@ -93,8 +86,7 @@ class _HanoiAppState extends State<HanoiApp> {
             routes: [
               GoRoute(
                 path: '/',
-                builder: (context, state) =>
-                    HomePage(search: homeSearch, travel: travel),
+                builder: (context, state) => HomePage(search: homeSearch),
               ),
             ],
           ),
@@ -136,24 +128,17 @@ class _HanoiAppState extends State<HanoiApp> {
   );
 
   @override
-  void initState() {
-    super.initState();
-    errors; // bắt đầu nghe lỗi ghi dữ liệu
-  }
-
-  @override
   void dispose() {
-    errors.cancel();
     router.dispose();
     homeSearch.dispose();
-    if (widget.travel == null) travel.dispose();
+    unawaited(travel.sync.flush());
+    travel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => MaterialApp.router(
     debugShowCheckedModeBanner: false,
-    scaffoldMessengerKey: messenger,
     title: 'Hanoi Travel Planner',
     routerConfig: router,
     scrollBehavior: const TravelScroll(),
@@ -185,8 +170,14 @@ class _HanoiAppState extends State<HanoiApp> {
 }
 
 class TravelShell extends StatelessWidget {
-  const TravelShell({super.key, required this.shell, required this.onChat});
+  const TravelShell({
+    super.key,
+    required this.shell,
+    required this.onChat,
+    this.travel,
+  });
   final StatefulNavigationShell shell;
+  final TravelState? travel;
   final VoidCallback onChat;
 
   @override
@@ -217,26 +208,26 @@ class TravelShell extends StatelessWidget {
                     children: [
                       navItem(
                         0,
-                        'Trang chủ',
+                        'Home',
                         Icons.home_outlined,
                         Icons.home_rounded,
                       ),
                       navItem(
                         1,
-                        'Khám phá',
+                        'Explore',
                         Icons.explore_outlined,
                         Icons.explore,
                       ),
                       const Expanded(child: SizedBox()),
                       navItem(
                         2,
-                        'Chuyến đi',
+                        'My Trip',
                         Icons.work_outline_rounded,
                         Icons.work_rounded,
                       ),
                       navItem(
                         3,
-                        'Cá nhân',
+                        'Profile',
                         Icons.person_outline_rounded,
                         Icons.person_rounded,
                       ),
@@ -301,7 +292,10 @@ class TravelShell extends StatelessWidget {
         child: Semantics(
           selected: selected,
           child: TextButton(
-            onPressed: () => shell.goBranch(index),
+            onPressed: () {
+              travel?.sync.log('mo_man_hinh', {'man': label});
+              shell.goBranch(index);
+            },
             style: TextButton.styleFrom(
               backgroundColor: selected ? tint : Colors.transparent,
               foregroundColor: selected ? brown : ink,

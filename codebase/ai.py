@@ -19,6 +19,7 @@ Nối model thật: điền .env (chép từ .env.example), rồi viết nhánh 
 """
 import json
 import os
+import time
 import urllib.error
 import urllib.request
 
@@ -71,11 +72,23 @@ def _gemini(system, user):
     }
     req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"),
                                  headers={"Content-Type": "application/json", "x-goog-api-key": API_KEY})
-    try:
-        with urllib.request.urlopen(req, timeout=90) as r:
-            data = json.loads(r.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        raise RuntimeError("Gemini HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300])) from None
+    for lan in range(3):  # 429 / 5xx / hết thời gian chờ thường chỉ tạm thời: thử lại 2 lần, nghỉ 5 s rồi 10 s
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            break
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503, 504) and lan < 2:
+                time.sleep(5 * (lan + 1))
+                continue
+            raise RuntimeError("Gemini HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300])) from None
+        except (TimeoutError, urllib.error.URLError) as e:
+            if lan < 2:
+                time.sleep(5 * (lan + 1))
+                continue
+            raise RuntimeError("Gemini không phản hồi sau 3 lần: %s" % e) from None
+    if not data.get("candidates"):
+        raise RuntimeError("Gemini không trả câu trả lời: %s" % json.dumps(data.get("promptFeedback", data))[:300])
     parts = data["candidates"][0].get("content", {}).get("parts", [])
     u = data.get("usageMetadata", {})
     return {

@@ -35,11 +35,17 @@ Flutter Web  --HTTP JSON-->  FastAPI (server/)  -->  codebase/agent.py: answer(t
 ### Schema `itinerary` (Chinh, Ba trả từ `answer()`)
 
 ```json
-{"days":[{"day":1,"stops":[{"id":"lang_bac","name":"Lăng Bác","arrive":"07:30","visit_min":60,"travel_min_from_prev":0,"ticket_vnd":0,"reason":"..."}]}],
+{"days":[{"day":1,"date":"2026-12-01","weather":{"mo_ta":"Mưa nhẹ","nhiet_do_thap":20,"nhiet_do_cao":24,"kha_nang_mua":70,"luong_mua_mm":3.1},
+           "maps_urls":["https://www.google.com/maps/dir/?api=1&..."],
+           "stops":[{"id":"lang_bac","name":"Lăng Bác","arrive":"07:30","visit_min":60,"travel_min_from_prev":0,"ticket_vnd":0,"reason":"...",
+                     "maps_url":"https://www.google.com/maps/dir/?api=1&destination=..."}]}],
  "total_vnd":0,"per_person_vnd":0,"feasible":true,"notes":["..."]}
 ```
 
 Mọi số lấy từ kết quả `kiem_lich_trinh`, model không ghi số.
+
+- `date`, `weather`: chỉ có khi người dùng nói ngày đi (dự báo Open-Meteo, trong 16 ngày tới), không thì `null`. App hiện cạnh tiêu đề ngày và **bắt buộc** có link "Weather data by Open-Meteo.com" (https://open-meteo.com/) ngay cạnh, theo giấy phép CC BY 4.0.
+- `stop.maps_url`: chỉ đường Google Maps từ điểm trước đến điểm này; điểm đầu ngày đi từ vị trí hiện tại của máy. `day.maps_urls`: cả ngày theo thứ tự, mỗi link tối đa 4 điểm (trình duyệt di động chỉ nhận 3 điểm dừng giữa đường), link sau nối tiếp link trước. Maps URLs không cần API key.
 
 ## Màn hình
 

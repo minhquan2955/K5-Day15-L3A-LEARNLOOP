@@ -24,6 +24,72 @@ Compose dùng PostgreSQL 18 với [image pgvector](https://github.com/pgvector/p
 
 Docker chỉ chạy script khởi tạo trên volume rỗng. Với PostgreSQL đã có sẵn, áp dụng migration một lần trên database đích bằng `psql -v ON_ERROR_STOP=1 -d <database> -f db/migrations/001_initial.sql`. Khi thêm migration, chạy tệp mới trên database đã khởi tạo.
 
+## Lưu trữ dữ liệu dùng thật (P0, `003_hanh_vi.sql`)
+
+[Migration 003](migrations/003_hanh_vi.sql) thêm vào schema:
+
+| Thay đổi | Dùng để |
+|---|---|
+| `nguoi_dung.an_danh`, `dong_y_thu_thap`, `dong_y_luc` | Người dùng **ẩn danh theo máy** (app tự sinh UUID, tên hiển thị "Khách ẩn danh", không email) và lựa chọn đồng ý thu thập |
+| `diem_dung.xong_luc` | Check-in "Đã xong" từng điểm (giờ thực tế) |
+| Bảng `su_kien` | Sự kiện thao tác: `loai` (danh sách cố định trong `server/luu_tru.py`), `luc`, `du_lieu` jsonb ≤ 2 KB. **Không** lưu nội dung câu hỏi, **không** lưu toạ độ |
+| Hàm `xoa_su_kien_cu(90)` | Xoá sự kiện cũ hơn 90 ngày — chạy định kỳ |
+| View `ti_le_hoan_thanh_diem` | Nền cho P1: số lần xếp / số lần "Đã xong" / tỉ lệ theo điểm (chuyến đã kết thúc) |
+
+Compose tự áp 003 trên volume mới. Volume đã có từ trước thì áp một lần:
+
+```sh
+docker compose --profile database up -d --wait db
+docker compose exec -T db psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop -f /docker-entrypoint-initdb.d/004_hanh_vi.sql
+```
+
+Chạy app kèm DB: `docker compose --profile database up --build -d --wait`. Service `learnloop` đọc `DATABASE_URL` (mặc định trỏ tới service `db`); không có DB thì các API lưu trữ trả 503 và app chạy như cũ (chỉ lưu trong phiên).
+
+API (đều nhận header `X-Access-Code` nếu máy chủ đặt `ACCESS_CODE`):
+
+| Method | Path | Việc |
+|---|---|---|
+| GET | `/api/luu-tru` | Lưu trữ có bật không |
+| POST | `/api/nguoi-dung` | `{nguoi_dung, dong_y}` — tạo / cập nhật người dùng ẩn danh và lựa chọn đồng ý |
+| DELETE | `/api/nguoi-dung/{id}` | Xoá dữ liệu của tôi (cascade chuyến, điểm dừng, sự kiện) |
+| POST | `/api/su-kien` | `{nguoi_dung, su_kien: [{loai, luc, chuyen_di?, du_lieu}]}` — tối đa 50 / lần; chưa đồng ý thì không ghi |
+| POST / GET | `/api/chuyen-di` | Lưu `itinerary` (dạng `/api/plan` trả) / danh sách chuyến kèm trạng thái check-in |
+| POST | `/api/chuyen-di/{id}/xong` | `{nguoi_dung, ngay_thu, thu_tu, xong}` — check-in, chỉ chủ chuyến |
+| DELETE | `/api/chuyen-di/{id}?nguoi_dung=` | Bỏ lưu chuyến |
+
+Test tích hợp với PostgreSQL thật: `DATABASE_URL=… python server/test_luu_tru.py` (cần `pip install pg8000`).
+
+### Repo nằm trên Google Drive / ổ mạng: Docker không gắn được file
+
+Docker Desktop (Windows) không gắn được file từ thư mục Google Drive (`G:\My Drive\…`), ổ mạng hoặc ổ chưa chia sẻ cho Docker. Khi đó lần khởi tạo đầu, container `db` dừng với lỗi:
+
+```
+psql:/docker-entrypoint-initdb.d/001_initial.sql: error: could not read from input file: Is a directory
+```
+
+Database `learnloop` đã được tạo nhưng **chưa có bảng nào**, nên `/api/luu-tru` trả `{"bat": false}`. Có hai cách xử lý:
+
+1. **Đưa repo ra ổ cục bộ** (vd `C:\code\K5-Day15-L3A-LEARNLOOP`), xoá volume hỏng rồi chạy lại — compose tự áp đủ 001, 002, seed, 003:
+
+   ```sh
+   docker compose --profile database down -v   # -v xoá volume postgres_data (mất dữ liệu trong DB này)
+   docker compose --profile database up --build -d --wait
+   ```
+
+2. **Giữ repo trên Google Drive, áp schema qua stdin** (không cần gắn file). Chạy từ gốc repo, sau khi `db` đã chạy được (`docker compose --profile database up -d --wait`; lần đầu lỗi thì chạy `up` thêm một lần):
+
+   ```sh
+   P="docker compose --profile database exec -T db"
+   $P sh -c 'mkdir -p /tmp/seed && cat > /tmp/seed/hanoi_poi.json' < data/hanoi_poi.json
+   $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/001_initial.sql
+   $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/002_pgvector.sql
+   sed "s#/seed/hanoi_poi.json#/tmp/seed/hanoi_poi.json#" db/seed/001_hanoi_poi.sql | $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop
+   $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/003_hanh_vi.sql
+   curl -s http://127.0.0.1:8080/api/luu-tru   # {"bat":true}
+   ```
+
+   Lệnh viết cho Git Bash / macOS / Linux. PowerShell không nhận `<` để chuyển file vào lệnh: dùng `Get-Content -Raw -Encoding UTF8 <file> | docker compose --profile database exec -T db psql …` như mục "Kiểm tra schema" dưới đây.
+
 ## Kiểm tra schema
 
 Với container đang chạy và đã nhập dữ liệu mẫu, thử khóa ngoại, thứ tự ngày, trạng thái chuyến đi và xóa dữ liệu liên quan:

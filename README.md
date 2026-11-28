@@ -105,6 +105,11 @@ Nhóm dùng stack khác (Node, Streamlit, notebook…): sửa hàm `run_app()` t
 | Lời gọi AI ở quyết định trung tâm | **Thật** (đã nối từ CP3) | Model: `gemini-2.5-flash` (Gemini API qua `urllib` trong `codebase/ai.py`) |
 | 3 công cụ tính toán (`tim_diem`, `thoi_gian_di`, `kiem_lich_trinh`) | **Thật** (chỉ đọc) | Đọc và tính trực tiếp trên `data/hanoi_poi.json` |
 | Dữ liệu điểm tham quan (`data/hanoi_poi.json`) | **Giả** (`synthetic`) | 14 điểm Hà Nội dựng sẵn cho bản chạy thử (`data/DATA_CARD.md`) |
+| Dự báo thời tiết (`thoi_tiet`) | **Thật** (chỉ đọc API Open-Meteo) | Chỉ khi người dùng nói ngày đi, trong 16 ngày tới; dữ liệu CC BY 4.0 — Weather data by Open-Meteo.com |
+| Chỉ đường | **Thật** (link Google Maps URLs, không cần key) | Mỗi điểm và mỗi ngày trong `itinerary`; app mở Google Maps |
+| Chế độ "đi lại ít nhất" (`toi_uu_lo_trinh`, `tim_noi_o`) | **Thật** (code tính; chỗ ở tra Nominatim / OpenStreetMap) | Bật khi người dùng nói "đỡ đi lòng vòng" / nêu chỗ ở; thời gian đi vẫn theo công thức trong `data/DATA_CARD.md` |
+| Lưu chuyến, check-in, thu thập cách dùng (P0) | **Thật** khi chạy kèm PostgreSQL (`docker compose --profile database up`) | Người dùng ẩn danh, chỉ thu khi đồng ý; không có DB thì chỉ lưu trong phiên. Chi tiết `db/README.md` |
+| Đăng nhập tài khoản / Google | **Chưa làm** | P1: cần OAuth Client ID của nhóm; hiện dùng mã ẩn danh theo máy |
 | Đặt vé, đặt phòng, thanh toán | **Không làm** | Ngoài phạm vi; người dùng tự thực hiện |
 
 ## Dùng AI vào việc gì

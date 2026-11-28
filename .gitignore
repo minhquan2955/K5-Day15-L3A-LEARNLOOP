@@ -42,3 +42,5 @@ data-btc/
 TODO.md
 # Tài liệu paper tham khảo nội bộ (41MB PDF, không đẩy lên repo nộp bài)
 papers/
+# Thư mục RAG cá nhân: notebook có key / mật khẩu viết thẳng, dataset chưa rõ nguồn — không commit
+rag/

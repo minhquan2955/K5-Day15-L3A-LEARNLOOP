@@ -41,8 +41,6 @@ class TravelScroll extends MaterialScrollBehavior {
 Future<T?> sheet<T>(BuildContext context, String title, {Widget? body}) =>
     showModalBottomSheet<T>(
       context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: surface,
       constraints: const BoxConstraints(maxWidth: 460),
@@ -54,7 +52,7 @@ Future<T?> sheet<T>(BuildContext context, String title, {Widget? body}) =>
           children: [
             Text(title, style: display(25, italic: true)),
             const SizedBox(height: 12),
-            body ?? const Text('Sắp có', style: caption),
+            body ?? const Text('Coming soon', style: caption),
           ],
         ),
       ),
@@ -110,30 +108,20 @@ class Art extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ClipRRect(
     borderRadius: BorderRadius.circular(radius),
-    child: name.isEmpty
-        ? Container(
-            width: width,
-            height: height,
-            color: tint,
-            alignment: Alignment.center,
-            child: const Icon(Icons.image_outlined, color: brown),
-          )
-        : Image(
-            image: name.startsWith('http')
-                ? NetworkImage(name)
-                : AssetImage('assets/images/$name') as ImageProvider,
-            width: width,
-            height: height,
-            fit: fit,
-            alignment: alignment,
-            errorBuilder: (_, _, _) => Container(
-              width: width,
-              height: height,
-              color: tint,
-              alignment: Alignment.center,
-              child: const Icon(Icons.image_outlined, color: brown),
-            ),
-          ),
+    child: Image.asset(
+      'assets/images/$name',
+      width: width,
+      height: height,
+      fit: fit,
+      alignment: alignment,
+      errorBuilder: (_, _, _) => Container(
+        width: width,
+        height: height,
+        color: tint,
+        alignment: Alignment.center,
+        child: const Icon(Icons.image_outlined, color: brown),
+      ),
+    ),
   );
 }
 
@@ -295,14 +283,11 @@ class Panel extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: onTap == null
             ? Padding(padding: padding, child: child)
-            : Semantics(
-                button: true,
-                child: InkWell(
-                  onTap: onTap,
-                  hoverColor: tint,
-                  focusColor: tint,
-                  child: Padding(padding: padding, child: child),
-                ),
+            : InkWell(
+                onTap: onTap,
+                hoverColor: tint,
+                focusColor: tint,
+                child: Padding(padding: padding, child: child),
               ),
       ),
     );

@@ -55,9 +55,40 @@ def call_model(system: str, user: str) -> dict:
 
     if MODEL_PROVIDER == "gemini":
         return _gemini(system, user)
+    if MODEL_PROVIDER == "openai":
+        return _openai(system, user)
     raise NotImplementedError(
         "chưa viết phần gọi model thật cho MODEL_PROVIDER=%s trong codebase/ai.py — xem docs/connect-model.md"
         % MODEL_PROVIDER)
+
+
+def _openai(system, user):
+    api_key = (os.environ.get("OPENAI_API_KEY") or "").strip()
+    if not api_key and API_KEY.startswith("sk-"):
+        api_key = API_KEY
+    if not api_key:
+        raise RuntimeError("Thiếu key OpenAI trong OPENAI_API_KEY hoặc API_KEY.")
+    body = {
+        "model": MODEL_NAME,
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        "response_format": {"type": "json_object"},
+        "store": False,
+    }
+    req = urllib.request.Request("https://api.openai.com/v1/chat/completions",
+                                 data=json.dumps(body).encode("utf-8"),
+                                 headers={"Content-Type": "application/json", "Authorization": "Bearer " + api_key})
+    try:
+        with urllib.request.urlopen(req, timeout=90) as response:
+            data = json.load(response)
+    except urllib.error.HTTPError as e:
+        raise RuntimeError("OpenAI HTTP %d khi gọi %s" % (e.code, MODEL_NAME)) from None
+    usage = data["usage"]
+    return {
+        "text": data["choices"][0]["message"]["content"] or "",
+        "model": MODEL_NAME,
+        "tokens_in": usage["prompt_tokens"],
+        "tokens_out": usage["completion_tokens"],
+    }
 
 
 def _gemini(system, user):

@@ -33,13 +33,39 @@ assert ids_of("Phố đi bộ Hồ Gươm") == ["pho_di_bo"] and ids_of("Hồ G�
 assert ids_of("Hồ Gươm", "Phố đi bộ Hồ Gươm") == ["ho_guom", "pho_di_bo"]
 assert ids_of("phố đi bộ") == ["pho_di_bo"] and ids_of("Hồ Gươm - Đền Ngọc Sơn") == ["ho_guom"]
 assert ids_of("Hồ Tây") == ["tran_quoc"] and ids_of("Chợ Đồng Xuân") == ["dong_xuan"] and ids_of("Lăng Bác") == ["lang_bac"]
+assert ids_of("hồm gươm") == ["ho_guom"]
+assert ids_of("van meiu") == ["van_mieu"]
 
 # Luồng agent với model giả trả JSON
 replies = []
 agent.call_model = lambda system, user: {"text": json.dumps(replies.pop(0)), "model": "stub", "tokens_in": 0, "tokens_out": 0}
 
+r = agent.answer("Xin chào!")
+assert "chào" in r["output"].lower() and "giúp gì" in r["output"] and not r.get("itinerary")
+
 replies[:] = [{"trang_thai": "hoi_lai", "cau_hoi": "Bạn đi mấy ngày?"}]
-assert agent.answer("nên đi đâu?")["output"] == "Bạn đi mấy ngày?"
+r = agent.answer("nên đi đâu?")
+assert "mấy ngày" in r["output"] and "lộ trình gợi ý" in r["output"] and not r["itinerary"]
+
+replies[:] = [{"so_ngay": 1, "trang_thai": "hoi_lai"}]
+r = agent.answer("Tôi muốn đi chơi trong 1 ngày")
+assert "1 ngày" in r["output"] and "thích" in r["output"] and not r["itinerary"]
+
+replies[:] = [{"so_ngay": 1, "chap_nhan_goi_y": True}, {"ngay": [["ho_guom", "dong_xuan"]]}]
+r = agent.answer("Tôi muốn đi chơi trong 1 ngày\nLộ trình trước:\n" + r["output"] + "\n\nSửa: Có, gợi ý giúp mình")
+assert r["itinerary"]["feasible"] and len(r["itinerary"]["days"]) == 1
+assert "Chưa nêu sở thích" in r["output"] and "Bạn có thể" in r["output"]
+
+replies[:] = [{"chap_nhan_goi_y": True}, {"ngay": [["ho_guom"]]}]
+r = agent.answer("Cho mình một lộ trình gợi ý đi")
+assert len(r["itinerary"]["days"]) == 1 and "gợi ý lịch 1 ngày" in r["output"]
+
+replies[:] = [{"so_ngay": 1, "diem_muon_di": ["hồm gươm"]}, {"ngay": [["ho_guom"]]}]
+assert agent.answer("Hà Nội 1 ngày, ghé hồm gươm")["itinerary"]["days"][0]["stops"][0]["id"] == "ho_guom"
+
+replies[:] = [{"so_ngay": 1, "diem_muon_di": ["Bảo tàng Mỹ thuật Việt Nam"]}]
+r = agent.answer("1 ngày, ghé Bảo tàng Mỹ thuật Việt Nam")
+assert not r["itinerary"] and "Bảo tàng Mỹ thuật Việt Nam" in r["output"]
 
 replies[:] = [{"trang_thai": "ok", "so_ngay": 1, "nguoi_lon": 2, "tuoi_tre_em": [], "diem_muon_di": ["lăng bác", "văn miếu"],
                "gio_bat_dau": "13:00", "tu_choi_them": []},

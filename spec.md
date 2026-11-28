@@ -71,9 +71,10 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không (Tr
 ```mermaid
 flowchart TD
     U["Người lần đầu đi Hà Nội nhập yêu cầu<br/>(số ngày, số người, sở thích, ngân sách, điểm muốn đi nếu có)"] --> A1["1. AI đọc yêu cầu → sở thích, ràng buộc"]
-    A1 -->|"thiếu số ngày"| Q["Hỏi lại đúng thông tin thiếu (G10)"]
+    A1 -->|"chỉ chào"| H["Chào lại và hỏi người dùng cần giúp gì"]
+    A1 -->|"thiếu số ngày hoặc chưa rõ sở thích"| Q["Hỏi thêm và mời nhận lộ trình gợi ý (G10)"]
     A1 -->|"thành phố khác · đòi đặt vé / thanh toán"| R["CHẶN RỦI RO: nói rõ ngoài phạm vi,<br/>không bịa điểm, giờ, giá"]
-    A1 -->|"đủ thông tin"| S["2. AI TÌM ĐIỂM: gọi tim_diem(sở thích, tên điểm)<br/>→ điểm khớp nhãn trong dữ liệu + điểm không tìm thấy"]
+    A1 -->|"đủ thông tin hoặc người dùng đồng ý nhận gợi ý"| S["2. AI TÌM ĐIỂM: gọi tim_diem(sở thích, tên điểm)<br/>→ điểm khớp nhãn trong dữ liệu + điểm không tìm thấy"]
     S -->|"không có điểm khớp"| R2["Nói rõ dữ liệu không có điểm hợp sở thích,<br/>đưa lựa chọn gần nhất, hỏi lại (G10)"]
     S --> T["3. Công cụ chỉ đọc tính sẵn<br/>thoi_gian_di(a, b) cho mọi cặp điểm<br/>+ thoi_tiet nếu biết ngày đi"]
     T --> M["4. AI LÊN LỘ TRÌNH: chia điểm theo ngày + thứ tự<br/>+ 1 câu lý do mỗi điểm → JSON"]

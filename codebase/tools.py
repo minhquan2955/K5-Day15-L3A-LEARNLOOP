@@ -79,18 +79,36 @@ def link_google_maps(diem_den: list, tu: str = None, xp: dict = None) -> str:
     return "https://www.google.com/maps/dir/?" + urllib.parse.urlencode(q, quote_via=urllib.parse.quote, safe="")
 
 
+def _lech_mot_ky_tu(a, b):
+    """Một ký tự bị thêm, thiếu, thay thế hoặc hai ký tự liền nhau bị đảo."""
+    if len(a) > len(b):
+        a, b = b, a
+    if len(b) - len(a) > 1:
+        return False
+    if len(a) != len(b):
+        i = next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), len(a))
+        return a[i:] == b[i + 1:]
+    lech = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
+    if len(lech) == 2:
+        i, j = lech
+        return j == i + 1 and a[i] == b[j] and a[j] == b[i]
+    return len(lech) == 1
+
+
 def _khop_ten(ten):
-    """Điểm khớp tên người dùng nêu nhất: trùng khít > tên dài nhất nằm trong chữ người dùng > tên ngắn nhất chứa chữ
-    người dùng. Tránh "Phố đi bộ Hồ Gươm" khớp nhầm Hồ Gươm chỉ vì đứng trước trong dữ liệu. Không khớp → None."""
+    """Ưu tiên tên chính xác, rồi tên gần khớp duy nhất, sau đó mới xét tên chứa nhau."""
     f = _fold(ten or "")
     if not f:
         return None
     tot, diem_tot = None, None
+    gan_khop = {}
     for p in DATA["diem"]:
         for x in (_fold(x) for x in p["ten_khac"] + [p["ten"]]):
             if x == f:
-                diem = (3, len(x))
-            elif x in f:
+                return p
+            if len(f) >= 6 and f.count(" ") == x.count(" ") and _lech_mot_ky_tu(f, x):
+                gan_khop[p["id"]] = p
+            if x in f:
                 diem = (2, len(x))
             elif f in x:
                 diem = (1, -len(x))
@@ -98,6 +116,8 @@ def _khop_ten(ten):
                 continue
             if diem_tot is None or diem > diem_tot:
                 tot, diem_tot = p, diem
+    if gan_khop:
+        return next(iter(gan_khop.values())) if len(gan_khop) == 1 else None
     return tot
 
 
@@ -436,9 +456,14 @@ _EMBED_DIM = 768
 _URL_EMBED = "https://generativelanguage.googleapis.com/v1beta/models/%s:embedContent"
 
 
+def _khoa_embedding():
+    api_key = (os.environ.get("EMBEDDING_API_KEY") or os.environ.get("API_KEY") or "").strip()
+    return "" if api_key.startswith("sk-") else api_key
+
+
 def _nhung_van_ban(van_ban: str) -> list:
     """Nhúng văn bản 768 chiều qua Gemini Embedding API (urllib). Tách riêng để test thay bằng mock."""
-    api_key = (os.environ.get("EMBEDDING_API_KEY") or os.environ.get("API_KEY") or "").strip()
+    api_key = _khoa_embedding()
     if not api_key:
         raise ValueError("thiếu API_KEY / EMBEDDING_API_KEY")
     model_name = (os.environ.get("EMBEDDING_MODEL") or _EMBED_MODEL_DEFAULT).strip()
@@ -589,7 +614,7 @@ def tra_cuu_rag(cau_hoi: str, dia_diem_ids: list = None, gioi_han: int = 3) -> d
     không tác động ra ngoài."""
     gioi_han = max(1, min(10, int(gioi_han or 3)))
     has_db = bool((os.environ.get("DATABASE_URL") or "").strip())
-    has_key = bool((os.environ.get("EMBEDDING_API_KEY") or os.environ.get("API_KEY") or "").strip())
+    has_key = bool(_khoa_embedding())
     provider = (os.environ.get("MODEL_PROVIDER") or "").strip().lower()
     if has_db and has_key and provider != "fake":
         try:

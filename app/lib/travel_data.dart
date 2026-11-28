@@ -900,3 +900,22 @@ const sampleItinerary = Itinerary(
     ], 'quarter.jpg'),
   ],
 );
+
+/// Câu yêu cầu dựng lại từ một chuyến đã có (cho "Đổi kế hoạch" ngoài chat): số ngày, ngày đi, số người, các điểm.
+String requestFromItinerary(Itinerary itinerary) {
+  final names = [
+    for (final day in itinerary.days)
+      for (final stop in day.details) stop.name,
+  ];
+  final start = itinerary.start;
+  final people =
+      (itinerary.totalVnd ?? 0) > 0 && (itinerary.perPersonVnd ?? 0) > 0
+      ? (itinerary.totalVnd! / itinerary.perPersonVnd!).round()
+      : null;
+  return [
+        'Đi Hà Nội ${itinerary.days.length} ngày',
+        if (start != null) 'từ ${start.day}/${start.month}/${start.year}',
+        if (people != null) '$people người',
+      ].join(', ') +
+      (names.isEmpty ? '.' : '. Muốn đi: ${names.join(', ')}.');
+}

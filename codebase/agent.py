@@ -5,11 +5,10 @@
 3. thoi_gian_di (code) → phút đi mọi cặp
 4. AI phân tích ràng buộc rồi xếp ngày + thứ tự + lý do (JSON Reason-before-Plan)
 5. kiem_lich_trinh + kiểm đủ số ngày (code) → còn vi phạm thì phản hồi ở ĐẦU prompt (Theorem R.1), tối đa MAX_SUA lượt
-Thêm sau lượt 2: biết ngày đi thì thoi_tiet (code, Open-Meteo) → dự báo từng ngày; mỗi điểm / ngày có link
-chỉ đường Google Maps (link_google_maps, không cần key) trong itinerary — không đưa link vào output chữ.
-Chế độ "đi lại ít nhất" (người dùng nói đỡ đi lòng vòng / ít di chuyển, hoặc nêu chỗ ở): tim_noi_o (code) → toạ độ
-chỗ ở; sau khi AI chia ngày, toi_uu_lo_trinh (code) thử mọi thứ tự trong ngày + chuyển / đổi điểm giữa các ngày để
-tổng phút đi ít nhất mà vẫn kịp giờ mở cửa (chỗ ở nằm giữa các cụm → mỗi ngày tự tách một hướng).
+Bổ trợ chỉ đọc sau khi xếp lịch:
+- Biết ngày đi → thoi_tiet (Open-Meteo) → dự báo từng ngày; mỗi điểm / ngày có link Google Maps trong itinerary.
+- Chế độ "đi lại ít nhất" (hoặc nêu chỗ ở): tim_noi_o → toạ độ chỗ ở; toi_uu_lo_trinh tối ưu thứ tự & hướng.
+- tra_cuu_rag (pgvector hoặc fallback BM25 trên data/hanoi_rag.json) → mẹo tham quan có nguồn cho các điểm đã xếp.
 Output dựng bằng code từ kết quả kiem_lich_trinh và thoi_gian_di: model không ghi con số nào.
 """
 import datetime
@@ -18,7 +17,7 @@ import re
 
 from ai import call_model
 from tools import (HOTEL, MUA_NHIEU, POI, TAGS, hom_nay, kiem_lich_trinh, link_google_maps, thoi_gian_di, thoi_tiet,
-                   tim_diem, tim_noi_o, toi_uu_lo_trinh)
+                   tim_diem, tim_noi_o, toi_uu_lo_trinh, tra_cuu_rag)
 from tracing import note
 
 MAX_SUA = 2
@@ -159,7 +158,7 @@ def answer(text: str) -> dict:
     tuoi = doc.get("tuoi_tre_em") or []
     ngan_sach = int(doc.get("ngan_sach_moi_nguoi") or 0)
     gio = doc.get("gio_bat_dau") or "07:30"
-    notes = ["Dữ liệu chỉ có 14 điểm ở Hà Nội; giờ mở cửa và giá vé là số mẫu, kiểm lại trước khi đi."]
+    notes = ["Dữ liệu chỉ có %d điểm ở Hà Nội; giờ mở cửa và giá vé là số mẫu, kiểm lại trước khi đi." % len(POI)]
     for x in tu_choi_them:
         notes.append("Mình không làm được: %s. Phần này bạn tự làm trên kênh chính thức." % x)
     if "[số thẻ đã ẩn]" in clean_text:
@@ -278,7 +277,29 @@ def answer(text: str) -> dict:
         kq = _cat_cho_vua_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes)
     if ngan_sach:  # dù model hay code cắt: thiếu điểm người dùng nêu mà đi đủ thì vượt → nói rõ vượt bao nhiêu
         _bao_vuot_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes)
-    return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao, so_thich, opt, xp)
+    rag_refs = _bo_sung_rag(clean_text, kq, notes)
+    return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao, so_thich, opt, xp,
+                        rag_refs=rag_refs)
+
+
+def _bo_sung_rag(clean_text, kq, notes):
+    """Truy xuất mẹo tham quan (tra_cuu_rag) có nguồn cho các điểm đã xếp."""
+    da_xep = [s["id"] for d in kq["days"] for s in d["stops"]]
+    rag_refs = []
+    if da_xep:
+        rag = tra_cuu_rag(clean_text, da_xep, gioi_han=2)
+        nguon_tx = rag.get("nguon_truy_xuat", "local_bm25")
+        for d in (rag.get("doan") or [])[:2]:
+            rag_refs.append({
+                "tieu_de": d["tieu_de"],
+                "noi_dung": d["noi_dung"],
+                "nguon": d["nguon"],
+                "dia_diem_id": d.get("dia_diem_id"),
+                "diem_khop": d.get("diem_khop"),
+                "nguon_truy_xuat": nguon_tx,
+            })
+            notes.append("Mẹo tham quan (%s — nguồn %s): %s" % (d["tieu_de"], d["nguon"], d["noi_dung"]))
+    return rag_refs
 
 
 def _bao_vuot_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes):
@@ -412,7 +433,7 @@ def _goi_y_khoang_trong(days, ung_vien, notes):
 
 
 def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=None, so_thich=None, opt=None,
-                 xp=None):
+                 xp=None, rag_refs=None):
     ly_do = plan.get("ly_do") or {}
     user_ids = {p["id"] for p in ung_vien if p.get("nguoi_dung_neu")}
     days_nonempty = [d for d in kq["days"] if d["stops"]]
@@ -504,5 +525,6 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
     itinerary = {"days": [{"day": d["day"], "date": d.get("date"), "weather": d.get("weather"),
                            "stops": d["stops"], "maps_urls": d["maps_urls"]} for d in days_nonempty],
                  "total_vnd": kq["total_vnd"], "per_person_vnd": kq["per_person_vnd"],
-                 "taxi_vnd": kq["xe_vnd"], "feasible": feasible, "notes": notes}
+                 "taxi_vnd": kq["xe_vnd"], "feasible": feasible, "notes": notes,
+                 "rag_references": rag_refs or []}
     return {"output": _an_the("\n".join(lines)), "itinerary": itinerary}

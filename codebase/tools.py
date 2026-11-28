@@ -11,6 +11,7 @@ import datetime
 import json
 import math
 import os
+import re
 import unicodedata
 import urllib.parse
 import urllib.request
@@ -20,6 +21,11 @@ from tracing import tool, TOOLS  # noqa: F401
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 with open(os.path.join(ROOT, "data", "hanoi_poi.json"), encoding="utf-8") as _f:
     DATA = json.load(_f)
+try:
+    with open(os.path.join(ROOT, "data", "hanoi_rag.json"), encoding="utf-8") as _rf:
+        RAG_DATA = json.load(_rf)
+except OSError:
+    RAG_DATA = {"doan": []}
 POI = {p["id"]: p for p in DATA["diem"]}
 HOTEL = DATA["khach_san"]
 TAGS = sorted({t for p in DATA["diem"] for t in p["so_thich"]})
@@ -422,3 +428,177 @@ def thoi_tiet(ngay_bat_dau: str, so_ngay: int) -> dict:
     except (OSError, ValueError, KeyError, TypeError, IndexError) as e:  # mất mạng, HTTP lỗi, JSON lạ → không chặn lịch
         return {"loi": "chưa lấy được dự báo (%s)" % type(e).__name__}
     return {"ngay": out, "nguon": "Open-Meteo.com (CC BY 4.0)"}
+
+
+# ---------- RAG tri thức tham quan (pgvector khi có DB, mặc định fallback BM25 cục bộ) ----------
+_EMBED_MODEL_DEFAULT = "gemini-embedding-001"
+_EMBED_DIM = 768
+_URL_EMBED = "https://generativelanguage.googleapis.com/v1beta/models/%s:embedContent"
+
+
+def _nhung_van_ban(van_ban: str) -> list:
+    """Nhúng văn bản 768 chiều qua Gemini Embedding API (urllib). Tách riêng để test thay bằng mock."""
+    api_key = (os.environ.get("EMBEDDING_API_KEY") or os.environ.get("API_KEY") or "").strip()
+    if not api_key:
+        raise ValueError("thiếu API_KEY / EMBEDDING_API_KEY")
+    model_name = (os.environ.get("EMBEDDING_MODEL") or _EMBED_MODEL_DEFAULT).strip()
+    body = {
+        "model": "models/" + model_name,
+        "content": {"parts": [{"text": str(van_ban or "")}]},
+        "outputDimensionality": _EMBED_DIM,
+    }
+    req = urllib.request.Request(
+        _URL_EMBED % urllib.parse.quote(model_name, safe=""),
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
+    )
+    with urllib.request.urlopen(req, timeout=8) as r:
+        data = json.loads(r.read().decode("utf-8"))
+    values = (data.get("embedding") or {}).get("values") or []
+    if len(values) != _EMBED_DIM:
+        raise ValueError("số chiều embedding không khớp %d: %d" % (_EMBED_DIM, len(values)))
+    return [float(x) for x in values]
+
+
+def _truy_van_pgvector(vec: list, model_name: str, gioi_han: int, dia_diem_ids: list = None) -> list:
+    """Truy vấn learnloop.tim_doan_rag trên PostgreSQL (nếu bật DATABASE_URL và cài pg8000)."""
+    db_url = (os.environ.get("DATABASE_URL") or "").strip()
+    if not db_url:
+        return []
+    try:
+        import pg8000.native as pg
+    except ImportError:
+        return []
+    u = urllib.parse.urlparse(db_url)
+    con = None
+    try:
+        con = pg.Connection(
+            user=urllib.parse.unquote(u.username or ""),
+            password=urllib.parse.unquote(u.password or ""),
+            host=u.hostname or "localhost",
+            port=u.port or 5432,
+            database=(u.path or "/").lstrip("/"),
+            timeout=4,
+        )
+        id_set = set(dia_diem_ids) if dia_diem_ids else None
+        k_query = min(50, max(gioi_han * 4, 15)) if id_set else gioi_han
+        vec_str = "[" + ",".join(str(float(x)) for x in vec) + "]"
+        rows = con.run(
+            "SELECT id, nguon, tieu_de, thu_tu, noi_dung, dia_diem_id, khoang_cach_cosine "
+            "FROM learnloop.tim_doan_rag(CAST(:vec AS public.vector), :model, :k)",
+            vec=vec_str,
+            model=model_name,
+            k=k_query,
+        )
+        out = []
+        for row in rows:
+            did = row[5]
+            if id_set is not None and did not in id_set:
+                continue
+            out.append({
+                "tieu_de": row[2],
+                "noi_dung": row[4],
+                "nguon": row[1],
+                "dia_diem_id": did,
+                "diem_khop": round(max(0.0, 1.0 - float(row[6])), 4),
+            })
+            if len(out) >= gioi_han:
+                break
+        return out
+    except Exception:
+        return []
+    finally:
+        if con is not None:
+            try:
+                con.close()
+            except Exception:
+                pass
+
+
+def _tach_tu_rag(s: str) -> list:
+    tokens = re.findall(r"[a-z0-9]+", _fold(s or ""))
+    return tokens + [tokens[i] + "_" + tokens[i + 1] for i in range(len(tokens) - 1)]
+
+
+def _truy_van_bm25(cau_hoi: str, dia_diem_ids: list = None, gioi_han: int = 3) -> list:
+    """Tìm kiếm BM25 thuần Python trên data/hanoi_rag.json (làm fallback khi chưa bật pgvector)."""
+    doan = list(RAG_DATA.get("doan") or [])
+    id_list = [i for i in (dia_diem_ids or []) if i]
+    id_set = set(id_list)
+    ung = [d for d in doan if d.get("dia_diem_id") in id_set] if id_set else doan
+    if not ung:
+        return []
+
+    pos = {pid: idx for idx, pid in enumerate(id_list)}
+    docs_tokens = []
+    df = {}
+    for d in ung:
+        text = " ".join([
+            str(d.get("tieu_de") or ""),
+            str(d.get("noi_dung") or ""),
+            " ".join(d.get("tu_khoa") or []),
+        ])
+        toks = _tach_tu_rag(text)
+        docs_tokens.append(toks)
+        for t in set(toks):
+            df[t] = df.get(t, 0) + 1
+
+    avgdl = (sum(len(t) for t in docs_tokens) / len(docs_tokens)) or 1.0
+    n_docs = len(ung)
+    q_tokens = _tach_tu_rag(cau_hoi or "")
+    k1, b = 1.5, 0.75
+
+    scored = []
+    for idx, (d, dtoks) in enumerate(zip(ung, docs_tokens)):
+        tf = {}
+        for t in dtoks:
+            tf[t] = tf.get(t, 0) + 1
+        dl = len(dtoks) or 1
+        bm25 = 0.0
+        for qt in q_tokens:
+            if qt not in tf:
+                continue
+            idf = math.log((n_docs - df.get(qt, 0) + 0.5) / (df.get(qt, 0) + 0.5) + 1.0)
+            freq = tf[qt]
+            bm25 += idf * (freq * (k1 + 1.0)) / (freq + k1 * (1.0 - b + b * dl / avgdl))
+        did = d.get("dia_diem_id")
+        boost = (0.5 - pos[did] * 0.01) if (id_set and did in pos) else 0.0
+        total = bm25 + boost
+        scored.append((total, -(pos.get(did, 999)), -(d.get("thu_tu", 999)), d))
+
+    if not id_set and max(s[0] for s in scored) <= 0:
+        return []
+    scored.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+    return [
+        {
+            "tieu_de": d["tieu_de"],
+            "noi_dung": d["noi_dung"],
+            "nguon": d["nguon"],
+            "dia_diem_id": d.get("dia_diem_id"),
+            "diem_khop": round(score, 4),
+        }
+        for score, _, _, d in scored[:gioi_han]
+    ]
+
+
+@tool
+def tra_cuu_rag(cau_hoi: str, dia_diem_ids: list = None, gioi_han: int = 3) -> dict:
+    """tra_cuu_rag · Input: câu hỏi hoặc từ khoá, danh sách id điểm ưu tiên (tuỳ chọn), số đoạn tối đa (1..10) ·
+    Output: {"doan": [{tieu_de, noi_dung, nguon, dia_diem_id, diem_khop}], "nguon_truy_xuat": "pgvector" |
+    "local_bm25", "so_ket_qua": int} · Chỉ đọc pgvector (khi bật DATABASE_URL) hoặc data/hanoi_rag.json;
+    không tác động ra ngoài."""
+    gioi_han = max(1, min(10, int(gioi_han or 3)))
+    has_db = bool((os.environ.get("DATABASE_URL") or "").strip())
+    has_key = bool((os.environ.get("EMBEDDING_API_KEY") or os.environ.get("API_KEY") or "").strip())
+    provider = (os.environ.get("MODEL_PROVIDER") or "").strip().lower()
+    if has_db and has_key and provider != "fake":
+        try:
+            model_name = (os.environ.get("EMBEDDING_MODEL") or _EMBED_MODEL_DEFAULT).strip()
+            vec = _nhung_van_ban(cau_hoi)
+            rows = _truy_van_pgvector(vec, model_name, gioi_han, dia_diem_ids)
+            if rows:
+                return {"doan": rows, "nguon_truy_xuat": "pgvector", "so_ket_qua": len(rows)}
+        except Exception:
+            pass
+    rows = _truy_van_bm25(cau_hoi, dia_diem_ids, gioi_han)
+    return {"doan": rows, "nguon_truy_xuat": "local_bm25", "so_ket_qua": len(rows)}

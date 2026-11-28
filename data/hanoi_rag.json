@@ -1,0 +1,1218 @@
+{
+  "_nhan": "synthetic",
+  "_ghi_chu": "Mẹo tham quan và ngữ cảnh văn hoá-lịch sử cho 24 điểm trong data/hanoi_poi.json (tổng hợp từ cẩm nang nhóm, Wikipedia tiếng Việt CC BY-SA 4.0 và báo chính thống; không chứa giờ mở cửa hay giá vé).",
+  "phien_ban": "hanoi-rag-v3 · 28/11/2026",
+  "doan": [
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Lưu ý khi vào Lăng Chủ tịch Hồ Chí Minh",
+      "thu_tu": 1,
+      "dia_diem_id": "lang_bac",
+      "noi_dung": "Cần mặc trang phục lịch sự, kín đáo, giữ trật tự và tuân theo hướng dẫn xếp hàng; khu vực bên trong hạn chế mang túi lớn và không quay phim, chụp ảnh.",
+      "tu_khoa": [
+        "lăng bác",
+        "lăng chủ tịch",
+        "trang phục",
+        "xếp hàng",
+        "di tích",
+        "lịch sử"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Gợi ý tham quan Chùa Một Cột",
+      "thu_tu": 2,
+      "dia_diem_id": "chua_mot_cot",
+      "noi_dung": "Chùa nằm sát quần thể Quảng trường Ba Đình nên rất tiện đi bộ nối tiếp; khi vào không gian thờ tự nên ăn mặc nhã nhặn, đi nhẹ nói khẽ.",
+      "tu_khoa": [
+        "chùa một cột",
+        "ba đình",
+        "tâm linh",
+        "trang phục",
+        "di tích"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Mẹo khám phá Hoàng thành Thăng Long",
+      "thu_tu": 3,
+      "dia_diem_id": "hoang_thanh",
+      "noi_dung": "Khu di sản khá rộng với nhiều sân gạch và khu trưng bày khảo cổ nối tiếp nhau, nên mang giày đi bộ êm chân, mũ che nắng và nước uống.",
+      "tu_khoa": [
+        "hoàng thành thăng long",
+        "di sản",
+        "khảo cổ",
+        "giày đi bộ",
+        "lịch sử"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Lưu ý văn hoá tại Văn Miếu – Quốc Tử Giám",
+      "thu_tu": 4,
+      "dia_diem_id": "van_mieu",
+      "noi_dung": "Quần thể có nhiều sân vườn rợp bóng cây, phù hợp dạo chậm tìm hiểu bia Tiến sĩ và truyền thống hiếu học; nên mặc trang phục lịch sự khi vào khu điện thờ.",
+      "tu_khoa": [
+        "văn miếu",
+        "quốc tử giám",
+        "bia tiến sĩ",
+        "văn hoá",
+        "trang phục"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Gợi ý dạo quanh Hồ Gươm – Đền Ngọc Sơn",
+      "thu_tu": 5,
+      "dia_diem_id": "ho_guom",
+      "noi_dung": "Lối đi quanh hồ bằng phẳng, dễ tản bộ cho cả trẻ nhỏ và người lớn tuổi; cầu Thê Húc dẫn vào Đền Ngọc Sơn là điểm chụp ảnh và tìm hiểu kiến trúc quen thuộc.",
+      "tu_khoa": [
+        "hồ gươm",
+        "hồ hoàn kiếm",
+        "đền ngọc sơn",
+        "cầu thê húc",
+        "dạo phố"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Trải nghiệm tại Nhà tù Hỏa Lò",
+      "thu_tu": 6,
+      "dia_diem_id": "hoa_lo",
+      "noi_dung": "Không gian trưng bày trong nhà nhiều tư liệu lịch sử sâu sắc, mát mẻ khi trời nắng hoặc mưa; có thể thuê thiết bị thuyết minh tự động tại quầy để hiểu rõ bối cảnh.",
+      "tu_khoa": [
+        "nhà tù hỏa lò",
+        "bảo tàng",
+        "lịch sử",
+        "thuyết minh",
+        "trong nhà"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Kinh nghiệm ghé Chợ Đồng Xuân – phố cổ",
+      "thu_tu": 7,
+      "dia_diem_id": "dong_xuan",
+      "noi_dung": "Các ngõ nhỏ quanh khu chợ tập trung nhiều hàng quán vặt và sạp hàng truyền thống; nên giữ gọn tư trang cá nhân và hỏi giá trước khi mua đồ lưu niệm.",
+      "tu_khoa": [
+        "chợ đồng xuân",
+        "phố cổ",
+        "ẩm thực",
+        "mua sắm",
+        "tư trang"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "An toàn khi chụp ảnh ở Phố đường tàu",
+      "thu_tu": 8,
+      "dia_diem_id": "pho_duong_tau",
+      "noi_dung": "Nên ngồi gọn trong khu vực quán cà phê được phép, tuyệt đối không đứng trên đường ray khi có hiệu lệnh tàu chạy và chú ý trông chừng trẻ nhỏ.",
+      "tu_khoa": [
+        "phố đường tàu",
+        "cà phê",
+        "chụp ảnh",
+        "an toàn",
+        "phố cổ"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Tham quan Chùa Trấn Quốc – Hồ Tây",
+      "thu_tu": 9,
+      "dia_diem_id": "tran_quoc",
+      "noi_dung": "Ngôi chùa cổ nằm trên bán đảo nhỏ hướng ra mặt hồ thoáng gió; nên chuẩn bị trang phục kín đáo và mũ nắng nếu dạo thêm dọc đường Thanh Niên.",
+      "tu_khoa": [
+        "chùa trấn quốc",
+        "hồ tây",
+        "thanh niên",
+        "tâm linh",
+        "trang phục"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Mẹo đi Bảo tàng Dân tộc học cùng gia đình",
+      "thu_tu": 10,
+      "dia_diem_id": "bt_dan_toc_hoc",
+      "noi_dung": "Bảo tàng kết hợp cả phòng trưng bày trong nhà lẫn khu nhà sàn ngoài trời rộng rãi, rất hợp cho trẻ nhỏ vừa chơi vừa khám phá nét sinh hoạt nhiều vùng miền.",
+      "tu_khoa": [
+        "bảo tàng dân tộc học",
+        "trẻ em",
+        "gia đình",
+        "nhà sàn",
+        "văn hoá"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Hoạt động tại Phố đi bộ Hồ Gươm",
+      "thu_tu": 11,
+      "dia_diem_id": "pho_di_bo",
+      "noi_dung": "Khu vực này sôi động nhất vào dịp cuối tuần với nhiều nhóm nhạc đường phố, trò chơi dân gian và các tuyến phố ẩm thực lân cận.",
+      "tu_khoa": [
+        "phố đi bộ",
+        "buổi tối",
+        "cuối tuần",
+        "trò chơi dân gian",
+        "ẩm thực"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Ngắm kiến trúc Nhà hát Lớn Hà Nội",
+      "thu_tu": 12,
+      "dia_diem_id": "nha_hat_lon",
+      "noi_dung": "Công trình mang phong cách kiến trúc cổ điển nổi bật ở khu trung tâm; quảng trường phía trước rộng thoáng, thuận tiện chụp ảnh và dạo tiếp sang khu Tràng Tiền.",
+      "tu_khoa": [
+        "nhà hát lớn",
+        "kiến trúc",
+        "chụp ảnh",
+        "tràng tiền"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Chuẩn bị khi đi Làng gốm Bát Tràng",
+      "thu_tu": 13,
+      "dia_diem_id": "bat_trang",
+      "noi_dung": "Nếu tham gia nặn gốm thủ công nên chọn quần áo gọn nhẹ dễ giặt, mang túi vải để bọc đồ gốm mang về và chuẩn bị ít tiền mặt lẻ.",
+      "tu_khoa": [
+        "bát tràng",
+        "làng gốm",
+        "nặn gốm",
+        "trải nghiệm",
+        "trẻ em",
+        "ngoại thành"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Chuẩn bị trang phục và sức khoẻ đi Chùa Hương",
+      "thu_tu": 14,
+      "dia_diem_id": "chua_huong",
+      "noi_dung": "Hành trình gồm ngồi đò trên suối Yến và leo bậc đá đường núi nên cần giày bám tốt, áo khoác nhẹ, nước uống cá nhân và trang phục lịch sự.",
+      "tu_khoa": [
+        "chùa hương",
+        "suối yến",
+        "leo núi",
+        "tâm linh",
+        "thiên nhiên",
+        "ngoại thành"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Lưu ý tham quan Nhà thờ Lớn Hà Nội",
+      "thu_tu": 15,
+      "dia_diem_id": "nha_tho_lon",
+      "noi_dung": "Công trình mang phong cách kiến trúc Gothic nổi bật giữa khu phố cổ; khi vào bên trong nhà thờ cần giữ yên tĩnh, ăn mặc kín đáo và ưu tiên chụp ảnh ở quảng trường phía trước.",
+      "tu_khoa": [
+        "nhà thờ lớn",
+        "kiến trúc",
+        "chụp ảnh",
+        "phố cổ",
+        "tâm linh"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Kinh nghiệm thăm Bảo tàng Phụ nữ Việt Nam",
+      "thu_tu": 16,
+      "dia_diem_id": "bt_phu_nu",
+      "noi_dung": "Không gian trưng bày trong nhà hiện đại, nhiều câu chuyện văn hoá gia đình và trang phục truyền thống của phụ nữ các vùng miền, thuận tiện tham quan khi trời mưa hoặc nắng gắt.",
+      "tu_khoa": [
+        "bảo tàng phụ nữ",
+        "bảo tàng",
+        "văn hoá",
+        "lịch sử",
+        "trong nhà"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Gợi ý tại Bảo tàng Lịch sử Quốc gia",
+      "thu_tu": 17,
+      "dia_diem_id": "bt_lich_su",
+      "noi_dung": "Toà nhà nổi bật với kiến trúc Pháp cổ điển gần Nhà hát Lớn và lưu giữ nhiều cổ vật qua các triều đại; nên đi bộ chậm để xem kỹ các phòng trưng bày theo dòng lịch sử.",
+      "tu_khoa": [
+        "bảo tàng lịch sử",
+        "kiến trúc",
+        "cổ vật",
+        "bảo tàng",
+        "lịch sử"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Lưu ý khi ghé Bảo tàng Hồ Chí Minh",
+      "thu_tu": 18,
+      "dia_diem_id": "bt_ho_chi_minh",
+      "noi_dung": "Bảo tàng nằm ngay trong cụm Quảng trường Ba Đình gần Chùa Một Cột, thuận tiện ghép chung một buổi tham quan trong nhà và đọc hệ thống tư liệu ảnh theo chuyên đề.",
+      "tu_khoa": [
+        "bảo tàng hồ chí minh",
+        "ba đình",
+        "bảo tàng",
+        "lịch sử"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Kinh nghiệm đi Bảo tàng Lịch sử Quân sự Việt Nam",
+      "thu_tu": 19,
+      "dia_diem_id": "bt_quan_su",
+      "noi_dung": "Khu vực trưng bày có cả sảnh trong nhà rộng lớn và sân ngoài trời trưng bày nhiều khí tài cỡ lớn hấp dẫn trẻ nhỏ, nằm về phía tây nên cần tính sẵn thời gian gọi xe.",
+      "tu_khoa": [
+        "bảo tàng quân sự",
+        "lịch sử quân sự",
+        "trẻ em",
+        "bảo tàng",
+        "khí tài"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Tham quan Khu di tích Phủ Chủ tịch",
+      "thu_tu": 20,
+      "dia_diem_id": "phu_chu_tich",
+      "noi_dung": "Khuôn viên rợp bóng cây xanh quanh ao cá và Nhà sàn Bác Hồ rất thoáng mát; du khách đi theo lối tham quan một hướng, mặc trang phục gọn gàng lịch sự và mang giày đế bệt.",
+      "tu_khoa": [
+        "phủ chủ tịch",
+        "nhà sàn bác hồ",
+        "di tích",
+        "thiên nhiên",
+        "ba đình"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Gợi ý tâm linh tại Đền Quán Thánh",
+      "thu_tu": 21,
+      "dia_diem_id": "den_quan_thanh",
+      "noi_dung": "Ngôi đền cổ kính thuộc Thăng Long tứ trấn nằm ngay đầu đường Thanh Niên gần Chùa Trấn Quốc, thích hợp dạo chậm ngắm tượng đồng và kiến trúc gỗ chạm khắc.",
+      "tu_khoa": [
+        "đền quán thánh",
+        "thăng long tứ trấn",
+        "tâm linh",
+        "hồ tây",
+        "di tích"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Ghé Đền Bạch Mã trong khu phố cổ",
+      "thu_tu": 22,
+      "dia_diem_id": "den_bach_ma",
+      "noi_dung": "Ngôi đền cổ nằm giữa phố Hàng Buồm nên rất tiện rẽ vào từ Chợ Đồng Xuân; không gian nhỏ gọn trang nghiêm, cần ăn mặc kín đáo và giữ giọng nhỏ nhẹ.",
+      "tu_khoa": [
+        "đền bạch mã",
+        "phố cổ",
+        "hàng buồm",
+        "tâm linh",
+        "di tích"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Tham quan Chùa Quán Sứ",
+      "thu_tu": 23,
+      "dia_diem_id": "chua_quan_su",
+      "noi_dung": "Ngôi chùa thanh tịnh gần Nhà tù Hỏa Lò, không gian sân rộng nhiều cây xanh; du khách nên giữ trật tự và tuân theo hướng dẫn dâng hương, lễ Phật nơi cửa thiền.",
+      "tu_khoa": [
+        "chùa quán sứ",
+        "tâm linh",
+        "văn hoá",
+        "thanh tịnh"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Mẹo đưa bé đi Công viên Thủ Lệ",
+      "thu_tu": 24,
+      "dia_diem_id": "thu_le",
+      "noi_dung": "Khuôn viên có nhiều hồ nước, hàng cây râm mát và vườn thú rộng nên hợp cho gia đình có trẻ nhỏ dạo chậm; nên mang mũ nắng, nước uống, khăn ướt và xịt chống muỗi nhẹ.",
+      "tu_khoa": [
+        "công viên thủ lệ",
+        "vườn thú",
+        "trẻ em",
+        "gia đình",
+        "thiên nhiên"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Gợi ý kết hợp cụm Quảng trường Ba Đình",
+      "thu_tu": 25,
+      "dia_diem_id": "lang_bac",
+      "noi_dung": "Lăng Bác, Khu di tích Phủ Chủ tịch, Chùa Một Cột và Bảo tàng Hồ Chí Minh nằm liền kề trong một cụm đi bộ khép kín, rất tiết kiệm thời gian di chuyển khi đi nối tiếp.",
+      "tu_khoa": [
+        "lăng bác",
+        "ba đình",
+        "cụm điểm",
+        "tiết kiệm thời gian",
+        "đi bộ"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Góc chụp ảnh và nghỉ chân tại Văn Miếu",
+      "thu_tu": 26,
+      "dia_diem_id": "van_mieu",
+      "noi_dung": "Khuê Văn Các, giếng Thiên Quang và dãy nhà bia là các góc chụp ảnh kiến trúc cổ đặc trưng; giữa buổi có thể dừng nghỉ dưới hàng cây cổ thụ và tìm hiểu thư pháp Việt.",
+      "tu_khoa": [
+        "văn miếu",
+        "khuê văn các",
+        "chụp ảnh",
+        "kiến trúc",
+        "văn hoá"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Kết nối quanh khu vực Hồ Gươm",
+      "thu_tu": 27,
+      "dia_diem_id": "ho_guom",
+      "noi_dung": "Từ Hồ Gươm có thể tản bộ qua Nhà thờ Lớn, Nhà hát Lớn hoặc Bảo tàng Phụ nữ Việt Nam trên các tuyến phố nhiều bóng cây, dễ chọn điểm trú mưa nắng khi thời tiết thay đổi.",
+      "tu_khoa": [
+        "hồ gươm",
+        "nhà thờ lớn",
+        "nhà hát lớn",
+        "tản bộ",
+        "trung tâm"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Tham quan hầm chỉ huy và hoàng cung tại Hoàng thành Thăng Long",
+      "thu_tu": 28,
+      "dia_diem_id": "hoang_thanh",
+      "noi_dung": "Bên cạnh Đoan Môn và khu khảo cổ ngoài trời, khu di tích còn có nhà trưng bày hiện vật và hầm chỉ huy trong nhà rất hữu ích để tránh nắng gắt hoặc mưa rào.",
+      "tu_khoa": [
+        "hoàng thành thăng long",
+        "hầm chỉ huy",
+        "đoan môn",
+        "trong nhà",
+        "lịch sử"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Mẹo chọn mua quà ở Chợ Đồng Xuân – phố cổ",
+      "thu_tu": 29,
+      "dia_diem_id": "dong_xuan",
+      "noi_dung": "Các tuyến phố quanh chợ như Hàng Đường, Hàng Đào thuận tiện mua ô mai, trà sen và đồ lưu niệm gọn nhẹ; nên kiểm tra kỹ đóng gói trước khi mang theo lên máy bay hoặc tàu xe.",
+      "tu_khoa": [
+        "chợ đồng xuân",
+        "quà lưu niệm",
+        "ô mai",
+        "mua sắm",
+        "phố cổ"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Kết hợp tham quan Bảo tàng Dân tộc học vào ngày mưa",
+      "thu_tu": 30,
+      "dia_diem_id": "bt_dan_toc_hoc",
+      "noi_dung": "Toà Trống Đồng có nhiều tầng trưng bày hiện vật, trang phục và video tư liệu văn hoá trong nhà, giúp cả gia đình vẫn có trải nghiệm trọn vẹn ngay cả khi trời mưa.",
+      "tu_khoa": [
+        "bảo tàng dân tộc học",
+        "ngày mưa",
+        "trong nhà",
+        "văn hoá",
+        "trẻ em"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Mẹo chọn trải nghiệm làm gốm ở Bát Tràng cho trẻ em",
+      "thu_tu": 31,
+      "dia_diem_id": "bat_trang",
+      "noi_dung": "Khu chợ gốm và các xưởng trải nghiệm nặn bàn xoay thường nằm sâu trong ngõ nhỏ sạch sẽ; có thể cho bé thử tô tượng gốm tại chỗ để mang về ngay mà không cần chờ nung lâu.",
+      "tu_khoa": [
+        "bát tràng",
+        "tô tượng",
+        "trẻ em",
+        "làng gốm",
+        "trải nghiệm"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Lưu ý sức khoẻ khi đi tuyến Chùa Hương",
+      "thu_tu": 32,
+      "dia_diem_id": "chua_huong",
+      "noi_dung": "Quãng đường di chuyển từ nội thành xa và có nhiều đoạn leo dốc nên cần ngủ sớm hôm trước, mang theo áo mưa mỏng, mũ rộng vành và đồ ăn nhẹ bổ sung năng lượng.",
+      "tu_khoa": [
+        "chùa hương",
+        "ngoại thành",
+        "leo dốc",
+        "sức khoẻ",
+        "chuẩn bị"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Quy tắc trang phục khi thăm di tích và chùa chiền",
+      "thu_tu": 33,
+      "dia_diem_id": null,
+      "noi_dung": "Khi đến lăng, đền, chùa hoặc văn miếu ở Hà Nội nên chọn áo có tay, quần hoặc váy dài quá đầu gối, giữ thái độ tôn nghiêm và không tự ý chạm vào hiện vật.",
+      "tu_khoa": [
+        "trang phục",
+        "di tích",
+        "chùa",
+        "lăng",
+        "quy tắc",
+        "ứng xử"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Mẹo du lịch Hà Nội cùng trẻ nhỏ",
+      "thu_tu": 34,
+      "dia_diem_id": null,
+      "noi_dung": "Nên ưu tiên các điểm có bóng mát, đường bằng hoặc không gian tương tác như bảo tàng, công viên và làng nghề, đồng thời mang theo nước, mũ và đồ ăn nhẹ cho bé.",
+      "tu_khoa": [
+        "trẻ em",
+        "bé",
+        "gia đình",
+        "xe đẩy",
+        "nước uống"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v1",
+      "tieu_de": "Kinh nghiệm di chuyển và ăn mặc ở khu phố cổ",
+      "thu_tu": 35,
+      "dia_diem_id": null,
+      "noi_dung": "Vỉa hè phố cổ thường hẹp và nhiều đoạn giao cắt nên mang giày đế bệt thoải mái, quan sát kỹ khi sang đường và cất điện thoại, ví tiền phía trước người.",
+      "tu_khoa": [
+        "phố cổ",
+        "đi bộ",
+        "an toàn",
+        "giày",
+        "di chuyển"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Ứng phó thời tiết mưa hoặc nắng gắt tại Hà Nội",
+      "thu_tu": 36,
+      "dia_diem_id": null,
+      "noi_dung": "Khi dự báo có mưa nên ưu tiên nhóm bảo tàng trong nhà như Nhà tù Hỏa Lò, Bảo tàng Phụ nữ, Bảo tàng Lịch sử Quốc gia và mang theo ô gấp hoặc áo mưa gọn nhẹ.",
+      "tu_khoa": [
+        "thời tiết",
+        "trời mưa",
+        "nắng",
+        "bảo tàng",
+        "trong nhà"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Kinh nghiệm đặt xe và ghép cụm điểm nội thành",
+      "thu_tu": 37,
+      "dia_diem_id": null,
+      "noi_dung": "Nên dùng ứng dụng gọi xe công nghệ hiển thị sẵn giá cho các chặng xa như Hồ Tây hoặc ngoại thành, còn giữa các điểm cạnh nhau quanh Hồ Gươm hay Ba Đình có thể đi bộ để đỡ chờ xe.",
+      "tu_khoa": [
+        "gọi xe",
+        "taxi",
+        "cụm điểm",
+        "di chuyển",
+        "đi bộ"
+      ]
+    },
+    {
+      "nguon": "cam_nang_ha_noi_v2",
+      "tieu_de": "Mẹo trải nghiệm ẩm thực phố cổ cho khách lần đầu",
+      "thu_tu": 38,
+      "dia_diem_id": null,
+      "noi_dung": "Khi dạo ăn uống quanh khu chợ và phố cổ nên chọn quán sạch sẽ niêm yết giá rõ ràng, ưu tiên món nóng vừa nấu xong và mang sẵn tiền mặt mệnh giá nhỏ.",
+      "tu_khoa": [
+        "ẩm thực",
+        "ăn uống",
+        "phố cổ",
+        "lần đầu",
+        "an toàn"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Thông tin báo chí về Lăng Chủ tịch Hồ Chí Minh",
+      "thu_tu": 39,
+      "dia_diem_id": "lang_bac",
+      "noi_dung": "Lăng Bác là không gian thiêng liêng gắn liền cụm Quảng trường Ba Đình, Nhà sàn, ao cá, Bảo tàng Hồ Chí Minh và Chùa Một Cột; lăng có đợt bảo dưỡng định kỳ hằng năm nên cần xem lịch trước khi đi.",
+      "tu_khoa": [
+        "lăng bác",
+        "quảng trường ba đình",
+        "nhà sàn",
+        "bảo dưỡng",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VietnamPlus",
+      "tieu_de": "Giá trị kiến trúc Chùa Một Cột",
+      "thu_tu": 40,
+      "dia_diem_id": "chua_mot_cot",
+      "noi_dung": "Chùa có tên chữ Diên Hựu Tự (Liên Hoa Đài), được dựng từ thời Lý theo hình đóa sen đặt trên một trụ đá duy nhất vươn lên giữa hồ Linh Chiểu.",
+      "tu_khoa": [
+        "chùa một cột",
+        "diên hựu tự",
+        "liên hoa đài",
+        "nhà lý",
+        "vietnamplus"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Di sản Hoàng thành Thăng Long và tour đêm",
+      "thu_tu": 41,
+      "dia_diem_id": "hoang_thanh",
+      "noi_dung": "Di sản Văn hoá Thế giới UNESCO này lưu giữ các hạng mục tiêu biểu như Kỳ đài (Cột cờ Hà Nội), Đoan Môn, thềm rồng Điện Kính Thiên, Hậu Lâu, Bắc Môn và khu khảo cổ Hoàng Diệu; cuối tuần có tour đêm Giải mã Hoàng thành Thăng Long.",
+      "tu_khoa": [
+        "hoàng thành thăng long",
+        "unesco",
+        "đoan môn",
+        "điện kính thiên",
+        "tour đêm",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Văn Miếu – Quốc Tử Giám trên báo VnExpress",
+      "thu_tu": 42,
+      "dia_diem_id": "van_mieu",
+      "noi_dung": "Biểu tượng truyền thống hiếu học và khoa cử Việt Nam gồm hồ Văn, khu thờ tự và hệ thống bia Tiến sĩ được UNESCO công nhận là Di sản Tư liệu Thế giới; đầu xuân thường có hoạt động xin chữ ông Đồ.",
+      "tu_khoa": [
+        "văn miếu",
+        "quốc tử giám",
+        "bia tiến sĩ",
+        "xin chữ",
+        "unesco",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Điểm nhấn quanh Hồ Gươm – Đền Ngọc Sơn",
+      "thu_tu": 43,
+      "dia_diem_id": "ho_guom",
+      "noi_dung": "Hồ gắn liền truyền thuyết vua Lê Lợi trả gươm thần cho Rùa Vàng, nổi bật với Tháp Rùa, cầu Thê Húc sơn đỏ son dẫn vào Đền Ngọc Sơn, Tháp Bút và Đài Nghiên.",
+      "tu_khoa": [
+        "hồ gươm",
+        "tháp rùa",
+        "cầu thê húc",
+        "đền ngọc sơn",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Trải nghiệm thuyết minh và tour đêm Nhà tù Hỏa Lò",
+      "thu_tu": 44,
+      "dia_diem_id": "hoa_lo",
+      "noi_dung": "Di tích thu hút nhờ trưng bày hiện đại, thiết bị thuyết minh âm thanh tự động (audio guide) và chương trình trải nghiệm ban đêm Đêm thiêng liêng thường nhanh hết chỗ nên cần đặt trước qua kênh chính thức.",
+      "tu_khoa": [
+        "nhà tù hỏa lò",
+        "đêm thiêng liêng",
+        "audio guide",
+        "bảo tàng",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Chợ Đồng Xuân và tuyến đi bộ phố cổ",
+      "thu_tu": 45,
+      "dia_diem_id": "dong_xuan",
+      "noi_dung": "Chợ bán buôn lâu đời bậc nhất khu vực phía Bắc nằm giữa lòng phố cổ, kết nối trực tiếp tuyến đi bộ Hàng Đào – Đồng Xuân và khu chợ đêm ẩm thực dịp cuối tuần.",
+      "tu_khoa": [
+        "chợ đồng xuân",
+        "hàng đào",
+        "chợ đêm",
+        "phố cổ",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Lưu ý an toàn tại Phố đường tàu Hà Nội",
+      "thu_tu": 46,
+      "dia_diem_id": "pho_duong_tau",
+      "noi_dung": "Đoạn đường sắt đi qua khu dân cư gần phố Phùng Hưng và Điện Biên Phủ nổi tiếng nhờ khung cảnh đặc trưng nhưng được quản lý chặt về an toàn giao thông đường sắt.",
+      "tu_khoa": [
+        "phố đường tàu",
+        "phùng hưng",
+        "an toàn",
+        "đường sắt",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VietnamPlus",
+      "tieu_de": "Lịch sử ngôi cổ tự Chùa Trấn Quốc",
+      "thu_tu": 47,
+      "dia_diem_id": "tran_quoc",
+      "noi_dung": "Ngôi cổ tự lâu đời bậc nhất Hà Nội dựng từ thời Tiền Lý bên bờ Hồ Tây, từng là trung tâm Phật giáo thời Lý – Trần với tháp bảo lục độ đài sen và nhiều pho tượng cổ quý.",
+      "tu_khoa": [
+        "chùa trấn quốc",
+        "hồ tây",
+        "tiền lý",
+        "tâm linh",
+        "vietnamplus"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Không gian trưng bày Bảo tàng Dân tộc học Việt Nam",
+      "thu_tu": 48,
+      "dia_diem_id": "bt_dan_toc_hoc",
+      "noi_dung": "Nơi lưu giữ và trưng bày di sản văn hoá các dân tộc Việt Nam gồm toà Trống Đồng trong nhà và khu trưng bày ngoài trời tái hiện nguyên bản nhà sàn, nhà rông, nhà dài.",
+      "tu_khoa": [
+        "bảo tàng dân tộc học",
+        "trống đồng",
+        "nhà sàn",
+        "văn hoá",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Không gian cuối tuần Phố đi bộ Hồ Gươm",
+      "thu_tu": 49,
+      "dia_diem_id": "pho_di_bo",
+      "noi_dung": "Không gian cấm xe cơ giới dịp cuối tuần quanh Hồ Hoàn Kiếm với nghệ thuật đường phố, trò chơi dân gian và điểm khởi đầu thuận tiện cho hành trình ẩm thực phố cổ.",
+      "tu_khoa": [
+        "phố đi bộ",
+        "hồ hoàn kiếm",
+        "nghệ thuật đường phố",
+        "trò chơi dân gian",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "Báo Chính phủ",
+      "tieu_de": "Dấu ấn kiến trúc và lịch sử Nhà hát Lớn Hà Nội",
+      "thu_tu": 50,
+      "dia_diem_id": "nha_hat_lon",
+      "noi_dung": "Công trình kiến trúc cổ điển Pháp hoàn thành đầu thế kỷ trước, là nơi diễn ra nhiều sự kiện lịch sử thời Cách mạng Tháng Tám và hiện có các tour tham quan di tích kết hợp nghệ thuật.",
+      "tu_khoa": [
+        "nhà hát lớn",
+        "kiến trúc",
+        "lịch sử",
+        "nghệ thuật",
+        "báo chính phủ"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Điểm tham quan tại Làng gốm Bát Tràng",
+      "thu_tu": 51,
+      "dia_diem_id": "bat_trang",
+      "noi_dung": "Làng nghề truyền thống nổi tiếng với Trung tâm Tinh hoa Làng nghề Việt mang kiến trúc hình bàn xoay gốm độc đáo, chợ gốm sứ phong phú và trải nghiệm xe điện thăm ngõ làng cổ, lò nung xưa.",
+      "tu_khoa": [
+        "bát tràng",
+        "tinh hoa làng nghề việt",
+        "bàn xoay gốm",
+        "chợ gốm",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Tuyến hành trình suối Yến – Chùa Hương",
+      "thu_tu": 52,
+      "dia_diem_id": "chua_huong",
+      "noi_dung": "Hành trình di sản – tâm linh kết hợp ngồi thuyền nan dọc suối Yến vào bến Thiên Trù, sau đó chọn leo bậc đá hoặc đi cáp treo lên động Hương Tích mệnh danh Nam thiên đệ nhất động.",
+      "tu_khoa": [
+        "chùa hương",
+        "suối yến",
+        "thiên trù",
+        "hương tích",
+        "cáp treo",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Kiến trúc Gothic Nhà thờ Lớn Hà Nội",
+      "thu_tu": 53,
+      "dia_diem_id": "nha_tho_lon",
+      "noi_dung": "Công trình kiến trúc Gothic Phục hưng tiêu biểu tọa lạc tại phố Nhà Chung giữa lòng phố cổ, vừa là di sản kiến trúc vừa là điểm sinh hoạt văn hoá quen thuộc.",
+      "tu_khoa": [
+        "nhà thờ lớn",
+        "gothic",
+        "nhà chung",
+        "phố cổ",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Sức hút trưng bày của Bảo tàng Phụ nữ Việt Nam",
+      "thu_tu": 54,
+      "dia_diem_id": "bt_phu_nu",
+      "noi_dung": "Tọa lạc trên phố Lý Thường Kiệt, bảo tàng nổi bật nhờ lối kể chuyện truyền cảm hứng tôn vinh vai trò, lịch sử và di sản trang phục, đời sống gia đình của phụ nữ Việt Nam.",
+      "tu_khoa": [
+        "bảo tàng phụ nữ",
+        "lý thường kiệt",
+        "di sản",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VietnamPlus",
+      "tieu_de": "Cổ vật tại Bảo tàng Lịch sử Quốc gia",
+      "thu_tu": 55,
+      "dia_diem_id": "bt_lich_su",
+      "noi_dung": "Nằm ngay sau Nhà hát Lớn trên phố Tràng Tiền, tiền thân là Bảo tàng Louis Finot, nơi đây lưu giữ số lượng lớn cổ vật và tư liệu phản ánh tiến trình dựng nước và giữ nước của dân tộc.",
+      "tu_khoa": [
+        "bảo tàng lịch sử",
+        "tràng tiền",
+        "cổ vật",
+        "vietnamplus"
+      ]
+    },
+    {
+      "nguon": "VietnamPlus",
+      "tieu_de": "Bảo tàng Hồ Chí Minh tại cụm Quảng trường Ba Đình",
+      "thu_tu": 56,
+      "dia_diem_id": "bt_ho_chi_minh",
+      "noi_dung": "Một trong những bảo tàng quy mô lớn tại khu vực Ba Đình trưng bày có hệ thống về cuộc đời, tư tưởng và hành trình tìm đường cứu nước của Chủ tịch Hồ Chí Minh.",
+      "tu_khoa": [
+        "bảo tàng hồ chí minh",
+        "ba đình",
+        "lịch sử",
+        "vietnamplus"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Cơ sở mới Bảo tàng Lịch sử Quân sự Việt Nam",
+      "thu_tu": 57,
+      "dia_diem_id": "bt_quan_su",
+      "noi_dung": "Cơ sở mới quy mô hiện đại trên trục Đại lộ Thăng Long trưng bày hàng vạn hiện vật lịch sử giữ nước cùng nhiều khí tài cỡ lớn, phù hợp học sinh và gia đình.",
+      "tu_khoa": [
+        "bảo tàng quân sự",
+        "đại lộ thăng long",
+        "hiện vật",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "VietnamPlus",
+      "tieu_de": "Di tích Nhà sàn và Khu di tích Phủ Chủ tịch",
+      "thu_tu": 58,
+      "dia_diem_id": "phu_chu_tich",
+      "noi_dung": "Không gian di tích lưu giữ nguyên vẹn Nhà sàn Bác Hồ, ao cá, đường xoài và nhà làm việc gắn bó với những năm tháng cuối đời của Người.",
+      "tu_khoa": [
+        "phủ chủ tịch",
+        "nhà sàn bác hồ",
+        "ao cá",
+        "vietnamplus"
+      ]
+    },
+    {
+      "nguon": "Cục Du lịch Quốc gia Việt Nam",
+      "tieu_de": "Đền Quán Thánh trong Thăng Long tứ trấn",
+      "thu_tu": 59,
+      "dia_diem_id": "den_quan_thanh",
+      "noi_dung": "Di tích quốc gia đặc biệt thuộc Thăng Long tứ trấn ở phía Bắc kinh thành xưa, thờ Huyền Thiên Trấn Vũ với kiệt tác tượng đồng đen do nghệ nhân làng Ngũ Xá đúc.",
+      "tu_khoa": [
+        "đền quán thánh",
+        "thăng long tứ trấn",
+        "ngũ xá",
+        "tượng đồng đen"
+      ]
+    },
+    {
+      "nguon": "VietnamPlus",
+      "tieu_de": "Đền Bạch Mã giữa lòng khu phố cổ",
+      "thu_tu": 60,
+      "dia_diem_id": "den_bach_ma",
+      "noi_dung": "Ngôi đền cổ trên phố Hàng Buồm thuộc Thăng Long tứ trấn thờ thần Long Đỗ, giữ nguyên nhiều lớp kiến trúc gỗ chạm trổ công phu mang dấu ấn thời Lê – Nguyễn.",
+      "tu_khoa": [
+        "đền bạch mã",
+        "hàng buồm",
+        "thăng long tứ trấn",
+        "vietnamplus"
+      ]
+    },
+    {
+      "nguon": "VietnamPlus",
+      "tieu_de": "Vai trò văn hoá tâm linh của Chùa Quán Sứ",
+      "thu_tu": 61,
+      "dia_diem_id": "chua_quan_su",
+      "noi_dung": "Ngôi cổ tự tại phố Quán Sứ đồng thời là trụ sở Trung ương của Giáo hội Phật giáo Việt Nam, nơi diễn ra nhiều đại lễ và hoạt động Phật giáo lớn.",
+      "tu_khoa": [
+        "chùa quán sứ",
+        "phật giáo",
+        "tâm linh",
+        "vietnamplus"
+      ]
+    },
+    {
+      "nguon": "VnExpress",
+      "tieu_de": "Không gian sinh thái và di tích tại Công viên Thủ Lệ",
+      "thu_tu": 62,
+      "dia_diem_id": "thu_le",
+      "noi_dung": "Vườn thú lâu đời của Thủ đô gắn với hồ Thủ Lệ, không gian cây xanh rộng và di tích Đền Voi Phục thuộc Thăng Long tứ trấn ngay trong khuôn viên.",
+      "tu_khoa": [
+        "công viên thủ lệ",
+        "vườn thú",
+        "đền voi phục",
+        "vnexpress"
+      ]
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/L%C4%83ng_Ch%E1%BB%A7_t%E1%BB%8Bch_H%E1%BB%93_Ch%C3%AD_Minh",
+      "tieu_de": "Tổng quan từ Wikipedia: Lăng Chủ tịch Hồ Chí Minh",
+      "dia_diem_id": "lang_bac",
+      "noi_dung": "Lăng Chủ tịch Hồ Chí Minh, còn gọi là Lăng Hồ Chủ tịch, Lăng Bác, là nơi gìn giữ thi hài Chủ tịch Hồ Chí Minh. Lăng được chính thức khởi công ngày 2 tháng 9 năm 1973, tại vị trí lễ đài cũ giữa Quảng trường Ba Đình, nơi Chủ tịch Hồ Chí Minh từng chủ trì các cuộc gặp mặt quan trọng.",
+      "tu_khoa": [
+        "lăng chủ tịch hồ chí minh",
+        "hà nội",
+        "wikipedia",
+        "lăng bác",
+        "lang bac",
+        "lăng chủ tịch"
+      ],
+      "thu_tu": 63
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Ch%C3%B9a_M%E1%BB%99t_C%E1%BB%99t",
+      "tieu_de": "Tổng quan từ Wikipedia: Chùa Một Cột",
+      "dia_diem_id": "chua_mot_cot",
+      "noi_dung": "Chùa Một Cột có tên ban đầu là Liên Hoa Đài (蓮花臺) tức là Đài Hoa Sen với lối kiến trúc độc đáo: một điện thờ đặt trên một cột trụ duy nhất. Liên Hoa Đài là công trình nổi tiếng nhất nằm trong quần thể kiến trúc Chùa Diên Hựu (延祐寺), có nghĩa là ngôi chùa \"Phúc lành dài lâu\".",
+      "tu_khoa": [
+        "chùa một cột",
+        "hà nội",
+        "wikipedia",
+        "một cột",
+        "mot cot"
+      ],
+      "thu_tu": 64
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Ho%C3%A0ng_th%C3%A0nh_Th%C4%83ng_Long",
+      "tieu_de": "Tổng quan từ Wikipedia: Hoàng thành Thăng Long",
+      "dia_diem_id": "hoang_thanh",
+      "noi_dung": "Hoàng thành Thăng Long (昇龍皇城) là quần thể di tích gắn với lịch sử hình thành kinh thành Thăng Long – Hà Nội. Công trình kiến trúc đồ sộ này được các triều vua xây dựng trong nhiều giai đoạn lịch sử và trở thành di tích quan trọng bậc nhất trong hệ thống các di tích Việt Nam.",
+      "tu_khoa": [
+        "hoàng thành thăng long",
+        "hà nội",
+        "wikipedia",
+        "hoàng thành",
+        "hoang thanh",
+        "thăng long"
+      ],
+      "thu_tu": 65
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/V%C4%83n_Mi%E1%BA%BFu_%E2%80%93_Qu%E1%BB%91c_T%E1%BB%AD_Gi%C3%A1m",
+      "tieu_de": "Tổng quan từ Wikipedia: Văn Miếu – Quốc Tử Giám",
+      "dia_diem_id": "van_mieu",
+      "noi_dung": "Văn Miếu – Quốc Tử Giám là quần thể di tích đa dạng, phong phú hàng đầu của thành phố Hà Nội, nằm ở phía Nam kinh thành Thăng Long.",
+      "tu_khoa": [
+        "văn miếu – quốc tử giám",
+        "hà nội",
+        "wikipedia",
+        "văn miếu",
+        "van mieu",
+        "quốc tử giám"
+      ],
+      "thu_tu": 66
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/H%E1%BB%93_Ho%C3%A0n_Ki%E1%BA%BFm",
+      "tieu_de": "Tổng quan từ Wikipedia: Hồ Hoàn Kiếm",
+      "dia_diem_id": "ho_guom",
+      "noi_dung": "Hồ Hoàn Kiếm (Hán-Nôm: 湖還劍) còn được gọi là Hồ Gươm là một hồ nước ngọt tự nhiên nằm ở phường Hoàn Kiếm, trung tâm thành phố Hà Nội. Hồ có diện tích khoảng 12 ha.",
+      "tu_khoa": [
+        "hồ gươm – đền ngọc sơn",
+        "hồ hoàn kiếm",
+        "hà nội",
+        "wikipedia",
+        "hồ gươm",
+        "ho guom",
+        "ngọc sơn"
+      ],
+      "thu_tu": 67
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Nh%C3%A0_t%C3%B9_H%E1%BB%8Fa_L%C3%B2",
+      "tieu_de": "Tổng quan từ Wikipedia: Nhà tù Hỏa Lò",
+      "dia_diem_id": "hoa_lo",
+      "noi_dung": "Nhà tù Hỏa Lò hay nhà lao Hỏa Lò là một nhà tù do thực dân Pháp xây dựng trên khu đất xưa thuộc làng Hỏa Lò, nay có địa chỉ: số 1 phố Hỏa Lò, phường Cửa Nam, thành phố Hà Nội, Việt Nam. Địa danh này được Bộ Văn hoá Thể thao và Du lịch của Việt Nam ra quyết định số 1543-QĐ/VH ngày 18/6/1997 công nhận là di tích lịch sử.",
+      "tu_khoa": [
+        "nhà tù hỏa lò",
+        "hà nội",
+        "wikipedia",
+        "hỏa lò",
+        "hoả lò",
+        "hoa lo"
+      ],
+      "thu_tu": 68
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Ch%E1%BB%A3_%C4%90%E1%BB%93ng_Xu%C3%A2n",
+      "tieu_de": "Tổng quan từ Wikipedia: Chợ Đồng Xuân",
+      "dia_diem_id": "dong_xuan",
+      "noi_dung": "Chợ Đồng Xuân là một trong những chợ lớn nhất tại Hà Nội, Việt Nam; là chợ lớn nhất trong khu phố cổ Hà Nội. Chợ có lịch sử tồn tại hàng trăm năm từ thời phong kiến nhà Nguyễn.",
+      "tu_khoa": [
+        "chợ đồng xuân – phố cổ",
+        "chợ đồng xuân",
+        "hà nội",
+        "wikipedia",
+        "đồng xuân",
+        "dong xuan",
+        "phố cổ",
+        "36 phố phường"
+      ],
+      "thu_tu": 69
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Ch%C3%B9a_Tr%E1%BA%A5n_Qu%E1%BB%91c",
+      "tieu_de": "Tổng quan từ Wikipedia: Chùa Trấn Quốc",
+      "dia_diem_id": "tran_quoc",
+      "noi_dung": "Chùa có lịch sử gần 1500 năm và được coi là lâu đời nhất ở Thăng Long - Hà Nội. Dưới thời nhà Lý và nhà Trần, chùa Trấn Quốc là trung tâm Phật giáo của kinh thành Thăng Long.",
+      "tu_khoa": [
+        "chùa trấn quốc – hồ tây",
+        "chùa trấn quốc",
+        "hà nội",
+        "wikipedia",
+        "trấn quốc",
+        "tran quoc",
+        "hồ tây",
+        "ho tay"
+      ],
+      "thu_tu": 70
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/B%E1%BA%A3o_t%C3%A0ng_D%C3%A2n_t%E1%BB%99c_h%E1%BB%8Dc_Vi%E1%BB%87t_Nam",
+      "tieu_de": "Tổng quan từ Wikipedia: Bảo tàng Dân tộc học Việt Nam",
+      "dia_diem_id": "bt_dan_toc_hoc",
+      "noi_dung": "Bảo tàng Dân tộc học Việt Nam (tiếng Anh: Vietnam Museum of Ethnology) là tổ chức sự nghiệp trực thuộc Viện Hàn lâm Khoa học xã hội Việt Nam, có chức năng nghiên cứu khoa học, sưu tầm, kiểm kê, bảo quản, phục chế hiện vật và tư liệu về các dân tộc; tổ chức trưng bày, trình diễn và những hình thức hoạt động khác nhằm giới thiệu, phổ biến và giáo dục về các…",
+      "tu_khoa": [
+        "bảo tàng dân tộc học",
+        "bảo tàng dân tộc học việt nam",
+        "hà nội",
+        "wikipedia",
+        "dân tộc học",
+        "dan toc hoc"
+      ],
+      "thu_tu": 71
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BB%81n_Ng%E1%BB%8Dc_S%C6%A1n",
+      "tieu_de": "Tổng quan từ Wikipedia: Đền Ngọc Sơn",
+      "dia_diem_id": "pho_di_bo",
+      "noi_dung": "Đền Ngọc Sơn (Hán-Nôm: 殿玉山 | tiếng Trung: 玉山祠) là một ngôi đền thờ nằm trên đảo Ngọc của hồ Hoàn Kiếm ở Hà Nội, Việt Nam. Đây cũng là một di tích quốc gia đặc biệt của Việt Nam được xếp hạng đợt 4.",
+      "tu_khoa": [
+        "phố đi bộ hồ gươm",
+        "đền ngọc sơn",
+        "hà nội",
+        "wikipedia",
+        "phố đi bộ",
+        "pho di bo"
+      ],
+      "thu_tu": 72
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Nh%C3%A0_h%C3%A1t_L%E1%BB%9Bn_H%C3%A0_N%E1%BB%99i",
+      "tieu_de": "Tổng quan từ Wikipedia: Nhà hát Lớn Hà Nội",
+      "dia_diem_id": "nha_hat_lon",
+      "noi_dung": "Nhà hát Lớn Hà Nội là một công trình kiến trúc tại thành phố Hà Nội, Việt Nam, phục vụ biểu diễn nghệ thuật.",
+      "tu_khoa": [
+        "nhà hát lớn hà nội",
+        "hà nội",
+        "wikipedia",
+        "nhà hát lớn",
+        "nha hat lon"
+      ],
+      "thu_tu": 73
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/B%C3%A1t_Tr%C3%A0ng",
+      "tieu_de": "Tổng quan từ Wikipedia: Bát Tràng",
+      "dia_diem_id": "bat_trang",
+      "noi_dung": "Bát Tràng là một xã thuộc thành phố Hà Nội, Việt Nam.",
+      "tu_khoa": [
+        "làng gốm bát tràng",
+        "bát tràng",
+        "hà nội",
+        "wikipedia",
+        "bat trang"
+      ],
+      "thu_tu": 74
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Ch%C3%B9a_H%C6%B0%C6%A1ng",
+      "tieu_de": "Tổng quan từ Wikipedia: Chùa Hương",
+      "dia_diem_id": "chua_huong",
+      "noi_dung": "Chùa Hương (cách gọi dân gian) hay Hương Sơn là một quần thể văn hóa - tôn giáo của Việt Nam, gồm hàng chục ngôi chùa thờ Phật, các ngôi đền thờ Thần và các ngôi đình thờ tín ngưỡng nông nghiệp. Trung tâm của cụm đình đền chùa này là chùa Hương (tức chùa Trong) nằm trong động Hương Tích ở hữu ngạn sông Đáy, thuộc xã Hương Sơn, Hà Nội.",
+      "tu_khoa": [
+        "chùa hương",
+        "hà nội",
+        "wikipedia",
+        "chua huong"
+      ],
+      "thu_tu": 75
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Nh%C3%A0_th%E1%BB%9D_L%E1%BB%9Bn_H%C3%A0_N%E1%BB%99i",
+      "tieu_de": "Tổng quan từ Wikipedia: Nhà thờ Lớn Hà Nội",
+      "dia_diem_id": "nha_tho_lon",
+      "noi_dung": "Nhà thờ Lớn Hà Nội (tên chính thức: Nhà thờ chính tòa Thánh Giuse, cũng gọi là Nhà thờ chính tòa Hà Nội) là nhà thờ chính tòa của Tổng giáo phận Hà Nội, nơi có ngai tòa của Tổng giám mục.",
+      "tu_khoa": [
+        "nhà thờ lớn hà nội",
+        "hà nội",
+        "wikipedia",
+        "nhà thờ lớn",
+        "nha tho lon",
+        "nhà thờ thánh giuse"
+      ],
+      "thu_tu": 76
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/B%E1%BA%A3o_t%C3%A0ng_Ph%E1%BB%A5_n%E1%BB%AF_Vi%E1%BB%87t_Nam",
+      "tieu_de": "Tổng quan từ Wikipedia: Bảo tàng Phụ nữ Việt Nam",
+      "dia_diem_id": "bt_phu_nu",
+      "noi_dung": "Bảo tàng Phụ nữ Việt Nam nằm ở số 36 phố Lý Thường Kiệt, phường Hàng Bài, quận Hoàn Kiếm, thành phố Hà Nội, gần trung tâm hồ Hoàn Kiếm và khu phố cổ. Bảo tàng này được dành riêng cho phụ nữ Việt Nam.",
+      "tu_khoa": [
+        "bảo tàng phụ nữ việt nam",
+        "hà nội",
+        "wikipedia",
+        "bảo tàng phụ nữ",
+        "bao tang phu nu"
+      ],
+      "thu_tu": 77
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/B%E1%BA%A3o_t%C3%A0ng_L%E1%BB%8Bch_s%E1%BB%AD_qu%E1%BB%91c_gia_(Vi%E1%BB%87t_Nam)",
+      "tieu_de": "Tổng quan từ Wikipedia: Bảo tàng Lịch sử quốc gia (Việt Nam)",
+      "dia_diem_id": "bt_lich_su",
+      "noi_dung": "Bảo tàng Lịch sử Việt Nam, cùng với Bảo tàng Cách mạng Việt Nam là hai bảo tàng đã được sáp nhập thành Bảo tàng Lịch sử quốc gia, tọa lạc ở thành phố Hà Nội.",
+      "tu_khoa": [
+        "bảo tàng lịch sử quốc gia",
+        "bảo tàng lịch sử quốc gia (việt nam)",
+        "hà nội",
+        "wikipedia",
+        "bảo tàng lịch sử",
+        "bao tang lich su",
+        "bảo tàng lịch sử việt nam"
+      ],
+      "thu_tu": 78
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/B%E1%BA%A3o_t%C3%A0ng_H%E1%BB%93_Ch%C3%AD_Minh",
+      "tieu_de": "Tổng quan từ Wikipedia: Bảo tàng Hồ Chí Minh",
+      "dia_diem_id": "bt_ho_chi_minh",
+      "noi_dung": "Bảo tàng Hồ Chí Minh là bảo tàng ở Hà Nội tập trung chủ yếu vào việc trưng bày những hiện vật, tư liệu về cuộc đời và con người Hồ Chí Minh. Nằm trong khu vực có nhiều di tích như: Lăng Chủ tịch Hồ Chí Minh, Khu di tích Phủ Chủ tịch, Chùa Một Cột,...",
+      "tu_khoa": [
+        "bảo tàng hồ chí minh",
+        "hà nội",
+        "wikipedia",
+        "bao tang ho chi minh"
+      ],
+      "thu_tu": 79
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/B%E1%BA%A3o_t%C3%A0ng_L%E1%BB%8Bch_s%E1%BB%AD_Qu%C3%A2n_s%E1%BB%B1_Vi%E1%BB%87t_Nam",
+      "tieu_de": "Tổng quan từ Wikipedia: Bảo tàng Lịch sử Quân sự Việt Nam",
+      "dia_diem_id": "bt_quan_su",
+      "noi_dung": "Bảo tàng Lịch sử Quân sự Việt Nam là một trong các bảo tàng quốc gia và đứng đầu trong hệ thống Bảo tàng Quân đội, hiện đang lưu giữ, trưng bày hơn 15 vạn tài liệu, hiện vật, trong đó có nhiều sưu tập độc đáo và 4 Bảo vật Quốc gia, gồm máy bay MiG-21 số hiệu 4324, máy bay MiG-21 số hiệu 5121, Bản đồ Quyết tâm chiến dịch Hồ Chí Minh và xe tăng T-54B số hiệu…",
+      "tu_khoa": [
+        "bảo tàng lịch sử quân sự việt nam",
+        "hà nội",
+        "wikipedia",
+        "bảo tàng quân sự",
+        "bao tang quan su",
+        "bảo tàng lịch sử quân sự"
+      ],
+      "thu_tu": 80
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Khu_di_t%C3%ADch_Ph%E1%BB%A7_Ch%E1%BB%A7_t%E1%BB%8Bch",
+      "tieu_de": "Tổng quan từ Wikipedia: Khu di tích Phủ Chủ tịch",
+      "dia_diem_id": "phu_chu_tich",
+      "noi_dung": "Khu di tích Chủ tịch Hồ Chí Minh tại Phủ Chủ tịch, gọi tắt là Khu di tích Phủ Chủ tịch tại Hà Nội, là nơi sống và làm việc lâu nhất của Chủ tịch Hồ Chí Minh (từ 19 tháng 12 năm 1954 đến 2 tháng 9 năm 1969), nơi đây được Bộ Văn hóa Thông tin ra Quyết định xếp hạng là Khu di tích ngày 15 tháng 5 năm 1975.",
+      "tu_khoa": [
+        "khu di tích phủ chủ tịch",
+        "hà nội",
+        "wikipedia",
+        "phủ chủ tịch",
+        "phu chu tich",
+        "nhà sàn bác hồ"
+      ],
+      "thu_tu": 81
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/%C4%90%E1%BB%81n_Qu%C3%A1n_Th%C3%A1nh",
+      "tieu_de": "Tổng quan từ Wikipedia: Đền Quán Thánh",
+      "dia_diem_id": "den_quan_thanh",
+      "noi_dung": "Đền Quán Thánh, tên chữ là Trấn Vũ Quán, có từ đời Lý Thái Tổ (1010 - 1028), thờ Huyền Thiên Trấn Vũ, là một trong bốn vị thần được lập đền thờ để trấn giữ bốn cửa ngõ thành Thăng Long khi xưa (Thăng Long tứ trấn). Nơi đây cũng từng là một trong bốn Đạo quán lớn của Đạo giáo ở Thăng Long.",
+      "tu_khoa": [
+        "đền quán thánh",
+        "hà nội",
+        "wikipedia",
+        "den quan thanh",
+        "quán thánh"
+      ],
+      "thu_tu": 82
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/Ch%C3%B9a_Qu%C3%A1n_S%E1%BB%A9",
+      "tieu_de": "Tổng quan từ Wikipedia: Chùa Quán Sứ",
+      "dia_diem_id": "chua_quan_su",
+      "noi_dung": "Chùa Quán Sứ (舘使寺) là một ngôi chùa ở số 73 phố Quán Sứ, phường Cửa Nam, thành phố Hà Nội. Trước đây, địa phận này thuộc thôn An Tập, phường Cổ Vũ, tổng Tiền Nghiêm (sau đổi là tổng Vĩnh Xương), huyện Thọ Xương.",
+      "tu_khoa": [
+        "chùa quán sứ",
+        "hà nội",
+        "wikipedia",
+        "chua quan su",
+        "quán sứ"
+      ],
+      "thu_tu": 83
+    },
+    {
+      "nguon": "Wikipedia tiếng Việt (CC BY-SA 4.0)",
+      "url": "https://vi.wikipedia.org/wiki/C%C3%B4ng_vi%C3%AAn_Th%E1%BB%A7_L%E1%BB%87",
+      "tieu_de": "Tổng quan từ Wikipedia: Công viên Thủ Lệ",
+      "dia_diem_id": "thu_le",
+      "noi_dung": "Công viên Thủ Lệ tên chính thức là Vườn thú Hà Nội là một công viên và vườn bách thú có diện tích 29ha ở Hà Nội. Công viên Thủ Lệ nằm bên trong khuôn viên có một mặt hồ lớn, với một dải đất hình oval giống như giọt nước mắt và đó cũng là nguồn gốc của cái tên Thủ Lệ, mang ý nghĩa là giữ lấy giọt lệ ở bên trong.",
+      "tu_khoa": [
+        "công viên thủ lệ",
+        "hà nội",
+        "wikipedia",
+        "cong vien thu le",
+        "vườn thú thủ lệ",
+        "thủ lệ"
+      ],
+      "thu_tu": 84
+    }
+  ]
+}

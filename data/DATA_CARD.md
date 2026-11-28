@@ -8,9 +8,9 @@
 |---|---|
 | Dùng để làm gì | Nguồn cho các công cụ `tim_diem`, `thoi_gian_di`, `kiem_lich_trinh` (thiết kế ở `spec.md` §4, code ở CP3) · căn cứ để chấm bộ câu thử |
 | Từ đâu | Nhóm tự dựng. Tên điểm có thật. Toạ độ gần đúng vị trí thật, lấy từ bản đồ công khai, làm tròn 4 chữ số |
-| Xử lý những bước gì | Chọn 14 điểm hay có trong lịch trình Hà Nội. Đặt **số dựng** cho giờ mở / đóng, thời lượng tham quan, giá vé người lớn và tuổi trẻ em được miễn vé. Thời gian đi = khoảng cách đường chim bay × 1,3 ÷ 20 km/h + 5 phút. Mỗi điểm gắn 1–3 nhãn sở thích (`so_thich`: di_tich, lich_su, am_thuc, buoi_toi, chup_anh, tre_em…) do nhóm tự gắn. Các hệ số trên cũng là số dựng, ghi sẵn trong file |
-| Số dòng / số đoạn | 14 điểm + 1 điểm xuất phát (khách sạn ở phố cổ) |
-| Phiên bản / ngày lấy | `hanoi-poi-v1` · 27/11/2026 |
+| Xử lý những bước gì | Từ 14 điểm cốt lõi hay có trong lịch trình Hà Nội, nhóm chọn lọc thêm 10 điểm từ `data/ung_vien_poi.csv` (lấy tên & toạ độ công khai, né các điểm/nhãn giữ nguyên cho bài kiểm thử như Bảo tàng Mỹ thuật Việt Nam). Đặt **số dựng / tham khảo** cho giờ mở / đóng, thời lượng tham quan, giá vé người lớn và tuổi trẻ em được miễn vé. Thời gian đi = khoảng cách đường chim bay × 1,3 ÷ 20 km/h + 5 phút. Mỗi điểm gắn 1–4 nhãn sở thích (`so_thich`: di_tich, lich_su, am_thuc, buoi_toi, chup_anh, tre_em…) do nhóm tự gắn. Các hệ số trên ghi sẵn trong file |
+| Số dòng / số đoạn | 24 điểm + 1 điểm xuất phát (khách sạn ở phố cổ) |
+| Phiên bản / ngày lấy | `hanoi-poi-v2` · 28/11/2026 |
 | Nhãn | `synthetic` |
 | Giới hạn | Giá và giờ **không phải** số chính thức, không dùng để đi thật. Thời gian đi ước theo công thức, chưa tính giờ cao điểm hay đường một chiều. Chỉ có Hà Nội. Nhãn sở thích là chủ quan của nhóm. Không có độ đông, quán ăn cụ thể. Chưa có ngày đóng cửa theo thứ (vd bảo tàng nghỉ thứ Hai), ngày lễ, thời tiết |
 
@@ -42,6 +42,17 @@
 | Số dòng | 269 ứng viên (lấy 28/11/2026): 15 trùng điểm đã có, 43 có từ 2 nguồn, 17 có giờ hoặc giá Wikivoyage |
 | Giới hạn | Giờ / giá Wikivoyage do cộng đồng viết, có thể cũ; OSM hay thiếu giờ mở cửa. **Trước khi thêm điểm nào vào `hanoi_poi.json`:** người duyệt kiểm giờ, giá, ngày nghỉ trên trang chính thức của điểm đó, điền các cột `mo, dong, gia_ve, phut_tham_quan, so_thich, nguon_kiem, ngay_kiem, nguoi_kiem`. Thêm điểm làm đổi kết quả câu thử (vd **B08** đang cần "không có dữ liệu Bảo tàng Mỹ thuật Việt Nam") → chạy lại eval thành lượt mới, ghi `spec.md` §10 |
 
-**Cách sinh:** viết tay, không dùng seed ngẫu nhiên. Người kiểm: ____ · đã kiểm tay 14/14 dòng: ☐
+## Dataset 4 · Tri thức tham quan cho RAG (`data/hanoi_rag.json`)
+
+| | |
+|---|---|
+| Dùng để làm gì | Nguồn cho công cụ `tra_cuu_rag` (truy xuất BM25 cục bộ hoặc nạp vào bảng `learnloop.rag_doan` pgvector 768 chiều qua `db/nap_rag.py`) |
+| Từ đâu | Kết hợp 3 nguồn: (1) cẩm nang nhóm tự biên soạn về trang phục, ứng xử, trẻ nhỏ; (2) tổng hợp thông tin ngữ cảnh từ báo chí/cổng thông tin chính thống (`VnExpress`, `VietnamPlus`, `Báo Chính phủ`, `Cục Du lịch Quốc gia Việt Nam`); (3) tóm tắt mở đầu từ `Wikipedia tiếng Việt` (CC BY-SA 4.0) lấy qua `python3 data/lay_rag_wikipedia.py` |
+| Số dòng / số đoạn | 84 đoạn (78 đoạn gắn `dia_diem_id`, 6 đoạn kiến thức chung) |
+| Phiên bản / ngày lấy | `hanoi-rag-v3` · 28/11/2026 |
+| Nhãn | `synthetic` + `Wikipedia tiếng Việt (CC BY-SA 4.0)` + tổng hợp báo chí chính thống |
+| Giới hạn | Chỉ bổ sung mẹo tham quan và ngữ cảnh văn hoá-lịch sử; cố ý lọc bỏ giờ mở cửa, giá vé và thông tin thời gian thực để tránh đụng nguồn sự thật của `hanoi_poi.json` |
+
+**Cách sinh:** viết tay / chọn lọc từ `ung_vien_poi.csv`, không dùng seed ngẫu nhiên. Người kiểm: ____ · đã kiểm tay: ☐
 
 **Data `synthetic` không phải bằng chứng pain.** Bằng chứng pain lấy từ phỏng vấn trực tiếp, ghi ở `evidence/interviews/`.

@@ -227,4 +227,87 @@ assert r["itinerary"] and [s["id"] for d in r["itinerary"]["days"] for s in d["s
 replies[:] = [{"trang_thai": "ok", "so_ngay": 1, "nguoi_lon": 2, "so_thich": ["van_hoa"], "tranh": ["tre_em"]},
               {"ngay": [["van_mieu", "ho_guom"]]}]
 assert "Dân tộc học" not in agent.answer("x")["output"]
+
+# --- RAG (tra_cuu_rag) ---
+from tools import tra_cuu_rag  # noqa: E402
+from tracing import TOOLS  # noqa: E402
+
+assert {"tim_diem", "thoi_gian_di", "kiem_lich_trinh", "tim_noi_o", "toi_uu_lo_trinh",
+        "thoi_tiet", "tra_cuu_rag"}.issubset(TOOLS.keys())
+assert "tim_kiem_thong_tin" not in TOOLS
+
+# Kiểm tra dữ liệu POI mở rộng & RAG cục bộ không chứa từ cấm và không chứa giờ/giá
+assert len(tools.POI) == 24
+assert all(tools.POI[pid] for pid in ("nha_tho_lon", "bt_phu_nu", "bt_lich_su", "bt_ho_chi_minh",
+                                       "bt_quan_su", "phu_chu_tich", "den_quan_thanh", "den_bach_ma",
+                                       "chua_quan_su", "thu_le"))
+assert "Bảo tàng Mỹ thuật Việt Nam" in tim_diem([], [], ["Bảo tàng Mỹ thuật Việt Nam"])["khong_tim_thay"]  # giữ B08
+assert all("ngoai_thanh" in p["so_thich"] for p in tools.POI.values() if "trai_nghiem" in p["so_thich"])  # giữ B23
+assert ids_of("Nhà thờ Lớn Hà Nội") == ["nha_tho_lon"] and ids_of("Công viên Thủ Lệ") == ["thu_le"]
+assert ids_of("Bảo tàng Phụ nữ") == ["bt_phu_nu"]
+
+import re  # noqa: E402
+_rag_doan = tools.RAG_DATA["doan"]
+_rag_ids = {d.get("dia_diem_id") for d in _rag_doan if d.get("dia_diem_id")}
+assert len(_rag_doan) >= 75 and set(tools.POI).issubset(_rag_ids)
+_rag_nguon = {d["nguon"] for d in _rag_doan}
+assert {"cam_nang_ha_noi_v1", "Wikipedia tiếng Việt (CC BY-SA 4.0)", "VnExpress", "VietnamPlus"}.issubset(_rag_nguon)
+_rag_keys = set()
+_gio_gia_re = re.compile(r"(?:\b\d{1,2}\s*(?:h|giờ|:)\s*\d{0,2}\b|\b\d[\d.,]*\s*(?:đồng|đ\b|vnd|nghìn)\b|\b\d+\s*(?:phút|tiếng)\b)", re.I)
+for _d in _rag_doan:
+    assert isinstance(_d["thu_tu"], int) and _d["thu_tu"] > 0
+    _k = (_d["nguon"], _d["thu_tu"])
+    assert _k not in _rag_keys, _k
+    _rag_keys.add(_k)
+    _txt = (_d["tieu_de"] + " " + _d["noi_dung"]).lower()
+    assert not _gio_gia_re.search(_txt), (_d["tieu_de"], _d["noi_dung"])
+    for _cam in ("đông", "buổi chiều", "trong ngân sách", "ngày đầu tiên", "đi lại ít nhất", "google.com", "vắng"):
+        assert _cam not in _txt, (_d["tieu_de"], _cam)
+
+# 1. Local BM25: lọc đúng dia_diem_ids, không lọt điểm ngoài
+r_rag = tra_cuu_rag("x", ["lang_bac", "van_mieu"], gioi_han=3)
+assert r_rag["nguon_truy_xuat"] == "local_bm25" and r_rag["so_ket_qua"] == 3
+assert {x["dia_diem_id"] for x in r_rag["doan"]}.issubset({"lang_bac", "van_mieu"})
+assert any(x["dia_diem_id"] == "van_mieu" for x in tra_cuu_rag("bia tiến sĩ văn miếu", ["lang_bac", "van_mieu"], gioi_han=3)["doan"])
+
+r_rag_q = tra_cuu_rag("trang phục vào lăng bác", gioi_han=3)
+assert r_rag_q["nguon_truy_xuat"] == "local_bm25" and r_rag_q["so_ket_qua"] >= 1
+assert any(x["dia_diem_id"] == "lang_bac" for x in r_rag_q["doan"])
+
+# 2. Chế độ pgvector (mock _nhung_van_ban & _truy_van_pgvector) + fallback khi rỗng
+_old_env = {k: os.environ.get(k) for k in ("DATABASE_URL", "API_KEY", "MODEL_PROVIDER")}
+_old_embed, _old_pg = tools._nhung_van_ban, tools._truy_van_pgvector
+try:
+    os.environ["DATABASE_URL"] = "postgresql://u:p@localhost:5432/db"
+    os.environ["API_KEY"] = "test-key"
+    os.environ["MODEL_PROVIDER"] = "gemini"
+    tools._nhung_van_ban = lambda text: [0.1] * 768
+    tools._truy_van_pgvector = lambda vec, model, k, ids=None: [
+        {"tieu_de": "PG Văn Miếu", "noi_dung": "Mẹo từ pgvector.", "nguon": "pg_db", "dia_diem_id": "van_mieu", "diem_khop": 0.92}
+    ]
+    r_pg = tra_cuu_rag("văn miếu", ["van_mieu"], gioi_han=2)
+    assert r_pg["nguon_truy_xuat"] == "pgvector" and r_pg["doan"][0]["tieu_de"] == "PG Văn Miếu"
+
+    # Fallback sang local_bm25 khi pgvector trả rỗng
+    tools._truy_van_pgvector = lambda vec, model, k, ids=None: []
+    r_fb = tra_cuu_rag("văn miếu", ["van_mieu"], gioi_han=2)
+    assert r_fb["nguon_truy_xuat"] == "local_bm25" and r_fb["doan"][0]["dia_diem_id"] == "van_mieu"
+finally:
+    tools._nhung_van_ban, tools._truy_van_pgvector = _old_embed, _old_pg
+    for _k, _v in _old_env.items():
+        if _v is None:
+            os.environ.pop(_k, None)
+        else:
+            os.environ[_k] = _v
+
+# 3. Tích hợp agent.answer: điểm ngoài danh mục giữ cảnh báo thiếu dữ liệu + bổ sung mẹo RAG
+replies[:] = [{"trang_thai": "ok", "so_ngay": 1, "nguoi_lon": 2,
+               "diem_muon_di": ["Văn Miếu", "Bảo tàng Mỹ thuật Việt Nam"]},
+              {"ngay": [["van_mieu"]], "ly_do": {"van_mieu": "Bạn muốn đi điểm này."}}]
+r = agent.answer("Đi Hà Nội 1 ngày Văn Miếu và Bảo tàng Mỹ thuật Việt Nam")
+assert r["itinerary"]["feasible"]
+assert 'Không có dữ liệu về "Bảo tàng Mỹ thuật Việt Nam" nên không xếp giờ / giá cho điểm này.' in r["output"]
+assert "Mẹo tham quan (" in r["output"]
+assert r["itinerary"]["rag_references"] and "search_references" not in r["itinerary"]
+
 print("OK: test_core")

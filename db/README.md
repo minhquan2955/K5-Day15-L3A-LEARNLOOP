@@ -83,7 +83,7 @@ Database `learnloop` đã được tạo nhưng **chưa có bảng nào**, nên 
    $P sh -c 'mkdir -p /tmp/seed && cat > /tmp/seed/hanoi_poi.json' < data/hanoi_poi.json
    $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/001_initial.sql
    $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/002_pgvector.sql
-   sed "s#/seed/hanoi_poi.json#/tmp/seed/hanoi_poi.json#" db/seed/001_hanoi_poi.sql      | $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop
+   sed "s#/seed/hanoi_poi.json#/tmp/seed/hanoi_poi.json#" db/seed/001_hanoi_poi.sql | $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop
    $P psql -v ON_ERROR_STOP=1 -U learnloop -d learnloop < db/migrations/003_hanh_vi.sql
    curl -s http://127.0.0.1:8080/api/luu-tru   # {"bat":true}
    ```

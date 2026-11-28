@@ -162,7 +162,11 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 
 ## §9. Rủi ro & an toàn
 - Dữ liệu: đã ẩn danh gì, không thu gì, không đưa gì vào model gói miễn phí:
+<<<<<<< HEAD
   - Chỗ ở người dùng nêu (chế độ "đi lại ít nhất") được gửi tới Nominatim (OpenStreetMap) để lấy toạ độ, chỉ đúng chuỗi đó, không lưu. Người dùng có thể chỉ nêu khu vực ("gần Hồ Tây") thay vì số nhà.
+=======
+  - Thu thập cách dùng app (P0): chỉ khi người dùng bấm **Đồng ý**; người dùng ẩn danh bằng UUID app tự sinh (không tên, không email); **không** lưu nội dung câu hỏi, **không** lưu toạ độ GPS (chỉ "đã xong điểm X lúc Y"); sự kiện giữ tối đa 90 ngày (`xoa_su_kien_cu`); Profile → "Dữ liệu & quyền riêng tư" để tắt hoặc **xoá dữ liệu của tôi** (xoá hết trên máy chủ). Cần đối chiếu quy định bảo vệ dữ liệu cá nhân hiện hành trước khi đưa ra dùng thật.
+>>>>>>> feat/p0-du-lieu-hanh-vi
 - AI **không được** làm gì kể cả khi người dùng yêu cầu:
 - Ai có thể bị hại nếu AI sai, và nhóm chặn thế nào:
 
@@ -182,6 +186,7 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 | 28/11 02:06 | Điền bảng impact ở §2 | Quy đổi thời gian chuẩn bị từ hai phiếu Hà Nội `S02`, `S14` và ghi rõ giới hạn của mẫu khảo sát |
 | 28/11 02:11 | Chạy đánh giá Lượt 1 (`run-1@20261128-014438`, `gemini-2.5-flash`) và chấm thủ công 24/24 câu | Đạt `17/24` (71%): `thuong` 5/6, `kho` 9/14, `tu_choi` 3/4; ghi nhận 7 câu trượt (`B03, B05, B15, B18, B20, B23, B24`) để làm vòng cải tiến trước Lượt 2 |
 | 28/11 02:35 | Nâng cấp `codebase/agent.py` & `codebase/ai.py` (**LEARNLOOP v2**: đảo thứ tự key JSON, feedback đầu prompt, Code Policy Gates, `thieu_du_lieu`, `thinkingBudget=256`) và chạy đánh giá Lượt 2 (`run-2@20261128-022833`) | Khắc phục 6/7 câu trượt Lượt 1 (`B03, B05, B18, B20, B23, B24`) và giảm `-57,6%` `tokens_out` (`2.067 → 876`); Lượt 2 đạt **`22/24` (92%)**, `tu_choi` `4/4` (100%), đạt chuẩn §7 (`eval/report.md`) |
+<<<<<<< HEAD
 | 28/11 03:30 | **Mở phạm vi, thêm vào lõi v2 (không đổi logic đang có):** công cụ `thoi_tiet` (Open-Meteo, chỉ đọc, không cần key); bước đọc yêu cầu lấy thêm `ngay_bat_dau`, bỏ "thời tiết" khỏi `thieu_du_lieu`; có ngày đi thì mỗi ngày có ngày, thứ và dự báo, ngày mưa ưu tiên điểm trong nhà; mỗi điểm / ngày có link chỉ đường Google Maps trong `itinerary` (không đưa vào output chữ) | Người dùng cần bấm để được chỉ đường và muốn biết thời tiết. Không câu thử nào có ngày đi nên phần thời tiết không gọi API khi eval; cần **lượt 3** để code nộp khớp kết quả |
 | 28/11 05:00 | Sửa 3 lỗi thấy khi chạy thật với Gemini trước lượt 3: (1) lý do model viết nhắc thứ dữ liệu không có ("tránh đông đúc") hoặc buổi trái giờ đến ("buổi chiều" lúc 10:53) → luật mới trong `SYSTEM_XEP` + code kiểm, không tin được thì thay bằng lý do do code viết từ dữ liệu; (2) ngày trống từ 3 giờ trở lên giữa hai điểm → luật chia đều thời lượng + code nêu khung trống và gợi ý điểm mở cửa vừa khung (phút đi từ `thoi_gian_di`); (3) tiền taxi làm tròn nghìn trong `kiem_lich_trinh` | Chạy thật `/api/plan` lúc 04:30: lý do Lăng Bác "tránh đông đúc", Văn Miếu "xếp vào buổi chiều" nhưng đến 10:53, ngày 2 trống 10:15–18:51, taxi "153,903đ". Có test hồi quy trong `codebase/test_core.py` |
 | 28/11 06:30 | **Chế độ "đi lại ít nhất"** (nhánh riêng, sau lượt 4): bước đọc yêu cầu lấy thêm `che_do`, `noi_o`; `tim_noi_o` → toạ độ chỗ ở; sau khi AI chia ngày, `toi_uu_lo_trinh` thử mọi thứ tự trong ngày và chuyển / đổi điểm giữa các ngày cho tổng phút đi ít nhất (có trần tải mỗi ngày); output ghi hướng từng ngày và phút đi trước / sau. Chế độ mặc định không đổi | Người dùng hỏi cách xếp khi chỗ ở nằm giữa các cụm điểm (mỗi ngày / mỗi buổi một hướng). Thử: lịch trộn hướng 194 → 164 phút đi, ngày 1 phía Tây, ngày 2 phía Đông Nam. Chưa chạy eval cho chế độ này |
@@ -189,6 +194,9 @@ Kịch bản nhóm **sợ** nhất khi demo là B06: lăng Bác chỉ mở buổ
 | 28/11 07:10 | Câu trả lời ghi tiền taxi là "chỉ tham khảo" kèm lý do (công thức dựng 15.000đ/km × km ước tính, chưa gồm giá mở cửa từng chặng, phụ phí, kẹt xe); app ghi "(chỉ tham khảo)" và hiện thẳng các lưu ý quan trọng trên thẻ lịch | Người dùng hỏi giá taxi có chuẩn không. Chỉ đổi câu chữ hiển thị, không đổi số, sau lượt 6 |
 | 28/11 07:30 | Sửa `B05`: model sửa hết lượt mà vẫn vượt ngân sách → code tự bỏ ít điểm có vé nhất (ưu tiên bỏ điểm AI tự thêm, giữ cách tổng vé cao nhất mà vừa ngân sách), ghi "Đi đủ các điểm bạn nêu thì … vượt …" và điểm đã bỏ (số từ `kiem_lich_trinh`); lý do nhắc "trong / vừa ngân sách" bị thay bằng lý do do code viết. Chạy lượt 7 | `B05` trượt ở lượt 4 và 6: lịch vẫn 170.000đ/người > 150.000đ, lý do Văn Miếu viết "nằm trong ngân sách" (`eval/report.md` §4) |
 | 28/11 07:55 | Sửa tiếp `B05`: tách bước "đi đủ các điểm bạn nêu thì vượt … đ" ra chạy **mỗi khi** điểm người dùng nêu bị bỏ vì ngân sách (dù model hay code cắt); lý do bỏ điểm do model viết mà tự nhận "trong / vừa ngân sách" hoặc có chữ số → câu chuẩn. Sửa `B07`: nhóm có trẻ em mà model đưa `tre_em` vào `tranh` → code chuyển sang `so_thich` (+ luật prompt). Chạy lượt 8 | Lượt 7: `B05` model tự cắt nên không nói số vượt; `B07` model đưa `tre_em` vào `tranh` nên không có lịch |
+=======
+| 28/11 08:40 | **P0 thu thập dữ liệu dùng thật** (nhánh riêng): migration `db/migrations/003_hanh_vi.sql` (người dùng ẩn danh + đồng ý, check-in `xong_luc`, bảng `su_kien`, hàm xoá sau 90 ngày, view tỉ lệ hoàn thành); `server/luu_tru.py` (pg8000) + API `/api/nguoi-dung`, `/api/su-kien`, `/api/chuyen-di`, check-in; app: mã ẩn danh, hộp hỏi đồng ý, ghi sự kiện thao tác, nút "Đã xong", Lưu trip lên máy chủ, mục quyền riêng tư trong Profile | Người dùng muốn biết lộ trình nào đi được thật / được hoàn thành nhiều để gợi ý. Không đổi lõi AI, không ảnh hưởng eval |
+>>>>>>> feat/p0-du-lieu-hanh-vi
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

@@ -9,6 +9,7 @@
 !data/hanoi_poi.json
 !server/
 !server/main.py
+!server/luu_tru.py
 !server/static/
 !server/static/**
 **/.env

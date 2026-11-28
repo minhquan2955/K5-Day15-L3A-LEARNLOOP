@@ -6,6 +6,9 @@ services:
     env_file:
       - path: .env
         required: false
+    environment:
+      # Lưu trữ P0: chạy kèm DB bằng `docker compose --profile database up`; không có DB thì API lưu trữ trả 503
+      DATABASE_URL: ${DATABASE_URL:-postgresql://learnloop:${POSTGRES_PASSWORD:-learnloop-dev}@db:5432/learnloop}
   db:
     image: pgvector/pgvector:0.8.7-pg18-trixie
     profiles: [database]
@@ -18,6 +21,7 @@ services:
       - ./db/migrations/001_initial.sql:/docker-entrypoint-initdb.d/001_initial.sql:ro
       - ./db/migrations/002_pgvector.sql:/docker-entrypoint-initdb.d/002_pgvector.sql:ro
       - ./db/seed/001_hanoi_poi.sql:/docker-entrypoint-initdb.d/003_hanoi_poi.sql:ro
+      - ./db/migrations/003_hanh_vi.sql:/docker-entrypoint-initdb.d/004_hanh_vi.sql:ro
       - ./data/hanoi_poi.json:/seed/hanoi_poi.json:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U learnloop -d learnloop"]

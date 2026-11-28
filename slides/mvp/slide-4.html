@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang 4 — Kiểm chứng chất lượng &amp; Chi phí thật (LEARNLOOP)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="stage-wrap">
+    <main class="slide">
+      <div class="header-row">
+        <div>
+          <span class="eyebrow"><span class="dot"></span>ĐO LƯỜNG &amp; HIỆU QUẢ KINH TẾ</span>
+          <h1 class="title">Đo thật trên 24 câu thử &amp; 50 phiên mô phỏng</h1>
+          <p class="subtitle">Chuẩn đạt: &ge;80% câu qua, 100% câu từ chối qua, 0 sai số liệu công cụ và 0 lịch vi phạm lọt qua.</p>
+        </div>
+        <span class="page-num">04 / 05</span>
+      </div>
+
+      <section class="grid-2 grid-50-50">
+        <div class="card">
+          <div class="card-title">Tiến hoá chất lượng (eval/report.md)</div>
+          <p style="font-size: 13.5px; color: var(--text-secondary);">Bộ 24 câu (6 thường · 14 khó · 4 từ chối), trong đó 10 câu từ người dùng thật.</p>
+
+          <div class="bar-group">
+            <div>
+              <div class="bar-meta">
+                <span>Lượt 1 · Chưa đạt <small>(run-1@20261128-014438)</small></span>
+                <span>17/24 (71%)</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill muted" style="width: 71%;"></div></div>
+            </div>
+
+            <div>
+              <div class="bar-meta">
+                <span>Lượt 2 · Đạt chuẩn §7 <small>(run-2@20261128-022833)</small></span>
+                <span>22/24 (92%)</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width: 92%;"></div></div>
+            </div>
+
+            <div>
+              <div class="bar-meta">
+                <span>Lượt 8 · Tốt nhất <small>(run-8@20261128-062529)</small></span>
+                <span>24/24 (100%)</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div>
+            </div>
+          </div>
+
+          <div class="locks-row">
+            <div class="lock-box">
+              <strong>4/4</strong>
+              <span>Từ chối đúng (100%)</span>
+            </div>
+            <div class="lock-box">
+              <strong>0</strong>
+              <span>Sai số liệu công cụ</span>
+            </div>
+            <div class="lock-box">
+              <strong>-57,6%</strong>
+              <span>Tokens ra (L1 &rarr; L2)</span>
+            </div>
+          </div>
+
+          <p style="font-size: 13px; color: var(--text-secondary); margin-top: 12px;">
+            <strong>Trung thực kỹ thuật:</strong> Ở lượt 7 từng ghi nhận dao động LLM ở câu B07 (trẻ em), nên cần đo độ ổn định nhiều lượt (pass<sup>3</sup>).
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Chi phí khi dùng thật (50 phiên, 0/50 lỗi)</div>
+          <p style="font-size: 13.5px; color: var(--text-secondary);">Mô phỏng <code>simulate-1</code> · tính trên tỷ lệ đạt 22/24 (92%).</p>
+
+          <div class="cost-kpis">
+            <div class="cost-kpi">
+              <div class="num">143 đ</div>
+              <div class="lbl">/ phiên thành công · 3.1 Flash-Lite ($0.0056)</div>
+            </div>
+            <div class="cost-kpi">
+              <div class="num">211 đ</div>
+              <div class="lbl">/ phiên thành công · 2.5 Flash ($0.0083)</div>
+            </div>
+          </div>
+
+          <table class="mini-table">
+            <thead>
+              <tr>
+                <th>Quy mô / tháng</th>
+                <th>3.1 Flash-Lite</th>
+                <th>2.5 Flash</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Thấp (1.000 người)</td>
+                <td>266 nghìn đ</td>
+                <td>394 nghìn đ</td>
+              </tr>
+              <tr>
+                <td><strong>Cơ sở (5.000 người)</strong></td>
+                <td><strong>1,33 triệu đ</strong></td>
+                <td><strong>1,97 triệu đ</strong></td>
+              </tr>
+              <tr>
+                <td>Cao (15.000 người)</td>
+                <td>3,99 triệu đ</td>
+                <td>5,92 triệu đ</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="verdict-box">
+            ĐÁNG LÀM: Chỉ ~266–394 đ/người/tháng (quy mô cơ sở) để tiết kiệm &ge;12,5 phút chuẩn bị và tránh sai giờ mở cửa.
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer-note">
+        <span>Nguồn: eval/report.md · cost/cost-estimate.md (1 USD = 25.500 đ tham khảo)</span>
+        <span>Hẹn Hà Nội · Nhóm LEARNLOOP (L3A)</span>
+      </footer>
+    </main>
+  </div>
+
+  <nav class="deck-nav" aria-label="Điều hướng slide">
+    <a href="index.html">Mục lục</a>
+    <a href="slide-3.html">&larr; Trước</a>
+    <div class="dots">
+      <a href="slide-1.html" title="Trang 1"></a>
+      <a href="slide-2.html" title="Trang 2"></a>
+      <a href="slide-3.html" title="Trang 3"></a>
+      <a class="active" href="slide-4.html" title="Trang 4"></a>
+      <a href="slide-5.html" title="Trang 5"></a>
+    </div>
+    <a href="slide-5.html">Tiếp &rarr;</a>
+    <button type="button" onclick="toggleFs()" title="Toàn màn hình (F)">Full</button>
+    <a href="http://127.0.0.1:8080" target="_blank" rel="noopener">App</a>
+  </nav>
+
+  <script>
+    function fit() {
+      const s = document.querySelector(".slide");
+      const k = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+      s.style.transform = "scale(" + k + ")";
+    }
+    function toggleFs() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    window.addEventListener("resize", fit);
+    fit();
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowRight", " ", "PageDown"].includes(e.key)) location.href = "slide-5.html";
+      if (["ArrowLeft", "PageUp"].includes(e.key)) location.href = "slide-3.html";
+      if (e.key >= "1" && e.key <= "5") location.href = "slide-" + e.key + ".html";
+      if (e.key === "f" || e.key === "F") toggleFs();
+    });
+  </script>
+</body>
+</html>

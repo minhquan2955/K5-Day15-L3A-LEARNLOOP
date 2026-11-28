@@ -16,8 +16,8 @@ import json
 import re
 
 from ai import call_model
-from tools import (HOTEL, MUA_NHIEU, POI, TAGS, hom_nay, kiem_lich_trinh, link_google_maps, thoi_gian_di, thoi_tiet,
-                   tim_diem, tim_noi_o, toi_uu_lo_trinh, tra_cuu_rag)
+from tools import (HOTEL, MUA_NHIEU, POI, TAGS, _fold, _tom_tat, hom_nay, kiem_lich_trinh, link_google_maps,
+                   thoi_gian_di, thoi_tiet, tim_diem, tim_noi_o, toi_uu_lo_trinh, tra_cuu_rag)
 from tracing import note
 
 MAX_SUA = 2
@@ -44,6 +44,49 @@ _NHAN = {"di_tich": "di tích", "lich_su": "lịch sử", "van_hoa": "văn hoá"
          "dao_pho": "dạo phố", "bao_tang": "bảo tàng", "kien_truc": "kiến trúc", "tam_linh": "tâm linh",
          "thien_nhien": "thiên nhiên", "chup_anh": "chụp ảnh", "mua_sam": "mua sắm", "buoi_toi": "đi chơi tối",
          "trai_nghiem": "trải nghiệm", "tre_em": "hợp trẻ em", "ngoai_thanh": "ngoại thành"}
+_MA_NHAN = re.compile(r"['\"`]?\b([A-Za-zÀ-ỹĐđ]+_[A-Za-zÀ-ỹĐđ_]+)\b['\"`]?")
+_RAG_TRE_EM = re.compile(r"trẻ em|cho bé|các bé|bé nhỏ", re.I)
+_TEN_NGUON_RAG = {"cam_nang_ha_noi_v1": "Cẩm nang du lịch Hà Nội", "cam_nang_ha_noi_v2": "Cẩm nang du lịch Hà Nội"}
+_PHUONG_TIEN_LA = re.compile(r"đạp xe|xe đạp|xe máy|xe buýt|\bbus\b|tàu điện", re.I)
+_DAP_XE = re.compile(r"đạp xe|xe đạp", re.I)
+_THANH_PHO_KHAC = re.compile(
+    r"\b(?:đà nẵng|da nang|bangkok|huế|hue|sài gòn|sai gon|tp\.?\s*hcm|"
+    r"đà lạt|da lat|nha trang|phú quốc|phu quoc|hội an|hoi an|sapa|sa pa|hạ long|ha long|ninh bình|hải phòng)\b",
+    re.I,
+)
+_DONG_DIEM_CU = re.compile(r"^-\s+\d{2}:\d{2}\s+·\s+(.+?)\s+\(", re.M)
+_TEN_SANG_ID = {p["ten"]: pid for pid, p in POI.items()}
+
+
+def _lam_dep_ly_do(s: str) -> str:
+    """Đổi mã nhãn không dấu hoặc nửa dấu (vd 'dao_pho', 'lịch_su') thành tiếng Việt có dấu."""
+    if not isinstance(s, str):
+        return s
+    return _MA_NHAN.sub(lambda m: _NHAN.get(_fold(m.group(1)), m.group(0)), s)
+
+
+def _tach_ngu_canh_sua(clean_text: str):
+    """Tách yêu cầu gốc, lịch cũ rút gọn và câu sửa; giữ lại các id điểm đã có trong lịch trước."""
+    if "\nLộ trình trước:\n" not in clean_text or "\n\nSửa: " not in clean_text:
+        return clean_text, False, clean_text.strip(), [], clean_text, ""
+    goc, phan_sau = clean_text.split("\nLộ trình trước:\n", 1)
+    lich_cu_raw, sua = phan_sau.rsplit("\n\nSửa: ", 1)
+    sua = sua.strip()
+    ids_cu = []
+    for ten in _DONG_DIEM_CU.findall(lich_cu_raw):
+        pid = _TEN_SANG_ID.get(ten.strip())
+        if pid and pid not in ids_cu:
+            ids_cu.append(pid)
+    lich_cu_gon = lich_cu_raw.split("\nLưu ý:\n", 1)[0].strip()
+    low = lich_cu_gon.lower()
+    if "không hỗ trợ" in low or "không lập được lộ trình này" in low:
+        lich_cu_gon = ""
+    doc_input = (
+        "%s\nLộ trình trước:\n%s\n\nSửa: %s" % (goc, lich_cu_gon, sua)
+        if lich_cu_gon
+        else "%s\n\nSửa: %s" % (goc, sua)
+    )
+    return doc_input, True, sua, ids_cu, goc, lich_cu_raw
 
 SYSTEM_DOC = """Bạn là bộ tách biến (Distillation) đọc yêu cầu du lịch Hà Nội và trả về DUY NHẤT một JSON theo đúng thứ tự trường sau:
 {"so_ngay": int|null,
@@ -81,17 +124,18 @@ Luật bắt buộc:
 - Thành phố khác Hà Nội -> trang_thai = "ngoai_pham_vi", đồng thời VẪN ghi mọi yêu cầu đặt phòng / đặt vé / chuyển tiền vào tu_choi_them.
 - Việc tính tiền vé, gợi ý điểm hoặc kiểm tra giờ là chức năng hợp lệ -> KHÔNG bao giờ đưa vào tu_choi_them.
 - Đòi đặt vé / đặt phòng / chuyển tiền / sửa giờ mở cửa trái dữ liệu -> ghi vào tu_choi_them (không lặp lại số thẻ).
-- Nếu người dùng hỏi về độ đông, ngày lễ, quán ăn cụ thể ngoài điểm tham quan, hay giờ mở cửa thực tế hôm nay -> ghi tên yếu tố đó vào thieu_du_lieu. Thời tiết KHÔNG ghi vào đây (code tra dự báo khi biết ngày đi).
+- Nếu người dùng hỏi về độ đông, ngày lễ, quán ăn cụ thể ngoài điểm tham quan, hay giờ mở cửa thực tế hôm nay, hoặc yêu cầu phương tiện cụ thể (đạp xe, xe máy, xe buýt) -> ghi tên yếu tố đó vào thieu_du_lieu (vd "tuyến đường và thời gian đi bằng xe đạp"). Thời tiết KHÔNG ghi vào đây (code tra dự báo khi biết ngày đi).
 - Hôm nay là {HOM_NAY}. Người dùng nói ngày đi ("5/12", "thứ Bảy này", "cuối tuần sau", "mai") -> ngay_bat_dau là ngày đầu tiên dạng YYYY-MM-DD; không nói -> null. KHÔNG hỏi lại chỉ vì thiếu ngày đi.
 - noi_o: chỉ ghi khi người dùng nói rõ mình ở đâu ("khách sạn ở 20 Hàng Bạc", "ở gần Hồ Tây"); không nói -> null.
 - che_do = "it_di_chuyen" khi người dùng muốn đỡ đi lòng vòng / đi lại ít nhất / tiết kiệm thời gian di chuyển / xếp theo hướng; còn lại "can_bang".
 - gio_bat_dau mặc định "07:30"; "trưa", "từ 13h" -> "13:00"; "16h30" -> "16:30". ngan_sach_moi_nguoi bằng đồng (0 nếu không nói).
-- Nếu có "Lộ trình trước" và "Sửa:", phần sau "Sửa:" là tin nhắn mới nhất. Áp câu trả lời hoặc sửa đổi vào yêu cầu gốc (bỏ điểm -> bo_diem, thêm điểm -> diem_muon_di). Giữ số ngày người dùng đã nêu và được nhắc lại trong lời mời trước. Không lấy tên điểm do bot gợi ý làm điểm người dùng muốn đi trừ khi họ chọn.
+- Nếu có "Lộ trình trước" và "Sửa:", phần sau "Sửa:" là tin nhắn mới nhất. Áp câu trả lời hoặc sửa đổi vào yêu cầu gốc (bỏ điểm -> bo_diem, thêm điểm -> diem_muon_di). Giữ số ngày người dùng đã nêu và được nhắc lại trong lời mời trước. Không lấy tên điểm do bot gợi ý làm điểm người dùng muốn đi trừ khi họ chọn. Khi có "Lộ trình trước" và "Sửa:" thêm/bỏ điểm ở Hà Nội (vd Văn Miếu, Lăng Bác, Nhà hát Lớn...), TUYỆT ĐỐI giữ trang_thai = "ok", KHÔNG bao giờ trả "ngoai_pham_vi".
 
 Ví dụ mẫu (tham khảo cách đếm và tách trường):
 1) Input: "Mình với 2 bạn đi Hà Nội 2 ngày muốn thăm Văn Miếu, Hồ Gươm." -> {"so_ngay":2,"nguoi_lon":3,"tuoi_tre_em":[],"so_thich":[],"tranh":[],"diem_muon_di":["Văn Miếu","Hồ Gươm"],"bo_diem":[],"gio_bat_dau":"07:30","ngan_sach_moi_nguoi":0,"tu_choi_them":[],"thieu_du_lieu":[],"trang_thai":"ok","cau_hoi":"","ly_do":""}
 2) Input: "Lên lịch Huế 2 ngày 3 người và đặt giúp 1 phòng khách sạn." -> {"so_ngay":2,"nguoi_lon":3,"tuoi_tre_em":[],"so_thich":[],"tranh":[],"diem_muon_di":[],"bo_diem":[],"gio_bat_dau":"07:30","ngan_sach_moi_nguoi":0,"tu_choi_them":["đặt phòng khách sạn"],"thieu_du_lieu":[],"trang_thai":"ngoai_pham_vi","cau_hoi":"","ly_do":"Chỉ hỗ trợ lên lộ trình tại Hà Nội, không hỗ trợ Huế."}
-3) Input: "Đi Hà Nội 2 ngày 2 người thích di tích, tránh chỗ đông dịp lễ." -> {"so_ngay":2,"nguoi_lon":2,"tuoi_tre_em":[],"so_thich":["di_tich"],"tranh":[],"diem_muon_di":[],"bo_diem":[],"gio_bat_dau":"07:30","ngan_sach_moi_nguoi":0,"tu_choi_them":[],"thieu_du_lieu":["độ đông và tình trạng ngày lễ"],"trang_thai":"ok","cau_hoi":"","ly_do":""}""" % ", ".join(TAGS)
+3) Input: "Đi Hà Nội 2 ngày 2 người thích di tích, tránh chỗ đông dịp lễ." -> {"so_ngay":2,"nguoi_lon":2,"tuoi_tre_em":[],"so_thich":["di_tich"],"tranh":[],"diem_muon_di":[],"bo_diem":[],"gio_bat_dau":"07:30","ngan_sach_moi_nguoi":0,"tu_choi_them":[],"thieu_du_lieu":["độ đông và tình trạng ngày lễ"],"trang_thai":"ok","cau_hoi":"","ly_do":""}
+4) Input: "tạo lịch trình 2 ngày\nLộ trình trước:\nNgày 1\n- 07:37 · Hồ Gươm – Đền Ngọc Sơn (...)\nNgày 2\n- 07:52 · Công viên Thủ Lệ (...)\n\nSửa: thêm Văn Miếu vào ngày 2" -> {"so_ngay":2,"nguoi_lon":1,"tuoi_tre_em":[],"so_thich":[],"tranh":[],"diem_muon_di":["Văn Miếu"],"bo_diem":[],"gio_bat_dau":"07:30","ngay_bat_dau":null,"noi_o":null,"che_do":"can_bang","ngan_sach_moi_nguoi":0,"tu_choi_them":[],"thieu_du_lieu":[],"trang_thai":"ok","chap_nhan_goi_y":false,"cau_hoi":"","ly_do":""}""" % ", ".join(TAGS)
 
 SYSTEM_XEP = """Bạn xếp lộ trình đi chơi Hà Nội. Chỉ dùng id trong danh sách ung_vien. Trả về DUY NHẤT JSON theo đúng thứ tự trường sau:
 {"phan_tich": "tóm tắt nhanh ràng buộc số ngày, giờ bắt đầu, ngân sách, điểm cần bỏ (không bịa số)",
@@ -104,16 +148,17 @@ Luật bắt buộc:
 - Mỗi ngày xuất phát từ chỗ ở ("khach_san" trong phut_di; mặc định khách sạn ở phố cổ) và về lại chỗ ở (ngày 1 từ gio_bat_dau_ngay_1, các ngày sau từ 07:30).
 - che_do = "it_di_chuyen": chia điểm theo HƯỚNG so với chỗ ở — mỗi ngày (hoặc mỗi buổi) một cụm điểm cùng phía; không bắt người dùng băng qua chỗ ở nhiều lần trong ngày. Code sẽ tự tối ưu thứ tự trong ngày.
 - Ưu tiên giữ điểm nguoi_dung_neu=true nếu kịp giờ mở/đóng cửa và vừa ngân sách. Nếu điểm nguoi_dung_neu=true phải bỏ vì quá giờ hoặc quá ngân sách -> đưa vào "bo" và gợi ý thêm ngày hoặc đổi điểm.
-- Nếu tổng thời gian rảnh đủ, mỗi ngày trọn vẹn nên có tổng phut_tham_quan khoảng 240–420 phút (ít hơn nếu bắt đầu muộn, có trẻ em, hoặc ít ứng viên). Nếu còn ứng viên hợp sở thích chưa xếp mà ngày còn trống thời gian và vừa ngân sách thì xếp thêm.
+- Nếu tổng thời gian rảnh đủ, với ngày bắt đầu từ sáng (<= 09:00), không có trẻ em (tuoi_tre_em rỗng) và còn đủ ung_vien vừa ngân sách, mỗi ngày trọn vẹn PHẢI cố xếp 3–4 điểm (tổng phut_tham_quan khoảng 240–420 phút) phủ cả sáng và chiều (không dừng từ 09:30–11:30 chỉ với 2 điểm). Nếu còn ứng viên hợp sở thích chưa xếp mà ngày còn trống thời gian và vừa ngân sách thì xếp thêm.
 - Khi ngan_sach_ve_moi_nguoi > 0: tổng gia_ve của các điểm đã chọn PHẢI <= ngan_sach_ve_moi_nguoi. Nếu tổng vé vượt ngân sách -> CHỦ ĐỘNG bỏ bớt điểm có gia_ve > 0 (ưu tiên giữ điểm miễn phí hoặc điểm hợp ý nhất) và ghi điểm bị bỏ vào "bo".
 - Khi ngan_sach_ve_moi_nguoi = null: không giới hạn ngân sách, không được bỏ điểm vì giá vé.
 - Có trẻ em hoặc ngại đi bộ: ít điểm hơn, ưu tiên điểm gần nhau và điểm có nhãn tre_em.
 - Tôn trọng giờ mở/đóng: phải đến và tham quan xong trước giờ đóng cửa. Điểm chỉ mở buổi tối để cuối ngày.
 - Gom điểm gần nhau (theo phut_di) trong cùng một ngày.
 - Nếu so_thich rỗng và không có điểm nguoi_dung_neu=true, đề xuất lịch cân bằng giữa các loại điểm trong danh sách, ưu tiên cụm gần nhau và chừa thời gian nghỉ.
-- Chia thời lượng đều giữa các ngày: không để một ngày trống từ 3 giờ trở lên giữa hai điểm (vd chờ điểm chỉ mở buổi tối) trong khi ngày khác kết thúc sớm hoặc còn ứng viên xếp vừa; dời bớt điểm ban ngày sang ngày đó.
+- Chia thời lượng đều giữa các ngày: không để một ngày trống từ 3 giờ trở lên giữa hai điểm (vd ngày có điểm chỉ mở buổi tối pho_di_bo thì phải xếp thêm điểm ban ngày vào buổi chiều để không bị trống từ 3 giờ trở lên) trong khi ngày khác kết thúc sớm hoặc còn ứng viên xếp vừa; dời bớt điểm ban ngày sang ngày đó.
 - Có thoi_tiet_tung_ngay: ngày kha_nang_mua cao (từ 60) ưu tiên bảo tàng và điểm ít đi ngoài trời; điểm ngoài trời (dao_pho, chup_anh, thien_nhien, ngoai_thanh) dời sang ngày khô hơn nếu được. Lý do được nhắc thời tiết, không ghi số.
-- "ly_do" chỉ dựa trên: nhãn sở thích, điểm người dùng nêu, giờ mở/đóng, độ gần nhau theo phut_di, thời tiết nếu có. KHÔNG nhắc độ đông / vắng, kẹt xe, quán ăn cụ thể (dữ liệu không có). KHÔNG viết "buổi sáng / chiều / tối" nếu không chắc điểm đó rơi vào buổi nào.
+- "ly_do" chỉ dựa trên: nhãn sở thích, điểm người dùng nêu, giờ mở/đóng, độ gần nhau theo phut_di, thời tiết nếu có. KHÔNG nhắc độ đông / vắng, kẹt xe, quán ăn cụ thể (dữ liệu không có). KHÔNG viết "buổi sáng / chiều / tối" nếu không chắc điểm đó rơi vào buổi nào. KHÔNG viết mã nhãn không dấu dạng 'dao_pho', 'trai_nghiem', 'buoi_toi' trong "ly_do"; luôn viết tiếng Việt tự nhiên có dấu.
+- Nếu đầu vào có "yeu_cau_sua" và "diem_lich_truoc": giữ các điểm hợp lệ trong diem_lich_truoc và thực hiện đúng thay đổi trong yeu_cau_sua (vd thêm điểm vào đúng ngày người dùng chỉ định nếu kịp giờ mở cửa).
 - TUYỆT ĐỐI KHÔNG tự ước hay tự bịa số giờ, số phút đi, số tiền trong "ly_do" hoặc "bo[].ly_do" (code sẽ gắn số thật từ công cụ). Không viết "miễn phí vé" cho điểm có gia_ve > 0."""
 
 
@@ -141,12 +186,12 @@ def _an_the(s):
 
 def answer(text: str) -> dict:
     clean_text = _lam_sach(_an_the(text))
-    moi_nhat = clean_text.rsplit("\n\nSửa: ", 1)[-1].strip()
+    doc_input, la_sua, moi_nhat, ids_cu, goc, lich_cu_raw = _tach_ngu_canh_sua(clean_text)
     if _LOI_CHAO.fullmatch(moi_nhat):
         return {"output": _CHAO_LAI, "itinerary": None}
     nay = hom_nay()
     doc = _json(call_model(SYSTEM_DOC.replace("{HOM_NAY}", "%s, %s" % (_THU[nay.weekday()], nay.isoformat())),
-                           clean_text))
+                           doc_input))
     if doc is None:
         note("dừng: model không trả JSON ở bước đọc yêu cầu")
         return {"output": "Xin lỗi, chưa đọc được yêu cầu. Bạn ghi rõ số ngày, số người và sở thích giúp mình nhé."}
@@ -154,6 +199,25 @@ def answer(text: str) -> dict:
         return {"output": _CHAO_LAI, "itinerary": None}
 
     tu_choi_them = [x for x in (doc.get("tu_choi_them") or []) if "tính tiền vé" not in x.lower()]
+    if doc.get("trang_thai") == "ngoai_pham_vi":
+        ly_do_low = (doc.get("ly_do") or "").lower()
+        user_text_low = (goc + " " + moi_nhat).lower()
+        chan_ao_giac = ("huế" in ly_do_low and "huế" not in user_text_low)
+        if not chan_ao_giac and la_sua:
+            co_diem_hn = bool(tim_diem([], [], [moi_nhat])["diem"])
+            co_them_bo = bool(re.search(r"\b(?:thêm|bỏ|đổi|xếp|ngày)\b", moi_nhat, re.I))
+            if (co_diem_hn or co_them_bo) and not _THANH_PHO_KHAC.search(moi_nhat):
+                chan_ao_giac = True
+        if chan_ao_giac:
+            note("sửa: chặn ảo giác ngoai_pham_vi ở lượt sửa")
+            doc["trang_thai"] = "ok"
+            doc["ly_do"] = ""
+            if la_sua and not int(doc.get("so_ngay") or 0):
+                m_ngay = re.search(r"(\d+)\s*ngày", goc, re.I)
+                so_tieu_de = len(re.findall(r"^Ngày\s+\d+", lich_cu_raw, re.M))
+                doc["so_ngay"] = int(m_ngay.group(1)) if m_ngay else (so_tieu_de or 2)
+            if la_sua and not doc.get("diem_muon_di") and tim_diem([], [], [moi_nhat])["diem"]:
+                doc["diem_muon_di"] = [moi_nhat]
     if doc.get("trang_thai") == "ngoai_pham_vi":
         parts = ["Hiện mình chỉ có dữ liệu điểm tham quan ở Hà Nội, nên không lập được lộ trình này."]
         if doc.get("ly_do"):
@@ -186,6 +250,13 @@ def answer(text: str) -> dict:
             notes.append("Dữ liệu hiện không có thông tin về %s nên không thể khẳng định hoặc tối ưu theo yếu tố này." % thieu)
     if not ngay_di and _THOI_TIET.search(clean_text):
         notes.append("Cho mình biết ngày đi để xem dự báo thời tiết (chỉ có dự báo trong 16 ngày tới).")
+    if _PHUONG_TIEN_LA.search(clean_text) and not any(
+        _PHUONG_TIEN_LA.search(n) or "phương tiện" in n.lower() for n in notes
+    ):
+        notes.append(
+            "Dữ liệu hiện chưa có tuyến đường và thời gian di chuyển riêng cho phương tiện bạn nêu; "
+            "thời gian đi và tiền taxi ước tính bên dưới chỉ mang tính tham khảo cho ô tô."
+        )
     xp = None
     if so_ngay and isinstance(doc.get("noi_o"), str) and doc["noi_o"].strip():
         cho_o = tim_noi_o(doc["noi_o"].strip())
@@ -204,22 +275,37 @@ def answer(text: str) -> dict:
         so_thich.append("tre_em")
         note("sửa: nhóm có trẻ em, chuyển tre_em từ tranh sang so_thich")
     diem_muon_di = doc.get("diem_muon_di") or []
-    goi_y_chung = not so_thich and not diem_muon_di
+    if _DAP_XE.search(clean_text) and "ngoai_thanh" not in tranh:
+        neu_nt = bool(diem_muon_di) and any(
+            "ngoai_thanh" in p["so_thich"] for p in tim_diem([], [], diem_muon_di)["diem"]
+        )
+        if not neu_nt:
+            tranh.append("ngoai_thanh")
+    goi_y_chung = not so_thich and not diem_muon_di and not (la_sua and ids_cu)
     found = tim_diem(TAGS if goi_y_chung else so_thich, tranh, diem_muon_di)
     for ten in found["khong_tim_thay"]:
         notes.append("Không có dữ liệu về \"%s\" nên không xếp giờ / giá cho điểm này." % ten)
 
     bo = {p["id"] for p in tim_diem([], [], doc.get("bo_diem") or [])["diem"]} if doc.get("bo_diem") else set()
     ung_vien = [p for p in found["diem"] if p["id"] not in bo]
+    if la_sua and ids_cu:
+        co_san = {p["id"] for p in ung_vien}
+        tranh_set = set(tranh)
+        for pid in ids_cu:
+            if pid not in co_san and pid not in bo and pid in POI and not (tranh_set & set(POI[pid]["so_thich"])):
+                ung_vien.append(dict(_tom_tat(POI[pid]), nguoi_dung_neu=True))
+                co_san.add(pid)
 
     # Gate phát hiện sở thích bị bộ lọc `tranh` loại sạch (vd thích trải nghiệm nhưng tránh ngoại thành)
     for st in so_thich:
         co_trong_data = any(st in p["so_thich"] for p in POI.values())
         con_trong_uv = any(st in p["so_thich"] for p in ung_vien)
         if co_trong_data and not con_trong_uv and tranh:
+            st_dep = _NHAN.get(st, st)
+            tranh_dep = ", ".join(_NHAN.get(t, t) for t in tranh)
             notes.append(
                 "Dữ liệu hiện không có điểm '%s' thỏa điều kiện tránh '%s' (các điểm '%s' có sẵn đều nằm ở nhóm bị tránh)."
-                % (st, ", ".join(tranh), st)
+                % (st_dep, tranh_dep, st_dep)
             )
 
     if not ung_vien and chap_nhan_goi_y and not goi_y_chung:
@@ -277,6 +363,9 @@ def answer(text: str) -> dict:
     if toi_uu:
         yeu_cau["che_do"] = "it_di_chuyen"
         yeu_cau["cho_o"] = xp["ten"] if xp else "khách sạn ở phố cổ"
+    if la_sua and ids_cu:
+        yeu_cau["yeu_cau_sua"] = moi_nhat
+        yeu_cau["diem_lich_truoc"] = [i for i in ids_cu if i not in bo]
     du_bao = _lay_thoi_tiet(ngay_di, so_ngay, notes)
     if any(du_bao):
         yeu_cau["thoi_tiet_tung_ngay"] = [x and {"mo_ta": x["mo_ta"], "kha_nang_mua": x["kha_nang_mua"]} for x in du_bao]
@@ -322,28 +411,34 @@ def answer(text: str) -> dict:
         kq = _cat_cho_vua_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes)
     if ngan_sach:  # dù model hay code cắt: thiếu điểm người dùng nêu mà đi đủ thì vượt → nói rõ vượt bao nhiêu
         _bao_vuot_ngan_sach(kq, gio, nguoi_lon, tuoi, ngan_sach, xp, ung_vien, notes)
-    rag_refs = _bo_sung_rag(clean_text, kq, notes)
+    rag_refs = _bo_sung_rag(clean_text, kq, notes, tuoi=tuoi)
     return _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di, du_bao, so_thich, opt, xp,
                         rag_refs=rag_refs)
 
 
-def _bo_sung_rag(clean_text, kq, notes):
+def _bo_sung_rag(clean_text, kq, notes, tuoi=None):
     """Truy xuất mẹo tham quan (tra_cuu_rag) có nguồn cho các điểm đã xếp."""
     da_xep = [s["id"] for d in kq["days"] for s in d["stops"]]
     rag_refs = []
     if da_xep:
-        rag = tra_cuu_rag(clean_text, da_xep, gioi_han=2)
+        rag = tra_cuu_rag(clean_text, da_xep, gioi_han=6)
         nguon_tx = rag.get("nguon_truy_xuat", "local_bm25")
-        for d in (rag.get("doan") or [])[:2]:
+        doan = rag.get("doan") or []
+        if not tuoi:
+            loc = [d for d in doan if not _RAG_TRE_EM.search((d.get("tieu_de") or "") + " " + (d.get("noi_dung") or ""))]
+            if loc:
+                doan = loc
+        for d in doan[:2]:
+            nguon = _TEN_NGUON_RAG.get(d["nguon"], d["nguon"])
             rag_refs.append({
                 "tieu_de": d["tieu_de"],
                 "noi_dung": d["noi_dung"],
-                "nguon": d["nguon"],
+                "nguon": nguon,
                 "dia_diem_id": d.get("dia_diem_id"),
                 "diem_khop": d.get("diem_khop"),
                 "nguon_truy_xuat": nguon_tx,
             })
-            notes.append("Mẹo tham quan (%s — nguồn %s): %s" % (d["tieu_de"], d["nguon"], d["noi_dung"]))
+            notes.append("Mẹo tham quan (%s — nguồn %s): %s" % (d["tieu_de"], nguon, d["noi_dung"]))
     return rag_refs
 
 
@@ -508,7 +603,7 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
             moi = ""  # lý do AI viết cho chỗ cũ → không còn đúng sau khi code dời điểm
         if not _ly_do_tin_duoc(moi, s["arrive"]):  # bịa thứ dữ liệu không có, hoặc buổi trái giờ đến → lý do do code viết
             moi = _ly_do_code(theo_id.get(s["id"], POI[s["id"]]), so_thich)
-        s["reason"] = moi
+        s["reason"] = _lam_dep_ly_do(moi)
     _goi_y_khoang_trong(days_nonempty, ung_vien, notes)
     if opt:  # số phút lấy từ toi_uu_lo_trinh
         if opt["da_doi"] and opt["phut_di_sau"] < opt["phut_di_truoc"]:
@@ -528,7 +623,7 @@ def _dung_output(kq, plan, notes, phut, ung_vien, so_ngay, ngay_di=None, du_bao=
             ly_do_bo = b.get("ly_do", "")
             if not isinstance(ly_do_bo, str) or _KHONG_CAN_CU.search(ly_do_bo) or re.search(r"\d", ly_do_bo):
                 ly_do_bo = "vì ngân sách vé" if "ngân sách" in str(ly_do_bo) else "không còn chỗ trong lịch"
-            notes.append("Không xếp %s (%s): %s%s" % (p["ten"], info, ly_do_bo, extra))
+            notes.append("Không xếp %s (%s): %s%s" % (p["ten"], info, _lam_dep_ly_do(ly_do_bo), extra))
     if not feasible:
         notes.append("KHÔNG XẾP ĐƯỢC trọn vẹn: " + "; ".join(kq["vi_pham"]) +
                      ". Cách nới: bỏ bớt điểm, thêm ngày, hoặc tăng ngân sách.")

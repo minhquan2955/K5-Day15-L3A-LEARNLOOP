@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hẹn Hà Nội MVP — Trình chiếu 5 trang (LEARNLOOP)</title>
+  <style>
+    @font-face {
+      font-family: "Playfair Display";
+      src: url("../../app/assets/fonts/PlayfairDisplay.ttf") format("truetype");
+      font-weight: 400 900;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "Playfair Display";
+      src: url("../../app/assets/fonts/PlayfairDisplay-Italic.ttf") format("truetype");
+      font-weight: 400 900;
+      font-style: italic;
+    }
+    @font-face {
+      font-family: "Nunito Sans";
+      src: url("../../app/assets/fonts/NunitoSans.ttf") format("truetype");
+      font-weight: 400 800;
+      font-style: normal;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "Nunito Sans", system-ui, sans-serif;
+      color: #4A2012;
+      background: linear-gradient(180deg, #FDF6EC 0%, #F5E4D0 100%);
+      padding: 40px 24px 56px;
+    }
+    .container { max-width: 1040px; margin: 0 auto; }
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #D9B99A;
+    }
+    .tag {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #8A4A2A;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-style: italic;
+      font-size: 46px;
+      margin-top: 6px;
+    }
+    .sub { color: #7B5A48; font-size: 16px; margin-top: 6px; }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 12px 22px;
+      border-radius: 999px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #A9653D, #6E3418);
+      color: #FFFFFF;
+      box-shadow: 0 10px 24px rgba(110, 52, 24, 0.24);
+    }
+    .btn-outline {
+      background: #FFFBF5;
+      color: #8A4A2A;
+      border: 1.5px solid #D9B99A;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+      margin-top: 28px;
+    }
+    .slide-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 251, 245, 0.92);
+      border: 1px solid #EBD5BE;
+      border-radius: 20px;
+      padding: 20px 22px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 10px 26px rgba(138, 74, 42, 0.08);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .slide-card:hover {
+      transform: translateY(-3px);
+      border-color: #8A4A2A;
+    }
+    .num {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      color: #8A4A2A;
+      background: #F6E7D4;
+      padding: 4px 11px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    .slide-card h2 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+    .slide-card p { font-size: 14px; line-height: 1.5; color: #7B5A48; }
+    .go { font-size: 13.5px; font-weight: 800; color: #8A4A2A; }
+    .tips {
+      margin-top: 28px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: #F6E7D4;
+      border: 1px solid #D9B99A;
+      font-size: 14px;
+      color: #4A2012;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top">
+      <div>
+        <div class="tag">ĐỘI LEARNLOOP · HACKATHON AI20K · TRACK C</div>
+        <h1>Hẹn Hà Nội — MVP Deck</h1>
+        <p class="sub">Bộ 5 trang HTML trình bày sản phẩm MVP tìm điểm và lên lộ trình Hà Nội cho người lần đầu đến.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="slide-1.html">Bắt đầu trình chiếu (Trang 1) →</a>
+        <a class="btn btn-outline" href="http://127.0.0.1:8080" target="_blank" rel="noopener">Mở App Demo Live</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      <a class="slide-card" href="slide-1.html">
+        <div>
+          <span class="num">TRANG 01</span>
+          <h2>Nỗi đau &amp; Lát cắt MVP</h2>
+          <p>20/26 người gặp trục trặc lộ trình, ≥150 phút chuẩn bị mỗi chuyến Hà Nội và định vị một câu của Hẹn Hà Nội.</p>
+        </div>
+        <span class="go">Mở Trang 1 →</span>
+      </a>
+
+      <a class="slide-card" href="slide-2.html">
+        <div>
+          <span class="num">TRANG 02</span>
+          <h2>Kiến trúc: AI chọn, Code kiểm</h2>
+          <p>Workflow 5 bước cố định, 7 công cụ chỉ đọc, chặn số liệu bịa và kết nối Open-Meteo, Nominatim, Google Maps, RAG.</p>
+        </div>
+        <span class="go">Mở Trang 2 →</span>
+      </a>
+
+      <a class="slide-card" href="slide-3.html">
+        <div>
+          <span class="num">TRANG 03</span>
+          <h2>Trải nghiệm E2E &amp; Demo Live</h2>
+          <p>Vòng đời 4 bước trên Flutter Web + PostgreSQL cùng 2 kịch bản đinh từ bộ câu thử (thường &amp; gài bẫy ngân sách/an toàn).</p>
+        </div>
+        <span class="go">Mở Trang 3 →</span>
+      </a>
+
+      <a class="slide-card" href="slide-4.html">
+        <div>
+          <span class="num">TRANG 04</span>
+          <h2>Đo lường 24 câu &amp; Chi phí thật</h2>
+          <p>Lượt 1 (71%) → Lượt 2 (92%) → Lượt 8 (100%) kèm Run ID, và mô phỏng 50 phiên chỉ 143–211đ/phiên thành công.</p>
+        </div>
+        <span class="go">Mở Trang 4 →</span>
+      </a>
+
+      <a class="slide-card" href="slide-5.html">
+        <div>
+          <span class="num">TRANG 05</span>
+          <h2>Hoàn thiện, Lộ trình &amp; Thử thách</h2>
+          <p>Ngăn xếp kỹ thuật đã chạy trọn vẹn, 3 việc ưu tiên nếu có thêm 1 tuần (pass^3, khách dùng thật, dữ liệu chính thức) &amp; mời BGK ra đề.</p>
+        </div>
+        <span class="go">Mở Trang 5 →</span>
+      </a>
+    </div>
+
+    <div class="tips">
+      <strong>Phím tắt khi trình chiếu:</strong> <code>→</code> / <code>Space</code> sang trang sau · <code>←</code> về trang trước · <code>1–5</code> nhảy nhanh tới trang · <code>F</code> bật toàn màn hình · <code>Ctrl+P</code> in từng trang khổ 16:9.
+    </div>
+  </div>
+</body>
+</html>

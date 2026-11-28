@@ -336,4 +336,47 @@ assert 'Không có dữ liệu về "Bảo tàng Mỹ thuật Việt Nam" nên k
 assert "Mẹo tham quan (" in r["output"]
 assert r["itinerary"]["rag_references"] and "search_references" not in r["itinerary"]
 
+# --- Vá UX từ demo thực tế (28/11): mã nhãn không dấu, RAG trẻ em/tên nguồn nội bộ, phương tiện đạp xe ---
+replies[:] = [
+    {"trang_thai": "ok", "so_ngay": 2, "nguoi_lon": 1, "so_thich": ["dao_pho", "trai_nghiem"]},
+    {"ngay": [["ho_guom"], ["bat_trang", "pho_di_bo"]],
+     "ly_do": {"ho_guom": "Phù hợp sở thích 'dao_pho'.",
+               "bat_trang": "Phù hợp 'trai_nghiem'.",
+               "pho_di_bo": "Hợp 'dao_pho' và 'buoi_toi'."}},
+]
+r = agent.answer("tạo lịch trình đạp xe 2 ngày cho tôi")
+assert "dao_pho" not in r["output"] and "trai_nghiem" not in r["output"] and "buoi_toi" not in r["output"]
+assert "dạo phố" in r["output"] and "đi chơi tối" in r["output"]
+assert "phương tiện bạn nêu" in r["output"]
+assert all(s["id"] not in ("bat_trang", "chua_huong") for d in r["itinerary"]["days"] for s in d["stops"])
+
+replies[:] = [
+    {"trang_thai": "ok", "so_ngay": 1, "nguoi_lon": 1, "tuoi_tre_em": [], "diem_muon_di": ["Bát Tràng"]},
+    {"ngay": [["bat_trang"]], "ly_do": {"bat_trang": "Hợp 'trai_nghiem'."}},
+]
+r = agent.answer("1 ngày đi Bát Tràng")
+assert "trải nghiệm" in r["output"] and "trai_nghiem" not in r["output"]
+assert "cam_nang_ha_noi_v" not in r["output"] and "cho trẻ em" not in r["output"].lower()
+
+# --- Vá lượt sửa lịch (demo/4.png): nhãn nửa dấu + chặn ảo giác ngoai_pham_vi + giữ điểm lịch cũ ---
+assert agent._lam_dep_ly_do("Hợp 'lịch_su', 'văn_hóa' và 'bảo_tàng'.") == "Hợp lịch sử, văn hoá và bảo tàng."
+lich_truoc_4 = (
+    "Ngày 1\n"
+    "- 07:37 · Hồ Gươm – Đền Ngọc Sơn (đi 7 phút, tham quan 60 phút, vé 50,000đ, mở 07:00–18:00): Tốt.\n"
+    "Ngày 2\n"
+    "- 07:52 · Công viên Thủ Lệ (đi 22 phút, tham quan 120 phút, vé 50,000đ, mở 06:00–18:00): Xanh.\n\n"
+    "Lưu ý:\n- Dữ liệu chỉ có 24 điểm."
+)
+replies[:] = [
+    {"trang_thai": "ngoai_pham_vi", "ly_do": "Chỉ hỗ trợ lên lộ trình tại Hà Nội, không hỗ trợ Huế.",
+     "so_ngay": 2, "diem_muon_di": ["Văn Miếu Quốc Tử Giám"]},
+    {"ngay": [["ho_guom"], ["thu_le", "van_mieu"]],
+     "ly_do": {"van_mieu": "Hợp 'lịch_su'."}},
+]
+r = agent.answer("tạo lịch trình đạp xe 2 ngày cho tôi\nLộ trình trước:\n" + lich_truoc_4 + "\n\nSửa: thêm văn miếu quốc tử giám vào ngày 2")
+assert "không hỗ trợ Huế" not in r["output"] and r["itinerary"]["feasible"]
+ids_sau_sua = [s["id"] for d in r["itinerary"]["days"] for s in d["stops"]]
+assert {"ho_guom", "thu_le", "van_mieu"}.issubset(ids_sau_sua)
+assert "lịch_su" not in r["output"] and "lịch sử" in r["output"]
+
 print("OK: test_core")

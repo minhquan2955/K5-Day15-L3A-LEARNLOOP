@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang 5 — Lộ trình tiếp theo &amp; Mời BGK thử thách (LEARNLOOP)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="stage-wrap">
+    <main class="slide">
+      <div class="header-row">
+        <div>
+          <span class="eyebrow"><span class="dot"></span>KẾT LUẬN &amp; BƯỚC TIẾP THEO</span>
+          <h1 class="title">Sẵn sàng mở rộng từ một lát cắt chắc</h1>
+          <p class="subtitle">MVP đã chạy thông suốt từ giao diện di động, API AI đến PostgreSQL/pgvector qua Docker Compose.</p>
+        </div>
+        <span class="page-num">05 / 05</span>
+      </div>
+
+      <section class="grid-2 grid-58-42">
+        <div>
+          <div class="card card-tint" style="margin-bottom: 14px; padding: 14px 18px;">
+            <div style="font-size: 14.5px; line-height: 1.5;">
+              <strong>Ngăn xếp MVP đã chạy:</strong> Flutter Web + FastAPI + Gemini API + PostgreSQL/pgvector · 24 điểm tham quan + 84 đoạn RAG · Quyền riêng tư opt-in &amp; xoá dữ liệu người dùng.
+            </div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px;">
+            <div class="card-title">Nếu có thêm 1 tuần</div>
+            <div class="road-item">
+              <div class="road-idx">01</div>
+              <div>
+                <h4>Đo độ ổn định 3 lượt liên tiếp (pass<sup>3</sup>)</h4>
+                <p>Chạy cùng phiên bản để kiểm soát dao động xác suất của LLM (như lỗi B07 đi cùng trẻ em ở lượt 7).</p>
+              </div>
+            </div>
+            <div class="road-item">
+              <div class="road-idx">02</div>
+              <div>
+                <h4>Thử nghiệm với 2–3 khách đi Hà Nội tự túc</h4>
+                <p>Đo thời gian họ thực sự chốt lịch nhanh hơn bao nhiêu và ghi lại những điểm phải sửa tay.</p>
+              </div>
+            </div>
+            <div class="road-item">
+              <div class="road-idx">03</div>
+              <div>
+                <h4>Nối dữ liệu chính thức &amp; làm rõ lý do bỏ điểm</h4>
+                <p>Cập nhật giờ mở cửa, lịch nghỉ theo thứ thật và nêu rõ nguyên nhân bỏ điểm (quá xa / quá giờ / vượt vé).</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-bar">
+            <strong>Đội LEARNLOOP (L3A):</strong> Nguyễn Minh Quân (Đội trưởng) · Đỗ Duy Bộ · Phạm Trường Chinh · Nguyễn Văn Ba
+          </div>
+        </div>
+
+        <div class="arch-wrap">
+          <div class="arch-frame">
+            <img src="../../app/assets/images/pagoda.jpg" alt="Chùa Một Cột Hà Nội">
+          </div>
+          <div class="invite-card">
+            <h3>Cảm ơn mọi người đã lắng nghe!</h3>
+            <p>Nhóm sẵn sàng trả lời câu hỏi và chạy thử ngay một lịch trình do Ban Giám Khảo đề xuất.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer-note">
+        <span>Nguồn: TEAMS.md · eval/report.md · spec.md §9–§10</span>
+        <span>Hẹn Hà Nội · Nhóm LEARNLOOP (L3A)</span>
+      </footer>
+    </main>
+  </div>
+
+  <nav class="deck-nav" aria-label="Điều hướng slide">
+    <a href="index.html">Mục lục</a>
+    <a href="slide-4.html">&larr; Trước</a>
+    <div class="dots">
+      <a href="slide-1.html" title="Trang 1"></a>
+      <a href="slide-2.html" title="Trang 2"></a>
+      <a href="slide-3.html" title="Trang 3"></a>
+      <a href="slide-4.html" title="Trang 4"></a>
+      <a class="active" href="slide-5.html" title="Trang 5"></a>
+    </div>
+    <a class="disabled" href="slide-5.html">Tiếp &rarr;</a>
+    <button type="button" onclick="toggleFs()" title="Toàn màn hình (F)">Full</button>
+    <a href="http://127.0.0.1:8080" target="_blank" rel="noopener">App</a>
+  </nav>
+
+  <script>
+    function fit() {
+      const s = document.querySelector(".slide");
+      const k = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+      s.style.transform = "scale(" + k + ")";
+    }
+    function toggleFs() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    window.addEventListener("resize", fit);
+    fit();
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowLeft", "PageUp"].includes(e.key)) location.href = "slide-4.html";
+      if (e.key >= "1" && e.key <= "5") location.href = "slide-" + e.key + ".html";
+      if (e.key === "f" || e.key === "F") toggleFs();
+    });
+  </script>
+</body>
+</html>

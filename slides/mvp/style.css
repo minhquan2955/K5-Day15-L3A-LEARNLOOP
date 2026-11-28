@@ -1,0 +1,777 @@
+@font-face {
+  font-family: "Playfair Display";
+  src: url("../../app/assets/fonts/PlayfairDisplay.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("../../app/assets/fonts/PlayfairDisplay-Italic.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("../../app/assets/fonts/NunitoSans.ttf") format("truetype");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg-top: #FDF6EC;
+  --bg-bottom: #F5E4D0;
+  --surface: rgba(255, 251, 245, 0.92);
+  --surface-tint: #F6E7D4;
+  --primary: #8A4A2A;
+  --primary-light: #A9653D;
+  --primary-dark: #6E3418;
+  --text-primary: #4A2012;
+  --text-secondary: #7B5A48;
+  --outline: #D9B99A;
+  --divider: #EBD5BE;
+  --ok-bg: #DCE3BD;
+  --ok-fg: #4B6224;
+  --warn-bg: #FBE4A6;
+  --warn-fg: #8E600E;
+  --pin: #B23A2A;
+  --shadow: 0 12px 32px rgba(138, 74, 42, 0.10);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: "Nunito Sans", system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+  background: #2B1B14;
+  overflow: hidden;
+}
+
+.stage-wrap {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide {
+  width: 1280px;
+  height: 720px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+  padding: 46px 56px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform-origin: center center;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+.slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../../app/assets/images/paper-texture.png") center/cover no-repeat;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.slide > * {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.eyebrow .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.page-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--surface-tint);
+  border: 1px solid var(--divider);
+  padding: 6px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+h1.hero {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 800;
+  font-style: italic;
+  font-size: 62px;
+  line-height: 1.06;
+  color: var(--text-primary);
+  margin-top: 10px;
+}
+
+h1.title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 800;
+  font-style: italic;
+  font-size: 40px;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-top: 6px;
+}
+
+.subtitle {
+  font-size: 19px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.grid-2 {
+  display: grid;
+  gap: 28px;
+  align-items: center;
+  flex: 1;
+  margin-top: 18px;
+}
+
+.grid-58-42 {
+  grid-template-columns: 1.38fr 1fr;
+}
+
+.grid-52-48 {
+  grid-template-columns: 1.08fr 1fr;
+  align-items: stretch;
+}
+
+.grid-50-50 {
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 22px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow);
+}
+
+.card-tint {
+  background: var(--surface-tint);
+  border: 1px solid var(--outline);
+}
+
+.card-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.arch-wrap {
+  position: relative;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.arch-frame {
+  width: 100%;
+  height: 465px;
+  border-radius: 260px 260px 24px 24px;
+  overflow: hidden;
+  border: 4px solid #FFFBF5;
+  box-shadow: 0 18px 42px rgba(74, 32, 18, 0.18);
+  background: #EAD8C3;
+}
+
+.arch-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.arch-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(110, 52, 24, 0.30);
+}
+
+.slice-box {
+  margin-top: 16px;
+  padding: 15px 18px;
+  background: var(--surface);
+  border-left: 4px solid var(--primary);
+  border-radius: 14px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.kpi-val {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.1;
+}
+
+.kpi-label {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.quote {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(246, 231, 212, 0.72);
+  border-radius: 14px;
+  border: 1px solid var(--outline);
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.quote em {
+  font-family: "Playfair Display", Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+}
+
+/* Slide 2 workflow */
+.flow-row {
+  display: grid;
+  grid-template-columns: 1fr 22px 1fr 22px 1fr 22px 1fr 22px 1fr;
+  align-items: stretch;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+.flow-step {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 20px;
+  padding: 18px 15px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.pill-tag {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.tag-ai {
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  color: #FFFFFF;
+}
+
+.tag-code {
+  background: var(--ok-bg);
+  color: var(--ok-fg);
+}
+
+.tag-app {
+  background: var(--warn-bg);
+  color: var(--warn-fg);
+}
+
+.flow-step h3 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.flow-step p {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.code-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.code-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  background: var(--surface-tint);
+  color: var(--primary-dark);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--divider);
+}
+
+.pillars-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.pillar p {
+  font-size: 14.5px;
+  line-height: 1.48;
+  color: var(--text-secondary);
+}
+
+/* Slide 3 E2E */
+.step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 18px;
+  padding: 13px 16px;
+  box-shadow: var(--shadow);
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-item h4 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.step-item p {
+  font-size: 13.5px;
+  line-height: 1.42;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(110, 52, 24, 0.25);
+}
+
+.demo-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prompt-pill {
+  margin-top: 8px;
+  padding: 10px 13px;
+  border-radius: 12px;
+  background: #F5DDB9;
+  color: var(--text-primary);
+  font-size: 13.5px;
+  line-height: 1.42;
+  font-weight: 600;
+}
+
+.result-note {
+  margin-top: 8px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+/* Slide 4 Eval & Cost */
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin-top: 10px;
+}
+
+.bar-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.bar-meta small {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.bar-track {
+  width: 100%;
+  height: 18px;
+  background: var(--surface-tint);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--divider);
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+}
+
+.bar-fill.muted {
+  background: #C79F82;
+}
+
+.locks-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.lock-box {
+  background: var(--surface-tint);
+  border: 1px solid var(--outline);
+  border-radius: 14px;
+  padding: 10px;
+  text-align: center;
+}
+
+.lock-box strong {
+  display: block;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 24px;
+  color: var(--primary-dark);
+}
+
+.lock-box span {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.cost-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cost-kpi {
+  background: var(--surface-tint);
+  border: 1px solid var(--outline);
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+.cost-kpi .num {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.cost-kpi .lbl {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+table.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-size: 13.5px;
+}
+
+table.mini-table th,
+table.mini-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--divider);
+}
+
+table.mini-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.verdict-box {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--ok-bg);
+  color: var(--ok-fg);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+/* Slide 5 Roadmap & Closing */
+.road-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider);
+}
+
+.road-item:last-child {
+  border-bottom: none;
+}
+
+.road-idx {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--primary);
+  line-height: 1.1;
+}
+
+.road-item h4 {
+  font-size: 15.5px;
+  font-weight: 800;
+}
+
+.road-item p {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.team-bar {
+  margin-top: 12px;
+  padding: 11px 16px;
+  background: var(--surface-tint);
+  border: 1px solid var(--outline);
+  border-radius: 14px;
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+
+.invite-card {
+  position: absolute;
+  bottom: 8px;
+  left: 16px;
+  right: 16px;
+  background: rgba(255, 251, 245, 0.96);
+  border: 1.5px solid var(--outline);
+  border-radius: 18px;
+  padding: 14px 18px;
+  text-align: center;
+  box-shadow: 0 14px 32px rgba(74, 32, 18, 0.22);
+}
+
+.invite-card h3 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--text-primary);
+}
+
+.invite-card p {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.footer-note {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  padding-top: 10px;
+  border-top: 1px solid rgba(217, 185, 154, 0.55);
+}
+
+/* Floating deck controls */
+.deck-nav {
+  position: fixed;
+  right: 18px;
+  bottom: 16px;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(43, 27, 20, 0.84);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(235, 213, 190, 0.28);
+  color: #FDF6EC;
+  font-size: 13px;
+}
+
+.deck-nav a,
+.deck-nav button {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #FDF6EC;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.deck-nav a:hover,
+.deck-nav button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.deck-nav .dots {
+  display: flex;
+  gap: 5px;
+  padding: 0 4px;
+}
+
+.deck-nav .dots a {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(253, 246, 236, 0.35);
+}
+
+.deck-nav .dots a.active {
+  width: 22px;
+  border-radius: 999px;
+  background: #F2A93B;
+}
+
+.deck-nav a.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+@media print {
+  @page {
+    size: 1280px 720px;
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: none;
+    width: 1280px;
+    height: 720px;
+  }
+
+  .stage-wrap {
+    width: 1280px;
+    height: 720px;
+    display: block;
+  }
+
+  .slide {
+    transform: none !important;
+    box-shadow: none;
+  }
+
+  .deck-nav {
+    display: none !important;
+  }
+}

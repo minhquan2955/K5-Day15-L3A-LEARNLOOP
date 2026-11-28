@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang 2 — Kiến trúc MVP (LEARNLOOP)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="stage-wrap">
+    <main class="slide">
+      <div class="header-row">
+        <div>
+          <span class="eyebrow"><span class="dot"></span>KIẾN TRÚC MVP · WORKFLOW CỐ ĐỊNH</span>
+          <h1 class="title">AI không được phép tự ghi con số nào</h1>
+          <p class="subtitle">AI lo hiểu ngôn ngữ và giải thích; toàn bộ giờ đến, phút đi, tiền vé và kiểm vi phạm thuộc về code.</p>
+        </div>
+        <span class="page-num">02 / 05</span>
+      </div>
+
+      <section>
+        <div class="flow-row">
+          <div class="flow-step">
+            <span class="pill-tag tag-ai">1 · AI</span>
+            <h3>Đọc yêu cầu</h3>
+            <p>Tách số ngày, người lớn/trẻ em, sở thích, ngân sách, chỗ ở, ngày đi và phát hiện yêu cầu ngoài phạm vi.</p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+
+          <div class="flow-step">
+            <span class="pill-tag tag-code">2 · CODE</span>
+            <h3>7 Công cụ đọc</h3>
+            <div class="code-chips">
+              <span class="code-chip">tim_diem</span>
+              <span class="code-chip">thoi_gian_di</span>
+              <span class="code-chip">tim_noi_o</span>
+              <span class="code-chip">thoi_tiet</span>
+              <span class="code-chip">toi_uu_lo_trinh</span>
+              <span class="code-chip">kiem_lich_trinh</span>
+              <span class="code-chip">tra_cuu_rag</span>
+            </div>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+
+          <div class="flow-step">
+            <span class="pill-tag tag-ai">3 · AI</span>
+            <h3>Xếp lộ trình</h3>
+            <p>Chia điểm theo ngày, gom cụm hướng và viết 1 câu lý do hợp sở thích cho từng điểm.</p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+
+          <div class="flow-step">
+            <span class="pill-tag tag-code">4 · CODE</span>
+            <h3>Kiểm &amp; Tự sửa</h3>
+            <p>Rà giờ mở/đóng, quá 22:00, ngân sách; nếu lỗi ép AI sửa tối đa 2 vòng hoặc nói rõ cách nới.</p>
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+
+          <div class="flow-step">
+            <span class="pill-tag tag-app">5 · APP</span>
+            <h3>Hành động ngay</h3>
+            <p>Trình bày thẻ lịch chi tiết, chỉ đường Google Maps, sửa 1 câu, lưu PostgreSQL và check-in.</p>
+          </div>
+        </div>
+
+        <div class="pillars-3">
+          <div class="card pillar">
+            <div class="card-title">0 số liệu bịa</div>
+            <p>Model chỉ chọn ID hợp lệ trong danh mục. Mọi giờ đến, phút di chuyển và tiền vé (trẻ &lt;6 tuổi 0đ) dựng trực tiếp từ kết quả <code>kiem_lich_trinh</code>.</p>
+          </div>
+          <div class="card pillar">
+            <div class="card-title">Chặn rủi ro &amp; phạm vi</div>
+            <p>Từ chối lịch ngoài Hà Nội, không nhận đặt vé/thanh toán, tự ẩn số thẻ người dùng gửi nhầm và gắn thông báo khi thiếu dữ liệu độ đông hoặc tuyến đạp xe.</p>
+          </div>
+          <div class="card pillar">
+            <div class="card-title">Kết nối nguồn thật</div>
+            <p>Dự báo thời tiết thật 16 ngày (Open-Meteo), tìm chỗ ở Nominatim (OpenStreetMap), link chỉ đường Google Maps và 84 đoạn mẹo tham quan RAG có nguồn.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer-note">
+        <span>Nguồn thiết kế: spec.md §4 · codebase/agent.py &amp; codebase/tools.py</span>
+        <span>Hẹn Hà Nội · Nhóm LEARNLOOP (L3A)</span>
+      </footer>
+    </main>
+  </div>
+
+  <nav class="deck-nav" aria-label="Điều hướng slide">
+    <a href="index.html">Mục lục</a>
+    <a href="slide-1.html">&larr; Trước</a>
+    <div class="dots">
+      <a href="slide-1.html" title="Trang 1"></a>
+      <a class="active" href="slide-2.html" title="Trang 2"></a>
+      <a href="slide-3.html" title="Trang 3"></a>
+      <a href="slide-4.html" title="Trang 4"></a>
+      <a href="slide-5.html" title="Trang 5"></a>
+    </div>
+    <a href="slide-3.html">Tiếp &rarr;</a>
+    <button type="button" onclick="toggleFs()" title="Toàn màn hình (F)">Full</button>
+    <a href="http://127.0.0.1:8080" target="_blank" rel="noopener">App</a>
+  </nav>
+
+  <script>
+    function fit() {
+      const s = document.querySelector(".slide");
+      const k = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+      s.style.transform = "scale(" + k + ")";
+    }
+    function toggleFs() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    window.addEventListener("resize", fit);
+    fit();
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowRight", " ", "PageDown"].includes(e.key)) location.href = "slide-3.html";
+      if (["ArrowLeft", "PageUp"].includes(e.key)) location.href = "slide-1.html";
+      if (e.key >= "1" && e.key <= "5") location.href = "slide-" + e.key + ".html";
+      if (e.key === "f" || e.key === "F") toggleFs();
+    });
+  </script>
+</body>
+</html>

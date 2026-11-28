@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang 3 — Trải nghiệm End-to-End &amp; Demo Live (LEARNLOOP)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="stage-wrap">
+    <main class="slide">
+      <div class="header-row">
+        <div>
+          <span class="eyebrow"><span class="dot"></span>TRẢI NGHIỆM END-TO-END · DEMO LIVE</span>
+          <h1 class="title">Một vòng đời trọn vẹn trên Hẹn Hà Nội</h1>
+          <p class="subtitle">Từ lúc tìm ý tưởng đến khi mở bản đồ đi ngoài đời và check-in từng điểm trên Flutter Web + PostgreSQL.</p>
+        </div>
+        <span class="page-num">03 / 05</span>
+      </div>
+
+      <section class="grid-2 grid-52-48">
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div>
+              <h4>Khám phá danh mục (Explore)</h4>
+              <p>Duyệt 24 điểm Hà Nội đọc trực tiếp từ PostgreSQL, xem giờ mở cửa và giá vé mẫu trước khi lập lịch.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div>
+              <h4>Lập lịch thông minh (AI Chat)</h4>
+              <p>Nhập tự nhiên → nhận thẻ từng ngày kèm dự báo thời tiết, mẹo RAG có nguồn và nút <strong>Chỉ đường</strong> Google Maps.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div>
+              <h4>Chỉnh sửa ngay trong 1 câu</h4>
+              <p>Gõ <em>“thêm Văn Miếu vào ngày 2”</em> → giữ nguyên điểm lịch cũ, chèn điểm mới và kiểm lại 0 vi phạm.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div>
+              <h4>Lưu chuyến &amp; Check-in (My Trip)</h4>
+              <p>Lưu thật vào PostgreSQL, đánh dấu <strong>Đã xong</strong> tại từng điểm; chỉ thu thập thao tác khi người dùng đồng ý.</p>
+            </div>
+          </div>
+          <div style="margin-top: 4px;">
+            <a class="btn-primary" href="http://127.0.0.1:8080" target="_blank" rel="noopener">Mở Hẹn Hà Nội Live (127.0.0.1:8080) &rarr;</a>
+          </div>
+        </div>
+
+        <div class="demo-cards">
+          <div class="card">
+            <span class="pill-tag tag-ai">Kịch bản 1 · Full tính năng</span>
+            <div class="card-title" style="margin-top: 8px;">Lịch 2 ngày tối ưu hướng &amp; thời tiết thật</div>
+            <div class="prompt-pill">“Lần đầu ra Hà Nội 2 ngày cuối tuần này, 2 người, ở gần Hồ Tây. Thích di tích lịch sử, ăn uống, dạo tối, đỡ đi lòng vòng. Ngân sách vé 500k/người.”</div>
+            <p class="result-note"><strong>Kết quả chạy thật:</strong> Ngày 1 cụm Ba Đình – Hồ Tây; Ngày 2 cụm Phố Cổ – Hoàn Kiếm, tổng vé 330.000đ/người, tổng đi lại 112 phút, kèm dự báo Open-Meteo.</p>
+          </div>
+
+          <div class="card card-tint">
+            <span class="pill-tag tag-code">Kịch bản 2 · Gài bẫy ngân sách &amp; an toàn (B05 / B11)</span>
+            <div class="card-title" style="margin-top: 8px;">Chặn vượt ngân sách — Không chiều ý để bịa số</div>
+            <div class="prompt-pill">“1 ngày ở Hà Nội, 4 người, muốn đi Hoàng thành, Văn Miếu, Hồ Gươm, Hỏa Lò, Dân tộc học. Ngân sách vé 150k/người.”</div>
+            <p class="result-note"><strong>Kết quả chạy thật:</strong> Báo rõ đi đủ 5 điểm sẽ thành 280.000đ/người (<strong>vượt 130.000đ/người</strong>), tự bỏ Hoàng thành &amp; Văn Miếu để đưa phương án vừa 140.000đ/người.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer-note">
+        <span>Nguồn: app/ · server/main.py · eval/benchmark.csv (B05, B06, B11)</span>
+        <span>Hẹn Hà Nội · Nhóm LEARNLOOP (L3A)</span>
+      </footer>
+    </main>
+  </div>
+
+  <nav class="deck-nav" aria-label="Điều hướng slide">
+    <a href="index.html">Mục lục</a>
+    <a href="slide-2.html">&larr; Trước</a>
+    <div class="dots">
+      <a href="slide-1.html" title="Trang 1"></a>
+      <a href="slide-2.html" title="Trang 2"></a>
+      <a class="active" href="slide-3.html" title="Trang 3"></a>
+      <a href="slide-4.html" title="Trang 4"></a>
+      <a href="slide-5.html" title="Trang 5"></a>
+    </div>
+    <a href="slide-4.html">Tiếp &rarr;</a>
+    <button type="button" onclick="toggleFs()" title="Toàn màn hình (F)">Full</button>
+    <a href="http://127.0.0.1:8080" target="_blank" rel="noopener">App</a>
+  </nav>
+
+  <script>
+    function fit() {
+      const s = document.querySelector(".slide");
+      const k = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+      s.style.transform = "scale(" + k + ")";
+    }
+    function toggleFs() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    window.addEventListener("resize", fit);
+    fit();
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowRight", " ", "PageDown"].includes(e.key)) location.href = "slide-4.html";
+      if (["ArrowLeft", "PageUp"].includes(e.key)) location.href = "slide-2.html";
+      if (e.key >= "1" && e.key <= "5") location.href = "slide-" + e.key + ".html";
+      if (e.key === "f" || e.key === "F") toggleFs();
+    });
+  </script>
+</body>
+</html>

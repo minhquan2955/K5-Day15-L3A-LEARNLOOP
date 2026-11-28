@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang 1 — Hẹn Hà Nội MVP (LEARNLOOP)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="stage-wrap">
+    <main class="slide">
+      <div class="header-row">
+        <span class="eyebrow"><span class="dot"></span>ĐỘI LEARNLOOP · HACKATHON AI20K · TRACK C</span>
+        <span class="page-num">01 / 05</span>
+      </div>
+
+      <section class="grid-2 grid-58-42">
+        <div>
+          <h1 class="hero">Hẹn Hà Nội</h1>
+          <p class="subtitle">Trợ lý AI chọn điểm và xếp lộ trình từng ngày cho người 20–30 tuổi lần đầu đến Hà Nội tự túc.</p>
+
+          <div class="slice-box">
+            <strong>Lát cắt MVP:</strong> Nhập số ngày, số người, sở thích, ngân sách → AI chọn điểm và sắp thứ tự → <strong>code tính giờ, phút đi, tiền vé và tự kiểm 0 vi phạm</strong> trước khi giao cho người dùng.
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <div class="kpi-val">20/26</div>
+              <div class="kpi-label">người khảo sát (76,9%) gặp trục trặc lộ trình khi đi tự túc</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val">&ge;150 ph</div>
+              <div class="kpi-label">chuẩn bị mỗi chuyến Hà Nội (cận dưới mẫu S02, S14)</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-val">11/26</div>
+              <div class="kpi-label">mất &ge;1 giờ lên lịch; mới chỉ 3/26 từng dùng app</div>
+            </div>
+          </div>
+
+          <div class="quote">
+            <em>“Tốn thời gian đi lòng vòng giữa các điểm.”</em> — Khách từng đi Hà Nội (S02, chuẩn bị 1–2 giờ)
+          </div>
+        </div>
+
+        <div class="arch-wrap">
+          <div class="arch-frame">
+            <img src="../../app/assets/images/lake.jpg" alt="Hồ Hoàn Kiếm và Tháp Rùa Hà Nội">
+          </div>
+          <div class="arch-badge">24 điểm Hà Nội · 7 công cụ · 0 số bịa</div>
+        </div>
+      </section>
+
+      <footer class="footer-note">
+        <span>Nguồn số liệu: evidence/summary.md (n=26 sạch) · spec.md §1–§2</span>
+        <span>Hẹn Hà Nội · Nhóm LEARNLOOP (L3A)</span>
+      </footer>
+    </main>
+  </div>
+
+  <nav class="deck-nav" aria-label="Điều hướng slide">
+    <a href="index.html">Mục lục</a>
+    <a class="disabled" href="slide-1.html">&larr; Trước</a>
+    <div class="dots">
+      <a class="active" href="slide-1.html" title="Trang 1"></a>
+      <a href="slide-2.html" title="Trang 2"></a>
+      <a href="slide-3.html" title="Trang 3"></a>
+      <a href="slide-4.html" title="Trang 4"></a>
+      <a href="slide-5.html" title="Trang 5"></a>
+    </div>
+    <a href="slide-2.html">Tiếp &rarr;</a>
+    <button type="button" onclick="toggleFs()" title="Toàn màn hình (F)">Full</button>
+    <a href="http://127.0.0.1:8080" target="_blank" rel="noopener">App</a>
+  </nav>
+
+  <script>
+    function fit() {
+      const s = document.querySelector(".slide");
+      const k = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+      s.style.transform = "scale(" + k + ")";
+    }
+    function toggleFs() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    window.addEventListener("resize", fit);
+    fit();
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowRight", " ", "PageDown"].includes(e.key)) location.href = "slide-2.html";
+      if (e.key >= "1" && e.key <= "5") location.href = "slide-" + e.key + ".html";
+      if (e.key === "f" || e.key === "F") toggleFs();
+    });
+  </script>
+</body>
+</html>
